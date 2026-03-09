@@ -77,6 +77,18 @@ main,
   gap: 0.6rem;
 }
 
+.install-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  max-width: 250px;
+  line-height: 1.3;
+  background: #fff;
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 #0a0a0a;
+  padding: 0.35rem 0.45rem;
+}
+
 .brand {
   font-family: "Archivo Black", sans-serif;
   font-size: 1.1rem;
@@ -238,6 +250,16 @@ h1 {
 @media (max-width: 860px) {
   .shape {
     display: none;
+  }
+
+  .site-header {
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .cards {

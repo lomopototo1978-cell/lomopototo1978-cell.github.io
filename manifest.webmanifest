@@ -1,6 +1,7 @@
 {
   "name": "Mvumi Portfolio",
   "short_name": "Mvumi",
+  "id": "/",
   "description": "Personal website for projects, links, and contact.",
   "start_url": "/",
   "scope": "/",

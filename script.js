@@ -1,6 +1,21 @@
 const sections = document.querySelectorAll('.reveal');
 const installButton = document.getElementById('installButton');
+const installHint = document.getElementById('installHint');
 let deferredInstallPrompt;
+
+const ua = window.navigator.userAgent.toLowerCase();
+const isIos = /iphone|ipad|ipod/.test(ua);
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+if (installHint && !isInStandaloneMode) {
+  if (isIos) {
+    installHint.hidden = false;
+    installHint.textContent = 'iPhone: tap Share, then Add to Home Screen.';
+  } else if (/android/.test(ua)) {
+    installHint.hidden = false;
+    installHint.textContent = 'Android: use browser menu and tap Install app.';
+  }
+}
 
 const observer = new IntersectionObserver(
   (entries) => {
@@ -38,6 +53,9 @@ if (installButton) {
     await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
     installButton.hidden = true;
+    if (installHint) {
+      installHint.hidden = true;
+    }
   });
 }
 
@@ -45,6 +63,9 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   if (installButton) {
     installButton.hidden = true;
+  }
+  if (installHint) {
+    installHint.hidden = true;
   }
 });
 
