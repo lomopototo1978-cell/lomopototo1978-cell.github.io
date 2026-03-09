@@ -25,7 +25,10 @@
 
     <header class="site-header">
       <p class="brand">LOMOPOTOTO1978-CELL</p>
-      <a class="button button-small" href="#contact">Contact</a>
+      <div class="header-actions">
+        <button id="installBtn" class="button button-small button-install" type="button" hidden>Install App</button>
+        <a class="button button-small" href="#contact">Contact</a>
+      </div>
     </header>
 
     <main>
@@ -73,6 +76,14 @@
     <footer class="site-footer reveal">
       <p>© 2026 lomopototo1978-cell. Built with HTML, CSS, and JS.</p>
     </footer>
+
+    <aside id="installBanner" class="install-banner" hidden>
+      <p id="installBannerText">Add this site to your home screen for quick access.</p>
+      <div class="install-banner-actions">
+        <button id="installBannerBtn" class="button button-small" type="button">Install</button>
+        <button id="dismissBannerBtn" class="button button-small button-ghost" type="button">Dismiss</button>
+      </div>
+    </aside>
 
     <script src="script.js"></script>
   </body>
