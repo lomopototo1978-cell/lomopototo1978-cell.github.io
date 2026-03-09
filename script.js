@@ -76,15 +76,19 @@ if (installButton) {
 if (installBannerAction) {
   installBannerAction.addEventListener('click', async () => {
     if (!deferredInstallPrompt) {
-      if (installHint) {
-        installHint.hidden = false;
-        installHint.textContent = 'Open browser menu and tap Install app.';
+      const bannerText = installBanner && installBanner.querySelector('p');
+      if (bannerText) {
+        bannerText.textContent = 'Tap the \u22ee menu (3 dots) at top-right of Chrome, then tap \"Install app\" or \"Add to Home screen\".';
       }
+      installBannerAction.textContent = 'Got it';
+      installBannerAction.addEventListener('click', () => {
+        if (installBanner) installBanner.hidden = true;
+      }, { once: true });
       return;
     }
 
     deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
+    const { outcome } = await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
     if (installBanner) {
       installBanner.hidden = true;
