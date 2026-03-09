@@ -1,0 +1,244 @@
+:root {
+  --bg: #fff36d;
+  --ink: #0a0a0a;
+  --muted: #1f1f1f;
+  --card: #fff;
+  --line: #0a0a0a;
+  --accent: #00e0ff;
+  --accent-2: #ff6f3c;
+  --accent-3: #7cff6b;
+  --shadow: 8px 8px 0 #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background:
+    linear-gradient(0deg, transparent 24%, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.08) 26%, transparent 27%, transparent 74%, rgba(0, 0, 0, 0.08) 75%, rgba(0, 0, 0, 0.08) 76%, transparent 77%),
+    linear-gradient(90deg, transparent 24%, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.08) 26%, transparent 27%, transparent 74%, rgba(0, 0, 0, 0.08) 75%, rgba(0, 0, 0, 0.08) 76%, transparent 77%),
+    var(--bg);
+  background-size: 38px 38px;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.shape {
+  position: fixed;
+  z-index: -1;
+  border: 3px solid var(--line);
+  box-shadow: var(--shadow);
+  transform: rotate(-4deg);
+}
+
+.shape-a {
+  width: 160px;
+  height: 160px;
+  background: var(--accent);
+  top: 70px;
+  right: 6%;
+}
+
+.shape-b {
+  width: 120px;
+  height: 120px;
+  background: var(--accent-2);
+  left: 5%;
+  top: 320px;
+}
+
+.site-header,
+main,
+.site-footer {
+  width: min(980px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.3rem 0;
+}
+
+.brand {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  margin: 0;
+  background: var(--accent-3);
+  border: 3px solid var(--line);
+  box-shadow: 5px 5px 0 #0a0a0a;
+  padding: 0.4rem 0.7rem;
+}
+
+.hero {
+  padding: 4rem 0 2.7rem;
+}
+
+.kicker {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  color: var(--ink);
+  margin: 0 0 0.4rem;
+  font-weight: 800;
+}
+
+h1,
+h2 {
+  font-family: "Archivo Black", sans-serif;
+  line-height: 1.1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  max-width: 12ch;
+}
+
+.lead {
+  margin-top: 1.2rem;
+  color: var(--ink);
+  max-width: 65ch;
+  background: #fff;
+  border: 3px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 0.8rem;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding: 0.35rem 0.7rem;
+  border: 3px solid var(--line);
+  background: var(--accent-2);
+  font-weight: 800;
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+
+.hero-actions {
+  margin-top: 1.8rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  display: inline-block;
+  border: 3px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  padding: 0.62rem 1rem;
+  text-decoration: none;
+  font-weight: 800;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 4px 4px 0 #0a0a0a;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #0a0a0a;
+}
+
+.button-ghost {
+  background: var(--accent);
+}
+
+.button-small {
+  font-size: 0.9rem;
+  padding: 0.45rem 0.85rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 3.2rem;
+}
+
+.card {
+  background: var(--card);
+  border: 3px solid var(--line);
+  border-radius: 0;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  font-size: 1.45rem;
+}
+
+.card p {
+  color: var(--muted);
+}
+
+.card a {
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+  background: var(--accent-3);
+  border: 2px solid var(--line);
+  padding: 0.2rem 0.45rem;
+}
+
+.contact {
+  border-top: 3px solid var(--line);
+  padding: 2.3rem 0 0.6rem;
+}
+
+.contact p {
+  color: var(--muted);
+}
+
+.site-footer {
+  padding: 1.4rem 0 2.2rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.reveal.visible {
+  animation: rise-in 640ms cubic-bezier(0.2, 0.65, 0.23, 1) forwards;
+}
+
+@keyframes rise-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 860px) {
+  .shape {
+    display: none;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: 3rem;
+  }
+}
