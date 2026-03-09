@@ -1,11 +1,21 @@
 const sections = document.querySelectorAll('.reveal');
 const installButton = document.getElementById('installButton');
 const installHint = document.getElementById('installHint');
+const installBanner = document.getElementById('installBanner');
+const installBannerAction = document.getElementById('installBannerAction');
+const dismissBanner = document.getElementById('dismissBanner');
 let deferredInstallPrompt;
 
 const ua = window.navigator.userAgent.toLowerCase();
 const isIos = /iphone|ipad|ipod/.test(ua);
+const isAndroid = /android/.test(ua);
 const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const shouldUseMobileBanner = window.matchMedia('(max-width: 860px)').matches;
+const bannerDismissed = window.localStorage.getItem('installBannerDismissed') === '1';
+
+if (installBanner && shouldUseMobileBanner && isAndroid && !isInStandaloneMode && !bannerDismissed) {
+  installBanner.hidden = false;
+}
 
 if (installHint && !isInStandaloneMode) {
   if (isIos) {
@@ -41,6 +51,10 @@ window.addEventListener('beforeinstallprompt', (event) => {
   if (installButton) {
     installButton.hidden = false;
   }
+
+  if (installBannerAction) {
+    installBannerAction.disabled = false;
+  }
 });
 
 if (installButton) {
@@ -59,6 +73,34 @@ if (installButton) {
   });
 }
 
+if (installBannerAction) {
+  installBannerAction.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+      if (installHint) {
+        installHint.hidden = false;
+        installHint.textContent = 'Open browser menu and tap Install app.';
+      }
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (installBanner) {
+      installBanner.hidden = true;
+    }
+  });
+}
+
+if (dismissBanner) {
+  dismissBanner.addEventListener('click', () => {
+    window.localStorage.setItem('installBannerDismissed', '1');
+    if (installBanner) {
+      installBanner.hidden = true;
+    }
+  });
+}
+
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   if (installButton) {
@@ -67,6 +109,10 @@ window.addEventListener('appinstalled', () => {
   if (installHint) {
     installHint.hidden = true;
   }
+  if (installBanner) {
+    installBanner.hidden = true;
+  }
+  window.localStorage.setItem('installBannerDismissed', '1');
 });
 
 if ('serviceWorker' in navigator) {
