@@ -9,14 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0f1020;
-      --card: #1c2040;
-      --line: rgba(140, 150, 220, 0.13);
-      --accent: #7c5cfc;
-      --accent2: #4facfe;
-      --text: #e8ecf4;
-      --muted: #8892b0;
-      --input: #171c35;
+      --bg: #f7f9ff;
+      --card: #ffffff;
+      --line: rgba(122, 130, 184, 0.2);
+      --accent: #5f56f5;
+      --accent2: #30a4ff;
+      --text: #172033;
+      --muted: #617091;
+      --input: #ffffff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,21 +41,21 @@
     @keyframes aurora {
       0% {
         background:
-          radial-gradient(ellipse at 18% 38%, rgba(124,92,252,0.12) 0%, transparent 55%),
-          radial-gradient(ellipse at 82% 12%, rgba(79,172,254,0.10) 0%, transparent 50%),
-          radial-gradient(ellipse at 42% 88%, rgba(110,50,240,0.08) 0%, transparent 48%);
+          radial-gradient(ellipse at 18% 38%, rgba(95,86,245,0.12) 0%, transparent 55%),
+          radial-gradient(ellipse at 82% 12%, rgba(48,164,255,0.12) 0%, transparent 50%),
+          radial-gradient(ellipse at 42% 88%, rgba(115,157,255,0.1) 0%, transparent 48%);
       }
       50% {
         background:
-          radial-gradient(ellipse at 62% 18%, rgba(124,92,252,0.13) 0%, transparent 52%),
-          radial-gradient(ellipse at 24% 62%, rgba(79,172,254,0.09) 0%, transparent 50%),
-          radial-gradient(ellipse at 78% 82%, rgba(110,50,240,0.09) 0%, transparent 48%);
+          radial-gradient(ellipse at 62% 18%, rgba(95,86,245,0.13) 0%, transparent 52%),
+          radial-gradient(ellipse at 24% 62%, rgba(48,164,255,0.12) 0%, transparent 50%),
+          radial-gradient(ellipse at 78% 82%, rgba(115,157,255,0.1) 0%, transparent 48%);
       }
       100% {
         background:
-          radial-gradient(ellipse at 82% 55%, rgba(124,92,252,0.11) 0%, transparent 55%),
-          radial-gradient(ellipse at 14% 84%, rgba(79,172,254,0.10) 0%, transparent 50%),
-          radial-gradient(ellipse at 52% 14%, rgba(110,50,240,0.07) 0%, transparent 48%);
+          radial-gradient(ellipse at 82% 55%, rgba(95,86,245,0.11) 0%, transparent 55%),
+          radial-gradient(ellipse at 14% 84%, rgba(48,164,255,0.12) 0%, transparent 50%),
+          radial-gradient(ellipse at 52% 14%, rgba(115,157,255,0.1) 0%, transparent 48%);
       }
     }
 
@@ -73,7 +73,7 @@
       top: 0;
       z-index: 5;
       padding: 16px 22px;
-      background: rgba(15, 16, 32, 0.82);
+      background: rgba(247, 249, 255, 0.84);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       display: flex;
@@ -120,14 +120,14 @@
       font-size: 13px;
       padding: 6px 13px;
       border-radius: 9px;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(95, 86, 245, 0.2);
       transition: color 0.18s, background 0.18s, border-color 0.18s, transform 0.18s;
     }
 
     .back:hover {
       color: var(--text);
-      background: rgba(124, 92, 252, 0.1);
-      border-color: rgba(124, 92, 252, 0.35);
+      background: rgba(95, 86, 245, 0.1);
+      border-color: rgba(95, 86, 245, 0.35);
       transform: translateX(-2px);
     }
 
@@ -149,14 +149,22 @@
     /* ── Messages ── */
     .message {
       display: flex;
+      width: 100%;
       animation: messageIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .message.user      { justify-content: flex-end; }
-    .message.assistant { justify-content: flex-start; }
+    .message.user {
+      justify-content: flex-end;
+      padding-left: 12%;
+    }
+
+    .message.assistant {
+      justify-content: flex-start;
+      padding-right: 12%;
+    }
 
     .content {
-      max-width: min(700px, 88vw);
+      max-width: min(68ch, calc(100vw - 88px));
       font-size: 15px;
       line-height: 1.78;
       white-space: pre-wrap;
@@ -164,19 +172,20 @@
     }
 
     .message.user .content {
-      background: linear-gradient(145deg, #2e2260 0%, #1e2870 100%);
-      border: 1px solid rgba(124, 92, 252, 0.3);
+      background: linear-gradient(145deg, #6a62fb 0%, #2f9efe 100%);
+      border: 1px solid rgba(95, 86, 245, 0.35);
       border-radius: 22px 22px 5px 22px;
       padding: 13px 18px;
-      box-shadow: 0 4px 22px rgba(124, 92, 252, 0.22), inset 0 1px 0 rgba(255,255,255,0.07);
+      color: #ffffff;
+      box-shadow: 0 7px 20px rgba(95, 86, 245, 0.22), inset 0 1px 0 rgba(255,255,255,0.24);
     }
 
     .message.assistant .content {
       background: var(--card);
-      border: 1px solid rgba(79, 172, 254, 0.15);
+      border: 1px solid rgba(48, 164, 255, 0.18);
       border-radius: 22px 22px 22px 5px;
       padding: 13px 18px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+      box-shadow: 0 6px 18px rgba(19, 34, 71, 0.09), inset 0 1px 0 rgba(255,255,255,0.7);
     }
 
     @keyframes messageIn {
@@ -222,7 +231,8 @@
       left: 0; right: 0; bottom: 0;
       z-index: 6;
       padding: 16px 20px 24px;
-      background: linear-gradient(180deg, rgba(15,16,32,0) 0%, rgba(15,16,32,0.96) 18%, #0f1020 100%);
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(247,249,255,0) 0%, rgba(247,249,255,0.96) 18%, #f7f9ff 100%);
     }
 
     .composer {
@@ -235,13 +245,13 @@
       display: flex;
       align-items: flex-end;
       gap: 12px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+      box-shadow: 0 10px 30px rgba(14, 31, 68, 0.12);
       transition: border-color 0.22s ease, box-shadow 0.22s ease;
     }
 
     .composer:focus-within {
-      border-color: rgba(124, 92, 252, 0.5);
-      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.12), 0 8px 40px rgba(0,0,0,0.45);
+      border-color: rgba(95, 86, 245, 0.5);
+      box-shadow: 0 0 0 3px rgba(95, 86, 245, 0.14), 0 10px 30px rgba(14, 31, 68, 0.12);
     }
 
     .prompt {
@@ -254,12 +264,12 @@
       background: transparent;
       color: var(--text);
       font: inherit;
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
       overflow-y: auto;
     }
 
-    .prompt::placeholder { color: #44506a; }
+    .prompt::placeholder { color: #9aa5bd; }
 
     /* ── Send button ── */
     .send {
@@ -306,22 +316,24 @@
       width: min(820px, 100%);
       margin: 8px auto 0;
       text-align: center;
-      color: #36405a;
+      color: #7183a8;
       font-size: 11px;
     }
 
     /* ── Scrollbar ── */
     .feed::-webkit-scrollbar       { width: 4px; }
     .feed::-webkit-scrollbar-track { background: transparent; }
-    .feed::-webkit-scrollbar-thumb { background: rgba(124,92,252,0.22); border-radius: 4px; }
+    .feed::-webkit-scrollbar-thumb { background: rgba(95,86,245,0.24); border-radius: 4px; }
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
       .topbar         { padding: 14px 16px; }
-      .feed           { padding: 20px 12px 144px; }
+      .feed           { padding: 20px 12px 152px; }
       .composer-wrap  { padding: 10px 12px 18px; }
       .composer       { padding-left: 14px; }
-      .content        { max-width: 100%; }
+      .message.user,
+      .message.assistant { padding-left: 0; padding-right: 0; }
+      .content        { max-width: min(100%, calc(100vw - 34px)); }
     }
 
     @media (hover: none) { *, a, button { cursor: default !important; } }
@@ -377,7 +389,7 @@
         for (const s of stars) {
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, 6.2832);
-          ctx.fillStyle = `rgba(210,220,255,${s.op})`;
+          ctx.fillStyle = `rgba(77,96,160,${s.op})`;
           ctx.fill();
           s.y -= s.speed;
           s.x += s.drift;
