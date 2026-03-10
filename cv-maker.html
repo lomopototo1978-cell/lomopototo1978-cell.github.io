@@ -678,9 +678,16 @@
     const SESSION_KEY = "mvumi_session_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 
-    const ANTHROPIC_API_KEY = window.ANTHROPIC_API_KEY || "";
-
-    const systemPrompt = "You are an expert CV writer. Transform the raw user input into a polished professional CV. Use strong action verbs. Turn duties into achievements with measurable impact. Write a punchy 2-3 line summary tailored to the target role. Respond in strict JSON only with fields: name, title, email, phone, location, linkedin, github, summary, skills (object of categories), experience (array with role/company/duration/bullets), education (array), projects (array with name/description/tech)";
+    let localModel = {
+      verbs: ["Built", "Led", "Implemented", "Optimized", "Delivered", "Automated", "Improved", "Designed", "Created", "Managed"],
+      impactHints: ["improv", "increas", "reduc", "autom", "scal"],
+      summaries: [
+        "Professional with strong delivery focus and cross-functional collaboration.",
+        "Hands-on contributor experienced in building reliable, user-centered solutions."
+      ],
+      skills: [],
+      titles: []
+    };
 
     const screenForm = document.getElementById("screenForm");
     const screenPreview = document.getElementById("screenPreview");
@@ -736,6 +743,32 @@
     if (!routeGuard()) {
       throw new Error("route blocked");
     }
+
+    async function loadLocalModel() {
+      try {
+        const res = await fetch("model-data.json", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const banned = new Set(["the", "and", "was", "with", "first", "responsible", "technologies", "web", "system", "customer", "experience"]);
+        const cleanVerbs = (Array.isArray(data.verbs) ? data.verbs : [])
+          .map((v) => String(v || "").trim())
+          .filter((v) => v.length > 2 && !banned.has(v.toLowerCase()))
+          .map((v) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase());
+
+        localModel = {
+          verbs: cleanVerbs.length ? cleanVerbs : localModel.verbs,
+          impactHints: Array.isArray(data.impactHints) ? data.impactHints : localModel.impactHints,
+          summaries: Array.isArray(data.summaries) ? data.summaries : localModel.summaries,
+          skills: Array.isArray(data.skills) ? data.skills : localModel.skills,
+          titles: Array.isArray(data.titles) ? data.titles : localModel.titles
+        };
+      } catch {
+        // Fallback model remains active.
+      }
+    }
+
+    loadLocalModel();
 
     function setExitEnter(from, to) {
       from.classList.remove("hidden");
@@ -857,57 +890,88 @@
       };
     }
 
-    function cleanJsonText(text) {
-      const match = text.match(/\{[\s\S]*\}$/);
-      if (match) return match[0];
-      return text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+    function pick(arr, idxHint) {
+      if (!arr || !arr.length) return "";
+      return arr[Math.abs(idxHint) % arr.length];
     }
 
-    async function callClaude(rawInput) {
-      if (!ANTHROPIC_API_KEY) {
-        throw new Error("Missing ANTHROPIC key. Set window.ANTHROPIC_API_KEY before this script in cv-maker.html.");
-      }
+    function splitSkillList(text) {
+      return String(text || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
 
-      const prompt = {
-        target_role: rawInput.targetRole,
-        personal_info: rawInput.personal,
-        skills_input: rawInput.skills,
-        experience_input: rawInput.experience,
-        education_input: rawInput.education,
-        projects_input: rawInput.projects,
-        instruction: "Return strict JSON only. No markdown."
-      };
+    function enrichBullet(text, index, role) {
+      const clean = String(text || "").trim().replace(/[.!?]+$/, "");
+      if (!clean) return "";
+      const verb = pick(localModel.verbs, index) || "Delivered";
+      const metric = 12 + ((index * 7) % 28);
+      const impact = pick([
+        `resulting in a ${metric}% efficiency gain`,
+        `improving delivery consistency by ${metric}%`,
+        `reducing turnaround time by ${metric}%`,
+        `increasing reliability by ${metric}%`
+      ], index);
+      return `${verb} ${clean.charAt(0).toLowerCase() + clean.slice(1)} for ${role || "the team"}, ${impact}.`;
+    }
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1800,
-          system: systemPrompt,
-          messages: [{
-            role: "user",
-            content: "Transform this into a polished CV JSON:\n" + JSON.stringify(prompt, null, 2)
-          }]
-        })
+    function generateLocalCv(rawInput) {
+      const technical = splitSkillList(rawInput.skills.technical);
+      const tools = splitSkillList(rawInput.skills.tools);
+      const soft = splitSkillList(rawInput.skills.soft);
+      const fallbackSkills = localModel.skills.slice(0, 8);
+
+      const experiences = ensureArray(rawInput.experience).map((exp, idx) => {
+        const rawBullets = String(exp.bullets || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+        const polishedBullets = (rawBullets.length ? rawBullets : ["owned key initiatives", "collaborated across teams"])
+          .slice(0, 5)
+          .map((b, i) => enrichBullet(b, idx + i, exp.role || rawInput.targetRole));
+
+        return {
+          role: exp.role || rawInput.targetRole || pick(localModel.titles, idx) || "Professional",
+          company: exp.company || "Confidential Company",
+          duration: exp.duration || "Recent",
+          bullets: polishedBullets
+        };
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error("API error: " + txt.slice(0, 200));
-      }
+      const education = ensureArray(rawInput.education).map((e) => ({
+        degree: e.degree || "Qualification",
+        school: e.school || "Institution",
+        duration: e.duration || "",
+        details: e.details || ""
+      }));
 
-      const data = await res.json();
-      const text = Array.isArray(data.content)
-        ? data.content.map((x) => x.text || "").join("\n")
-        : "";
+      const projects = ensureArray(rawInput.projects).map((p) => ({
+        name: p.name || "Project",
+        description: p.description || "Delivered a production-ready solution aligned to business goals.",
+        tech: splitSkillList(p.tech).length ? splitSkillList(p.tech) : technical.slice(0, 3)
+      }));
 
-      const jsonText = cleanJsonText(text);
-      return JSON.parse(jsonText);
+      const role = rawInput.targetRole || rawInput.personal.title || "Professional";
+      const summaryA = `Results-driven ${role} with hands-on experience delivering high-impact solutions in fast-paced environments.`;
+      const summaryB = `Combines product thinking, technical depth, and clear stakeholder communication to turn priorities into measurable outcomes.`;
+      const summaryC = `Known for ownership, execution speed, and continuous improvement across delivery, quality, and team performance.`;
+
+      return {
+        name: rawInput.personal.name || "Your Name",
+        title: rawInput.personal.title || role,
+        email: rawInput.personal.email || "",
+        phone: rawInput.personal.phone || "",
+        location: rawInput.personal.location || "",
+        linkedin: rawInput.personal.linkedin || "",
+        github: rawInput.personal.github || "",
+        summary: `${summaryA} ${summaryB} ${summaryC}`,
+        skills: {
+          Technical: technical.length ? technical : fallbackSkills,
+          Tools: tools.length ? tools : fallbackSkills.slice(0, 6),
+          "Soft Skills": soft.length ? soft : ["Communication", "Leadership", "Problem Solving"]
+        },
+        experience: experiences,
+        education,
+        projects
+      };
     }
 
     function ensureArray(val) {
@@ -991,7 +1055,7 @@
       setGenerating(true);
 
       try {
-        const cv = await callClaude(rawInput);
+        const cv = generateLocalCv(rawInput);
         lastCvJson = cv;
         renderCv(cv);
         showPreview();
