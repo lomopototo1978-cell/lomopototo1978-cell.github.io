@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarGENzimbabwe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --yellow:#FFE500; --black:#000; --paper:#FAFAFA; --ink:#0a0a0a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
+    body {
+      min-height: 100vh;
+      background: var(--yellow);
+      color: var(--ink);
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .app {
+      width: min(980px, 100%);
+      border: 4px solid var(--black);
+      box-shadow: 8px 8px 0 var(--black);
+      background: var(--paper);
+      padding: 24px;
+    }
+    h1 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 52px;
+      line-height: 0.9;
+      margin-bottom: 8px;
+    }
+    .sub { font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 700; }
+    input, select, textarea {
+      border: 3px solid var(--black);
+      background: #fff;
+      min-height: 46px;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 14px; }
+    .btn {
+      border: 4px solid var(--black);
+      background: var(--black);
+      color: var(--yellow);
+      min-height: 48px;
+      padding: 10px 14px;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 5px 5px 0 var(--black);
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--yellow); color: var(--black); }
+    .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .card {
+      border: 3px solid var(--black);
+      background: #fff;
+      padding: 10px;
+    }
+    .card h3 { font-size: 12px; margin-bottom: 6px; }
+    .card p { font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+    .status { min-height: 20px; font-size: 13px; font-weight: 700; margin-top: 8px; }
+
+    @media (max-width: 720px) {
+      .app { padding: 16px; }
+      h1 { font-size: 42px; }
+      .grid, .result-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>StarGEN<br/>zimbabwe</h1>
+    <p class="sub">Create quick campaign content for local businesses and creators.</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="brand">Brand or Business</label>
+        <input id="brand" type="text" placeholder="Example: Mbare Fresh Market" />
+      </div>
+      <div class="field">
+        <label for="industry">Industry</label>
+        <select id="industry">
+          <option value="retail">Retail</option>
+          <option value="food">Food</option>
+          <option value="tech">Tech</option>
+          <option value="fashion">Fashion</option>
+          <option value="education">Education</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="tone">Tone</label>
+        <select id="tone">
+          <option value="bold">Bold</option>
+          <option value="friendly">Friendly</option>
+          <option value="premium">Premium</option>
+          <option value="youth">Youthful</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="goal">Campaign Goal</label>
+        <input id="goal" type="text" placeholder="Example: drive weekend foot traffic" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="extra">Extra Context (optional)</label>
+      <textarea id="extra" placeholder="Anything else the generator should include..."></textarea>
+    </div>
+
+    <div class="actions">
+      <button id="generateBtn" class="btn" type="button">GENERATE IDEAS</button>
+      <a class="btn" href="dashboard.html">BACK TO DASHBOARD</a>
+      <button id="copyBtn" class="btn" type="button">COPY ALL</button>
+    </div>
+
+    <div class="result-grid">
+      <article class="card">
+        <h3>TAGLINE</h3>
+        <p id="taglineOut">-</p>
+      </article>
+      <article class="card">
+        <h3>CAMPAIGN CONCEPT</h3>
+        <p id="conceptOut">-</p>
+      </article>
+      <article class="card">
+        <h3>SOCIAL POST</h3>
+        <p id="socialOut">-</p>
+      </article>
+      <article class="card">
+        <h3>RADIO HOOK</h3>
+        <p id="radioOut">-</p>
+      </article>
+    </div>
+
+    <p id="status" class="status"></p>
+  </main>
+
+  <script>
+    const SESSION_KEY = "mvumi_session_v1";
+    const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    if (!sessionEmail) {
+      window.location.replace("index.html");
+      throw new Error("no session");
+    }
+
+    const presets = {
+      retail: ["Smart prices, strong quality", "Shop local. Shine daily."],
+      food: ["Fresh flavor, every day", "Taste that brings everyone together"],
+      tech: ["Built for speed, made for people", "Digital tools, real results"],
+      fashion: ["Wear confidence", "Street style with purpose"],
+      education: ["Learn today, lead tomorrow", "Skills that open doors"]
+    };
+
+    const generateBtn = document.getElementById("generateBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const status = document.getElementById("status");
+
+    const brandEl = document.getElementById("brand");
+    const industryEl = document.getElementById("industry");
+    const toneEl = document.getElementById("tone");
+    const goalEl = document.getElementById("goal");
+    const extraEl = document.getElementById("extra");
+
+    const taglineOut = document.getElementById("taglineOut");
+    const conceptOut = document.getElementById("conceptOut");
+    const socialOut = document.getElementById("socialOut");
+    const radioOut = document.getElementById("radioOut");
+
+    function toneWord(tone) {
+      if (tone === "premium") return "premium";
+      if (tone === "friendly") return "warm";
+      if (tone === "youth") return "high-energy";
+      return "bold";
+    }
+
+    function pick(list, seed) {
+      if (!Array.isArray(list) || !list.length) return "";
+      return list[Math.abs(seed) % list.length];
+    }
+
+    function generate() {
+      const brand = brandEl.value.trim() || "Your Brand";
+      const industry = industryEl.value;
+      const tone = toneEl.value;
+      const goal = goalEl.value.trim() || "increase weekly sales";
+      const extra = extraEl.value.trim();
+
+      const base = presets[industry] || presets.retail;
+      const seed = brand.length + goal.length + tone.length;
+      const lineA = pick(base, seed);
+      const lineB = pick(base, seed + 1);
+      const styleWord = toneWord(tone);
+
+      taglineOut.textContent = `${brand}: ${lineA}`;
+      conceptOut.textContent = `${brand} should run a ${styleWord} neighborhood campaign focused on ${goal}. Use simple offers, clear call-to-action, and visible community presence.`;
+      socialOut.textContent = `${brand} is here for you. ${lineB}. This week we focus on ${goal}. Visit us, share with friends, and be part of the movement. #StarGENZimbabwe #LocalPower`;
+      radioOut.textContent = `${brand} brings you ${lineA.toLowerCase()}. Visit today and discover why everyone is talking about us. ${goal}. ${extra ? "Also: " + extra : ""}`;
+
+      status.style.color = "#000";
+      status.textContent = "Generated successfully.";
+    }
+
+    generateBtn.addEventListener("click", generate);
+
+    copyBtn.addEventListener("click", async () => {
+      const joined = [
+        "TAGLINE: " + taglineOut.textContent,
+        "CONCEPT: " + conceptOut.textContent,
+        "SOCIAL: " + socialOut.textContent,
+        "RADIO: " + radioOut.textContent
+      ].join("\n\n");
+
+      try {
+        await navigator.clipboard.writeText(joined);
+        status.style.color = "#000";
+        status.textContent = "Copied to clipboard.";
+      } catch {
+        status.style.color = "#ff2d2d";
+        status.textContent = "Copy failed on this browser.";
+      }
+    });
+  </script>
+</body>
+</html>
