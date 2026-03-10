@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — MVUMI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --yellow:#FFE500; --black:#000; --paper:#FAFAFA; --error:#FF2D2D; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
+    body { min-height: 100vh; background: var(--yellow); display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
+
+    .admin-wrap {
+      width: min(900px, 100%); border: 4px solid var(--black); background: var(--paper);
+      box-shadow: 8px 8px 0 var(--black); padding: 32px; animation: cardIn 0.5s ease-out both;
+    }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 48px; line-height: 0.9; margin-bottom: 6px; }
+    .count { font-weight: 700; font-size: 14px; margin-bottom: 18px; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 4px solid var(--black); background: var(--black); color: var(--yellow);
+      text-decoration: none; padding: 12px 16px; font-weight: 700; font-size: 14px;
+      cursor: pointer; box-shadow: 5px 5px 0 var(--black); min-height: 48px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn:hover { background: var(--yellow); color: var(--black); }
+
+    .status { color: var(--error); font-weight: 700; margin-bottom: 12px; font-size: 13px; min-height: 20px; }
+
+    /* ── Desktop table ── */
+    .accounts-table { width: 100%; border-collapse: collapse; }
+    .accounts-table th, .accounts-table td {
+      border: 3px solid var(--black); padding: 10px 12px; text-align: left; font-size: 13px;
+    }
+    .accounts-table th { background: var(--black); color: var(--yellow); font-size: 12px; text-transform: uppercase; }
+    .accounts-table tr:nth-child(even) { background: #f5f5f5; }
+
+    /* ── Mobile cards ── */
+    .cards { display: none; }
+    .account-card {
+      border: 4px solid var(--black); background: #fff; padding: 16px; margin-bottom: 12px;
+      box-shadow: 4px 4px 0 var(--black);
+    }
+    .account-card p { font-size: 13px; margin-bottom: 4px; }
+    .account-card strong { font-size: 14px; }
+
+    @keyframes cardIn { 0%{opacity:0;transform:translateY(30px)} 100%{opacity:1;transform:translateY(0)} }
+
+    @media (max-width: 640px) {
+      .admin-wrap { padding: 22px 14px; }
+      h1 { font-size: 36px; }
+      .accounts-table { display: none; }
+      .cards { display: block; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+    @media (hover: none) { *, a, button { cursor: default !important; } }
+  </style>
+</head>
+<body>
+  <main class="admin-wrap">
+    <h1>ADMIN<br/>PANEL</h1>
+    <p class="count" id="count">Loading accounts...</p>
+
+    <div class="actions">
+      <a class="btn" href="dashboard.html">← DASHBOARD</a>
+      <button class="btn" id="logoutBtn" type="button">LOGOUT</button>
+    </div>
+
+    <p class="status" id="status"></p>
+
+    <!-- Desktop view -->
+    <table class="accounts-table" id="desktopTable">
+      <thead>
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <!-- Mobile view -->
+    <div class="cards" id="mobileCards"></div>
+  </main>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
+    const SUPABASE_ANON = "sb_publishable_yh1RlbveuqsjQSPCZhX3fg_LlalAOfW";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+    const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+
+    const countEl = document.getElementById("count");
+    const statusEl = document.getElementById("status");
+    const tableBody = document.getElementById("tableBody");
+    const mobileCards = document.getElementById("mobileCards");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    /* ── Auth guard + admin check ── */
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.replace("index.html"); throw new Error("no session"); }
+    if (session.user.email !== ADMIN_EMAIL) { window.location.replace("dashboard.html"); throw new Error("not admin"); }
+
+    /* ── Fetch all profiles ── */
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      statusEl.textContent = "FAILED TO LOAD ACCOUNTS: " + error.message;
+    }
+
+    const list = profiles || [];
+    countEl.textContent = `TOTAL ACCOUNTS: ${list.length}`;
+
+    /* Helper: escape HTML to prevent XSS */
+    function esc(str) { return (str || "—").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+    /* Render desktop table */
+    tableBody.innerHTML = list.map((p, i) => {
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "—";
+      return `<tr>
+        <td>${i + 1}</td>
+        <td>${esc(p.display_name)}</td>
+        <td>${esc(p.email)}</td>
+        <td>${esc(p.phone)}</td>
+        <td>${date}</td>
+      </tr>`;
+    }).join("");
+
+    /* Render mobile cards */
+    mobileCards.innerHTML = list.map((p, i) => {
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "—";
+      return `<div class="account-card">
+        <p><strong>#${i + 1} — ${esc(p.display_name)}</strong></p>
+        <p>EMAIL: ${esc(p.email)}</p>
+        <p>PHONE: ${esc(p.phone)}</p>
+        <p>REGISTERED: ${date}</p>
+      </div>`;
+    }).join("");
+
+    /* ── Logout ── */
+    logoutBtn.addEventListener("click", async () => {
+      statusEl.textContent = "Logging out...";
+      const { error } = await supabase.auth.signOut();
+      if (error) { statusEl.textContent = "LOGOUT FAILED: " + error.message; return; }
+      window.location.replace("index.html");
+    });
+  </script>
+</body>
+</html>

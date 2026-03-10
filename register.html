@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Register — MVUMI</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+	<style>
+		:root {
+			--yellow: #FFE500;
+			--black: #000000;
+			--card: #FAFAFA;
+			--error: #FF2D2D;
+			--surface: #FFFFFF;
+			--btn-bg: #000000;
+			--btn-ink: #FFE500;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; font-family: "Space Mono", monospace; }
+		html, body { width: 100%; min-height: 100%; }
+
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			background: var(--yellow);
+			overflow-x: hidden;
+			padding: 24px 16px;
+			animation: bgFlash 0.3s linear 1;
+			transition: background 0.2s linear;
+		}
+
+		/* ── Animated shapes ── */
+		.shape-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+		.shape { position: absolute; border: 3px solid var(--black); background: transparent; animation-timing-function: linear; animation-iteration-count: infinite; }
+		.circle { border-radius: 50%; }
+		.triangle { width: 0!important; height: 0!important; border-left: var(--size) solid transparent; border-right: var(--size) solid transparent; border-bottom: calc(var(--size)*1.65) solid var(--black); border-top: 0; }
+		.s1  { --size:22px; width:22px; height:22px; left:8%;  top:86%; animation:floatA 11s -1s infinite; }
+		.s2  { --size:36px; width:36px; height:36px; left:17%; top:10%; animation:floatB 18s -5s infinite; }
+		.s3  { --size:28px; width:28px; height:28px; left:33%; top:76%; animation:floatC 12s -3s infinite; }
+		.s4  { --size:44px; width:44px; height:44px; left:58%; top:84%; animation:floatA 20s -7s infinite; }
+		.s5  { --size:52px; width:52px; height:52px; left:71%; top:22%; animation:floatB 10s -2s infinite; }
+		.s6  { --size:20px; width:20px; height:20px; left:80%; top:73%; animation:floatC 14s -4s infinite; }
+		.s7  { --size:32px; width:32px; height:32px; left:5%;  top:36%; animation:floatB  8s -1.5s infinite; }
+		.s8  { --size:24px; width:24px; height:24px; left:90%; top:45%; animation:floatD 13s -6s infinite; }
+
+		/* ── Card ── */
+		.card-wrap { position: relative; z-index: 9; width: min(440px, 94vw); }
+
+		.border-draw { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); pointer-events: none; z-index: 11; }
+		.border-draw rect { fill: none; stroke: var(--black); stroke-width: 4; stroke-dasharray: 2200; stroke-dashoffset: 2200; animation: drawBorder 0.8s ease-out forwards; }
+
+		.card {
+			position: relative; width: 100%; padding: 44px 40px; border: 4px solid var(--black);
+			background: var(--card); box-shadow: 8px 8px 0 var(--black); z-index: 10;
+			animation: cardIn 0.6s ease-out forwards, shadowIn 0.5s ease-out forwards;
+			opacity: 0; transform: translateY(40px); transition: background 0.2s linear;
+		}
+
+		.title {
+			display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+			font-family: "Bebas Neue", sans-serif; font-size: 52px; line-height: 0.92; letter-spacing: 1px;
+			animation: glitchIn 0.4s steps(2,end) both; animation-delay: 0.25s;
+		}
+		.title-cursor { font-size: 24px; animation: blinkSquare 1s step-end infinite; }
+
+		/* ── Fields ── */
+		.field {
+			position: relative; margin-bottom: 18px;
+			opacity: 0; transform: translateX(-28px); animation: fieldIn 0.45s ease-out forwards;
+		}
+		.field:nth-of-type(1) { animation-delay: 0.30s; }
+		.field:nth-of-type(2) { animation-delay: 0.37s; }
+		.field:nth-of-type(3) { animation-delay: 0.44s; }
+		.field:nth-of-type(4) { animation-delay: 0.51s; }
+		.field:nth-of-type(5) { animation-delay: 0.58s; }
+
+		.field input {
+			width: 100%; border: 4px solid var(--black); background: var(--surface);
+			padding: 17px 14px 11px; font-size: 15px; caret-color: var(--black);
+			transition: transform 0.15s, box-shadow 0.15s; min-height: 48px;
+		}
+		.field input:focus { outline: none; transform: translate(-3px,-3px); box-shadow: 5px 5px 0 var(--black); }
+		.field label {
+			position: absolute; left: 14px; top: 15px; background: var(--card); padding: 0 3px;
+			font-size: 13px; transition: transform 0.15s, font-size 0.15s, top 0.15s; pointer-events: none;
+		}
+		.field input:focus + label,
+		.field input:not(:placeholder-shown) + label { top: -9px; font-size: 11px; transform: translateY(-2px); font-weight: 700; }
+
+		/* ── Button ── */
+		.submit-btn {
+			width: 100%; border: 4px solid var(--black); background: var(--btn-bg); color: var(--btn-ink);
+			font-weight: 700; font-size: 18px; padding: 14px 12px; min-height: 52px;
+			box-shadow: 0 0 0 var(--black); transform: scale(0.8); opacity: 0;
+			animation: btnIn 0.65s cubic-bezier(0.22,1.35,0.4,1) forwards; animation-delay: 0.65s;
+			transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.15s; cursor: pointer;
+		}
+		.submit-btn:hover { background: var(--btn-ink); color: var(--btn-bg); box-shadow: 5px 5px 0 var(--black); animation: btnShake 0.2s linear 1; }
+		.submit-btn:active { transform: translate(4px,4px); box-shadow: 2px 2px 0 var(--black); }
+
+		.dots { display: inline-flex; min-width: 20px; justify-content: flex-start; margin-left: 2px; }
+		.dot { opacity: 0; animation: dotBlink 1s infinite; display: inline-block; width: 6px; }
+		.dot:nth-child(1) { animation-delay: 0s; }
+		.dot:nth-child(2) { animation-delay: 0.2s; }
+		.dot:nth-child(3) { animation-delay: 0.4s; }
+
+		.message { min-height: 22px; margin-top: 14px; font-size: 13px; color: var(--error); font-weight: 700; }
+		.login-link { margin-top: 16px; font-size: 13px; text-align: center; }
+		.login-link a { color: var(--black); font-weight: 700; padding: 1px 4px; border: 2px solid transparent; transition: background 0.1s, color 0.1s, border-color 0.1s; text-decoration: none; }
+		.login-link a:hover { background: var(--black); color: var(--btn-ink); border-color: var(--black); }
+
+		/* ── Noise overlay ── */
+		body::after {
+			content: ""; position: fixed; inset: 0; pointer-events: none; opacity: 0.04; z-index: 6;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+		}
+
+		/* ── Keyframes ── */
+		@keyframes bgFlash    { 0%{background:#fff} 100%{background:var(--yellow)} }
+		@keyframes cardIn     { 0%{opacity:0;transform:translateY(44px)} 100%{opacity:1;transform:translateY(0)} }
+		@keyframes shadowIn   { 0%{box-shadow:0 0 0 var(--black)} 100%{box-shadow:8px 8px 0 var(--black)} }
+		@keyframes glitchIn   { 0%{opacity:0;transform:translateX(-3px)} 20%{opacity:1;transform:translateX(3px)} 40%{transform:translateX(-3px)} 60%{transform:translateX(3px)} 100%{transform:translateX(0)} }
+		@keyframes fieldIn    { to{opacity:1;transform:translateX(0)} }
+		@keyframes btnIn      { 0%{opacity:0;transform:scale(0.8)} 60%{opacity:1;transform:scale(1.06)} 100%{opacity:1;transform:scale(1)} }
+		@keyframes btnShake   { 0%{transform:translateX(0)} 25%{transform:translateX(2px)} 50%{transform:translateX(-2px)} 75%{transform:translateX(2px)} 100%{transform:translateX(0)} }
+		@keyframes blinkSquare{ 0%,49%{opacity:1} 50%,100%{opacity:0} }
+		@keyframes drawBorder { to{stroke-dashoffset:0} }
+		@keyframes dotBlink   { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+		@keyframes floatA { 0%{transform:translate(0,0) rotate(0)} 50%{transform:translate(42px,-56px) rotate(180deg)} 100%{transform:translate(-36px,-112px) rotate(360deg)} }
+		@keyframes floatB { 0%{transform:translate(0,0) rotate(0)} 50%{transform:translate(-52px,44px) rotate(180deg)} 100%{transform:translate(-96px,-36px) rotate(360deg)} }
+		@keyframes floatC { 0%{transform:translate(0,0) rotate(0)} 50%{transform:translate(58px,34px) rotate(180deg)} 100%{transform:translate(92px,-52px) rotate(360deg)} }
+		@keyframes floatD { 0%{transform:translate(0,0) rotate(0)} 50%{transform:translate(-30px,-62px) rotate(180deg)} 100%{transform:translate(58px,-98px) rotate(360deg)} }
+
+		/* ── Mobile ── */
+		@media (max-width: 520px) {
+			.card { padding: 30px 18px; }
+			.title { font-size: 42px; }
+			.field input { font-size: 16px; }
+		}
+		@media (hover: none) { *, a, button, input, label { cursor: default !important; } }
+	</style>
+</head>
+<body>
+	<div class="shape-layer" aria-hidden="true">
+		<div class="shape square s1"></div>
+		<div class="shape circle s2"></div>
+		<div class="shape triangle s3"></div>
+		<div class="shape square s4"></div>
+		<div class="shape circle s5"></div>
+		<div class="shape triangle s6"></div>
+		<div class="shape square s7"></div>
+		<div class="shape circle s8"></div>
+	</div>
+
+	<div class="card-wrap">
+		<svg class="border-draw" viewBox="0 0 440 620" preserveAspectRatio="none" aria-hidden="true">
+			<rect x="2" y="2" width="436" height="616"></rect>
+		</svg>
+
+		<section class="card">
+			<h1 class="title">REGISTER <span class="title-cursor">■</span></h1>
+
+			<form id="registerForm" novalidate>
+				<div class="field">
+					<input id="displayName" type="text" placeholder=" " autocomplete="name" required />
+					<label for="displayName">DISPLAY NAME</label>
+				</div>
+
+				<div class="field">
+					<input id="phone" type="tel" placeholder=" " autocomplete="tel" required />
+					<label for="phone">PHONE</label>
+				</div>
+
+				<div class="field">
+					<input id="email" type="email" placeholder=" " autocomplete="email" required />
+					<label for="email">EMAIL</label>
+				</div>
+
+				<div class="field">
+					<input id="password" type="password" placeholder=" " autocomplete="new-password" required />
+					<label for="password">PASSWORD</label>
+				</div>
+
+				<div class="field">
+					<input id="confirmPassword" type="password" placeholder=" " autocomplete="new-password" required />
+					<label for="confirmPassword">CONFIRM PASSWORD</label>
+				</div>
+
+				<button class="submit-btn" type="submit">CREATE ACCOUNT</button>
+				<p class="message" id="formMessage"></p>
+			</form>
+
+			<p class="login-link">Already have an account? <a href="index.html">LOGIN</a></p>
+		</section>
+	</div>
+
+	<script type="module">
+		import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+		const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
+		const SUPABASE_ANON = "sb_publishable_yh1RlbveuqsjQSPCZhX3fg_LlalAOfW";
+		const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+		const form = document.getElementById("registerForm");
+		const btn = form.querySelector(".submit-btn");
+		const message = document.getElementById("formMessage");
+
+		/* Already logged in? Go to dashboard */
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			if (session) window.location.replace("dashboard.html");
+		});
+
+		function setLoading(on) {
+			if (!on) { btn.disabled = false; btn.textContent = "CREATE ACCOUNT"; return; }
+			btn.disabled = true;
+			btn.innerHTML = 'CREATING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+		}
+
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			message.textContent = "";
+			message.style.color = "var(--error)";
+
+			const displayName = document.getElementById("displayName").value.trim();
+			const phone       = document.getElementById("phone").value.trim();
+			const email       = document.getElementById("email").value.trim();
+			const password    = document.getElementById("password").value;
+			const confirm     = document.getElementById("confirmPassword").value;
+
+			if (!displayName || !phone || !email || !password) {
+				message.textContent = "ERROR: ALL FIELDS ARE REQUIRED.";
+				return;
+			}
+
+			if (password.length < 6) {
+				message.textContent = "PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
+				return;
+			}
+
+			if (password !== confirm) {
+				message.textContent = "PASSWORDS DO NOT MATCH.";
+				return;
+			}
+
+			setLoading(true);
+
+			/* 1. Create auth user */
+			const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+				email,
+				password,
+				options: { data: { display_name: displayName, phone } }
+			});
+
+			if (signUpError) {
+				setLoading(false);
+				message.textContent = "REGISTER FAILED: " + signUpError.message;
+				return;
+			}
+
+			/* 2. Insert profile row */
+			const userId = signUpData.user?.id;
+			if (userId) {
+				await supabase.from("profiles").insert({
+					id: userId,
+					email,
+					display_name: displayName,
+					phone
+				});
+			}
+
+			setLoading(false);
+			message.style.color = "#000";
+			message.textContent = "ACCOUNT CREATED! REDIRECTING...";
+			setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+		});
+	</script>
+</body>
+</html>

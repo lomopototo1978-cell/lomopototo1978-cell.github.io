@@ -439,12 +439,25 @@
 			}
 
 			.card {
-				padding: 34px 22px;
+				padding: 30px 18px;
 			}
 
 			.title {
-				font-size: 48px;
+				font-size: 44px;
 			}
+
+			.field input {
+				font-size: 16px;
+				min-height: 48px;
+			}
+
+			.login-btn {
+				min-height: 52px;
+			}
+		}
+
+		@media (hover: none) {
+			*, a, button, input, label, .remember, .register a, .forgot { cursor: default !important; }
 		}
 	</style>
 </head>
@@ -499,228 +512,90 @@
 				<p class="message" id="formMessage"></p>
 			</form>
 
-			<p class="register">Don't have an account? <a href="#" id="registerLink">REGISTER</a></p>
+			<p class="register">Don't have an account? <a href="register.html">REGISTER</a></p>
 		</section>
 	</div>
 
 	<script type="module">
-		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-		import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
-		import {
-			getAuth,
-			signInWithEmailAndPassword,
-			createUserWithEmailAndPassword,
-			sendPasswordResetEmail,
-			onAuthStateChanged,
-			setPersistence,
-			browserLocalPersistence,
-			browserSessionPersistence
-		} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+		import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+		const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
+		const SUPABASE_ANON = "sb_publishable_yh1RlbveuqsjQSPCZhX3fg_LlalAOfW";
+		const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
 		const message = document.getElementById("formMessage");
-		const registerLink = document.getElementById("registerLink");
 		const forgotLink = document.getElementById("forgotLink");
-		const rememberCheckbox = document.querySelector(".remember input");
 		const swatches = Array.from(document.querySelectorAll(".swatch"));
 
-		const firebaseConfig = window.FIREBASE_CONFIG || {
-			apiKey: "AIzaSyAIg5vDWb-7IAx583dNryfJ-EGWK8OQ71A",
-			authDomain: "mvumi-c32dd.firebaseapp.com",
-			projectId: "mvumi-c32dd",
-			storageBucket: "mvumi-c32dd.firebasestorage.app",
-			messagingSenderId: "451539592305",
-			appId: "1:451539592305:web:e57c4270ac365f2d68a7d0",
-			measurementId: "G-KKP6SWP4X5"
-		};
+		/* ── Auth guard: redirect if already logged in ── */
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			if (session) window.location.replace("dashboard.html");
+		});
 
-		function hasFirebaseConfig(config) {
-			return Boolean(config.apiKey && config.authDomain && config.projectId && config.appId);
-		}
-
-		let auth = null;
-
-		if (hasFirebaseConfig(firebaseConfig)) {
-			const app = initializeApp(firebaseConfig);
-			auth = getAuth(app);
-
-			isAnalyticsSupported().then((supported) => {
-				if (supported) {
-					getAnalytics(app);
-				}
-			}).catch(() => {
-				// Analytics is optional; ignore when unavailable.
-			});
-
-			onAuthStateChanged(auth, (user) => {
-				if (user) {
-					window.location.replace("dashboard.html");
-				}
-			});
-		} else {
-			message.textContent = "SET FIREBASE_CONFIG TO ENABLE BACKEND AUTH.";
-		}
-
+		/* ── Theme switcher ── */
 		const themes = {
-			classic: {
-				yellow: "#FFE500",
-				card: "#FAFAFA",
-				error: "#FF2D2D",
-				surface: "#FFFFFF",
-				btnBg: "#000000",
-				btnInk: "#FFE500"
-			},
-			mint: {
-				yellow: "#C6FF4D",
-				card: "#FFFFFF",
-				error: "#FF3D3D",
-				surface: "#F5FFE5",
-				btnBg: "#0A0A0A",
-				btnInk: "#C6FF4D"
-			},
-			blue: {
-				yellow: "#39A0FF",
-				card: "#FFFDF5",
-				error: "#FF4D2D",
-				surface: "#FFFFFF",
-				btnBg: "#000000",
-				btnInk: "#39A0FF"
-			},
-			coral: {
-				yellow: "#FF6A3D",
-				card: "#FFF8EF",
-				error: "#D90429",
-				surface: "#FFFDF7",
-				btnBg: "#111111",
-				btnInk: "#FF6A3D"
-			}
+			classic: { yellow: "#FFE500", card: "#FAFAFA", error: "#FF2D2D", surface: "#FFFFFF", btnBg: "#000000", btnInk: "#FFE500" },
+			mint:    { yellow: "#C6FF4D", card: "#FFFFFF", error: "#FF3D3D", surface: "#F5FFE5", btnBg: "#0A0A0A", btnInk: "#C6FF4D" },
+			blue:    { yellow: "#39A0FF", card: "#FFFDF5", error: "#FF4D2D", surface: "#FFFFFF", btnBg: "#000000", btnInk: "#39A0FF" },
+			coral:   { yellow: "#FF6A3D", card: "#FFF8EF", error: "#D90429", surface: "#FFFDF7", btnBg: "#111111", btnInk: "#FF6A3D" }
 		};
 
 		function applyTheme(name) {
-			const theme = themes[name];
-			if (!theme) return;
-
-			document.documentElement.style.setProperty("--yellow", theme.yellow);
-			document.documentElement.style.setProperty("--card", theme.card);
-			document.documentElement.style.setProperty("--error", theme.error);
-			document.documentElement.style.setProperty("--surface", theme.surface);
-			document.documentElement.style.setProperty("--btn-bg", theme.btnBg);
-			document.documentElement.style.setProperty("--btn-ink", theme.btnInk);
-
-			swatches.forEach((btn) => {
-				btn.classList.toggle("is-active", btn.dataset.theme === name);
-			});
+			const t = themes[name];
+			if (!t) return;
+			const s = document.documentElement.style;
+			s.setProperty("--yellow", t.yellow);
+			s.setProperty("--card", t.card);
+			s.setProperty("--error", t.error);
+			s.setProperty("--surface", t.surface);
+			s.setProperty("--btn-bg", t.btnBg);
+			s.setProperty("--btn-ink", t.btnInk);
+			swatches.forEach(b => b.classList.toggle("is-active", b.dataset.theme === name));
 		}
 
-		swatches.forEach((btn) => {
-			btn.addEventListener("click", () => applyTheme(btn.dataset.theme));
-		});
+		swatches.forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.theme)));
 
+		/* ── Helpers ── */
 		function setLoadingState(loading) {
-			if (!loading) {
-				loginBtn.disabled = false;
-				loginBtn.textContent = "LOGIN";
-				return;
-			}
-
+			if (!loading) { loginBtn.disabled = false; loginBtn.textContent = "LOGIN"; return; }
 			loginBtn.disabled = true;
 			loginBtn.innerHTML = 'LOADING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
 		}
 
-		form.addEventListener("submit", async function (event) {
-			event.preventDefault();
+		/* ── Login ── */
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
 			message.textContent = "";
 			message.style.color = "var(--error)";
 
-			const emailValue = form.email.value.trim();
-			const passValue = form.password.value.trim();
+			const email = form.email.value.trim();
+			const password = form.password.value.trim();
 
-			if (!emailValue || !passValue) {
-				message.textContent = "ERROR: BOTH FIELDS ARE REQUIRED.";
-				return;
-			}
-
-			if (!auth) {
-				message.textContent = "FIREBASE NOT CONFIGURED.";
-				return;
-			}
+			if (!email || !password) { message.textContent = "ERROR: BOTH FIELDS ARE REQUIRED."; return; }
 
 			setLoadingState(true);
+			const { error } = await supabase.auth.signInWithPassword({ email, password });
+			setLoadingState(false);
 
-			try {
-				await setPersistence(
-					auth,
-					rememberCheckbox.checked ? browserLocalPersistence : browserSessionPersistence
-				);
-				await signInWithEmailAndPassword(auth, emailValue, passValue);
-				setLoadingState(false);
-				message.style.color = "#000";
-				message.textContent = "ACCESS GRANTED. REDIRECTING...";
-				setTimeout(() => {
-					window.location.href = "dashboard.html";
-				}, 450);
-			} catch (error) {
-				setLoadingState(false);
-				message.textContent = "LOGIN FAILED: " + (error.code || "UNKNOWN_ERROR");
-			}
+			if (error) { message.textContent = "LOGIN FAILED: " + error.message; return; }
+
+			message.style.color = "#000";
+			message.textContent = "ACCESS GRANTED. REDIRECTING...";
+			setTimeout(() => { window.location.href = "dashboard.html"; }, 400);
 		});
 
-		registerLink.addEventListener("click", async function (event) {
-			event.preventDefault();
+		/* ── Forgot password ── */
+		forgotLink.addEventListener("click", async (e) => {
+			e.preventDefault();
+			const email = form.email.value.trim();
+			if (!email) { message.textContent = "ENTER EMAIL TO SEND RESET LINK."; return; }
 
-			const emailValue = form.email.value.trim();
-			const passValue = form.password.value.trim();
-
-			if (!auth) {
-				message.textContent = "FIREBASE NOT CONFIGURED.";
-				return;
-			}
-
-			if (!emailValue || !passValue) {
-				message.textContent = "ENTER EMAIL + PASSWORD TO REGISTER.";
-				return;
-			}
-
-			setLoadingState(true);
-
-			try {
-				await createUserWithEmailAndPassword(auth, emailValue, passValue);
-				setLoadingState(false);
-				message.style.color = "#000";
-				message.textContent = "ACCOUNT CREATED. REDIRECTING...";
-				setTimeout(() => {
-					window.location.href = "dashboard.html";
-				}, 450);
-			} catch (error) {
-				setLoadingState(false);
-				message.style.color = "var(--error)";
-				message.textContent = "REGISTER FAILED: " + (error.code || "UNKNOWN_ERROR");
-			}
-		});
-
-		forgotLink.addEventListener("click", async function (event) {
-			event.preventDefault();
-			const emailValue = form.email.value.trim();
-
-			if (!auth) {
-				message.textContent = "FIREBASE NOT CONFIGURED.";
-				return;
-			}
-
-			if (!emailValue) {
-				message.textContent = "ENTER EMAIL TO SEND RESET LINK.";
-				return;
-			}
-
-			try {
-				await sendPasswordResetEmail(auth, emailValue);
-				message.style.color = "#000";
-				message.textContent = "RESET EMAIL SENT.";
-			} catch (error) {
-				message.style.color = "var(--error)";
-				message.textContent = "RESET FAILED: " + (error.code || "UNKNOWN_ERROR");
-			}
+			const { error } = await supabase.auth.resetPasswordForEmail(email);
+			if (error) { message.style.color = "var(--error)"; message.textContent = "RESET FAILED: " + error.message; return; }
+			message.style.color = "#000";
+			message.textContent = "RESET EMAIL SENT. CHECK INBOX.";
 		});
 	</script>
 </body>

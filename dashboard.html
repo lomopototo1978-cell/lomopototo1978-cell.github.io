@@ -3,127 +3,123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MVUMI Dashboard</title>
+  <title>Dashboard — MVUMI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --yellow: #FFE500;
-      --black: #000;
-      --paper: #FAFAFA;
-      --error: #FF2D2D;
-    }
+    :root { --yellow:#FFE500; --black:#000; --paper:#FAFAFA; --error:#FF2D2D; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
-    body {
-      min-height: 100vh;
-      background: var(--yellow);
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
+    body { min-height: 100vh; background: var(--yellow); display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+
     .dash {
-      width: min(760px, 100%);
-      border: 4px solid var(--black);
-      background: var(--paper);
-      box-shadow: 8px 8px 0 var(--black);
-      padding: 28px;
+      width: min(720px, 100%); border: 4px solid var(--black); background: var(--paper);
+      box-shadow: 8px 8px 0 var(--black); padding: 32px; animation: cardIn 0.5s ease-out both;
     }
-    h1 {
-      font-family: "Bebas Neue", sans-serif;
-      font-size: 56px;
-      line-height: 0.9;
-      margin-bottom: 12px;
-    }
-    .email {
-      margin-bottom: 18px;
-      font-weight: 700;
-    }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 52px; line-height: 0.9; margin-bottom: 8px; }
+    .user-info { margin-bottom: 20px; }
+    .user-info p { font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+
     .panel {
-      border: 4px solid var(--black);
-      background: #fff;
-      padding: 16px;
-      margin-bottom: 16px;
+      border: 4px solid var(--black); background: #fff; padding: 20px; margin-bottom: 16px;
     }
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .panel p { font-size: 14px; line-height: 1.5; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 4px solid var(--black); background: var(--black); color: var(--yellow);
+      text-decoration: none; padding: 12px 16px; font-weight: 700; font-size: 14px;
+      cursor: pointer; box-shadow: 5px 5px 0 var(--black); min-height: 48px;
+      transition: background 0.15s, color 0.15s;
     }
-    button, a.btn {
-      border: 4px solid var(--black);
-      background: var(--black);
-      color: var(--yellow);
-      text-decoration: none;
-      padding: 10px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 5px 5px 0 var(--black);
+    .btn:hover { background: var(--yellow); color: var(--black); }
+    .btn.admin-btn { background: var(--yellow); color: var(--black); }
+    .btn.admin-btn:hover { background: var(--black); color: var(--yellow); }
+
+    .status { margin-top: 10px; color: var(--error); font-weight: 700; min-height: 20px; font-size: 13px; }
+    #adminSection { display: none; }
+
+    @keyframes cardIn { 0%{opacity:0;transform:translateY(30px)} 100%{opacity:1;transform:translateY(0)} }
+
+    @media (max-width: 520px) {
+      .dash { padding: 22px 16px; }
+      h1 { font-size: 40px; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
     }
-    button:hover, a.btn:hover {
-      background: var(--yellow);
-      color: var(--black);
-    }
-    .status {
-      margin-top: 8px;
-      color: var(--error);
-      font-weight: 700;
-      min-height: 20px;
-    }
+    @media (hover: none) { *, a, button { cursor: default !important; } }
   </style>
 </head>
 <body>
   <main class="dash">
     <h1>MVUMI<br/>DASHBOARD</h1>
-    <p class="email" id="userEmail">Checking session...</p>
+
+    <div class="user-info" id="userInfo">
+      <p>Loading session...</p>
+    </div>
 
     <section class="panel">
-      <p>Protected route is active. Only authenticated users can stay here.</p>
-      <div class="actions" style="margin-top:10px;">
-        <a class="btn" href="index.html">Back To Login</a>
-        <button id="logoutBtn" type="button">LOGOUT</button>
+      <p>Welcome to your protected dashboard. Only authenticated users can access this page.</p>
+
+      <div class="actions">
+        <a class="btn" href="index.html">BACK TO LOGIN</a>
+        <button class="btn" id="logoutBtn" type="button">LOGOUT</button>
+        <div id="adminSection">
+          <a class="btn admin-btn" href="admin.html">★ ADMIN PANEL</a>
+        </div>
       </div>
+
       <p class="status" id="status"></p>
     </section>
   </main>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const userEmail = document.getElementById("userEmail");
+    const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
+    const SUPABASE_ANON = "sb_publishable_yh1RlbveuqsjQSPCZhX3fg_LlalAOfW";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+    const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+
+    const userInfo = document.getElementById("userInfo");
     const logoutBtn = document.getElementById("logoutBtn");
     const statusEl = document.getElementById("status");
+    const adminSection = document.getElementById("adminSection");
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAIg5vDWb-7IAx583dNryfJ-EGWK8OQ71A",
-      authDomain: "mvumi-c32dd.firebaseapp.com",
-      projectId: "mvumi-c32dd",
-      storageBucket: "mvumi-c32dd.firebasestorage.app",
-      messagingSenderId: "451539592305",
-      appId: "1:451539592305:web:e57c4270ac365f2d68a7d0",
-      measurementId: "G-KKP6SWP4X5"
-    };
+    /* ── Auth guard ── */
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.replace("index.html"); throw new Error("no session"); }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const user = session.user;
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.replace("index.html");
-        return;
-      }
-      userEmail.textContent = "SIGNED IN AS: " + user.email;
-    });
+    /* Show admin link for admin user */
+    if (user.email === ADMIN_EMAIL) {
+      adminSection.style.display = "block";
+    }
 
+    /* Fetch profile for display name */
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name, phone")
+      .eq("id", user.id)
+      .single();
+
+    const name = profile?.display_name || "User";
+    const escapedEmail = user.email.replace(/</g, "&lt;");
+    const escapedName = name.replace(/</g, "&lt;");
+    const escapedPhone = (profile?.phone || "").replace(/</g, "&lt;");
+    userInfo.innerHTML =
+      `<p>SIGNED IN AS: <strong>${escapedEmail}</strong></p>` +
+      `<p>NAME: ${escapedName}</p>` +
+      (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "");
+
+    /* ── Logout ── */
     logoutBtn.addEventListener("click", async () => {
       statusEl.textContent = "Logging out...";
-      try {
-        await signOut(auth);
-        window.location.replace("index.html");
-      } catch (error) {
-        statusEl.textContent = "LOGOUT FAILED: " + (error.code || "UNKNOWN_ERROR");
-      }
+      const { error } = await supabase.auth.signOut();
+      if (error) { statusEl.textContent = "LOGOUT FAILED: " + error.message; return; }
+      window.location.replace("index.html");
     });
   </script>
 </body>
