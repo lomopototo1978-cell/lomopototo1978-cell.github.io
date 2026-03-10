@@ -531,26 +531,47 @@
 		</section>
 	</div>
 
-	<script type="module">
-		import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-		const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
-		const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhud2FndG9qZHdvcmlwYnJmYWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMzI5ODgsImV4cCI6MjA4ODcwODk4OH0.p2Y5CglEHcrIXy0XWTnslQxTdvO-qCCAH-3uw2PAO5k";
-		const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+	<script>
+		const USER_KEY = "mvumi_users_v1";
+		const SESSION_KEY = "mvumi_session_v1";
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
 		const message = document.getElementById("formMessage");
 		const forgotLink = document.getElementById("forgotLink");
+		const rememberCheckbox = document.querySelector(".remember input");
 		const swatches = Array.from(document.querySelectorAll(".swatch"));
 
-		/* ── Auth guard: redirect if already logged in or just confirmed via email link ── */
-		supabase.auth.getSession().then(({ data: { session } }) => {
-			if (session) window.location.replace("dashboard.html");
-		});
-		supabase.auth.onAuthStateChange((event, session) => {
-			if (session) window.location.replace("dashboard.html");
-		});
+		function loadUsers() {
+			try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
+			catch { return []; }
+		}
+
+		function getSessionEmail() {
+			const persistent = localStorage.getItem(SESSION_KEY);
+			const temporary = sessionStorage.getItem(SESSION_KEY);
+			return persistent || temporary || "";
+		}
+
+		function setSession(email, remember) {
+			if (remember) {
+				localStorage.setItem(SESSION_KEY, email);
+				sessionStorage.removeItem(SESSION_KEY);
+				return;
+			}
+			sessionStorage.setItem(SESSION_KEY, email);
+			localStorage.removeItem(SESSION_KEY);
+		}
+
+		async function hashPassword(text) {
+			const bytes = new TextEncoder().encode(text);
+			const digest = await crypto.subtle.digest("SHA-256", bytes);
+			return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+		}
+
+		if (getSessionEmail()) {
+			window.location.replace("dashboard.html");
+		}
 
 		/* ── Theme switcher ── */
 		const themes = {
@@ -594,32 +615,35 @@
 			if (!email || !password) { message.textContent = "ERROR: BOTH FIELDS ARE REQUIRED."; return; }
 
 			setLoadingState(true);
-			const { error } = await supabase.auth.signInWithPassword({ email, password });
-			setLoadingState(false);
-
-			if (error) {
-				const msg = error.message.toLowerCase().includes("email not confirmed")
-					? "EMAIL NOT CONFIRMED YET. CHECK YOUR INBOX AND CLICK THE LINK FIRST."
-					: "LOGIN FAILED: " + error.message;
-				message.textContent = msg;
+			const users = loadUsers();
+			const existing = users.find((u) => (u.email || "").toLowerCase() === email.toLowerCase());
+			if (!existing) {
+				setLoadingState(false);
+				message.textContent = "LOGIN FAILED: ACCOUNT NOT FOUND.";
 				return;
 			}
+
+			const attemptedHash = await hashPassword(password);
+			setLoadingState(false);
+			if (attemptedHash !== existing.passwordHash) {
+				message.textContent = "LOGIN FAILED: WRONG PASSWORD.";
+				return;
+			}
+
+			setSession(existing.email, rememberCheckbox.checked);
 
 			message.style.color = "#000";
 			message.textContent = "ACCESS GRANTED. REDIRECTING...";
 			setTimeout(() => { window.location.href = "dashboard.html"; }, 400);
 		});
 
-		/* ── Forgot password ── */
+		/* Static app cannot send real reset emails without external provider */
 		forgotLink.addEventListener("click", async (e) => {
 			e.preventDefault();
 			const email = form.email.value.trim();
-			if (!email) { message.textContent = "ENTER EMAIL TO SEND RESET LINK."; return; }
-
-			const { error } = await supabase.auth.resetPasswordForEmail(email);
-			if (error) { message.style.color = "var(--error)"; message.textContent = "RESET FAILED: " + error.message; return; }
+			if (!email) { message.textContent = "ENTER YOUR EMAIL."; return; }
 			message.style.color = "#000";
-			message.textContent = "RESET EMAIL SENT. CHECK INBOX.";
+			message.textContent = "RESET VIA EMAIL IS DISABLED IN LOCAL MODE. CREATE A NEW ACCOUNT OR USE AN EXTERNAL EMAIL API SERVICE.";
 		});
 	</script>
 </body>

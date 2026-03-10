@@ -74,12 +74,9 @@
     </section>
   </main>
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-    const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhud2FndG9qZHdvcmlwYnJmYWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMzI5ODgsImV4cCI6MjA4ODcwODk4OH0.p2Y5CglEHcrIXy0XWTnslQxTdvO-qCCAH-3uw2PAO5k";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+  <script>
+    const USER_KEY = "mvumi_users_v1";
+    const SESSION_KEY = "mvumi_session_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 
     const userInfo = document.getElementById("userInfo");
@@ -87,38 +84,45 @@
     const statusEl = document.getElementById("status");
     const adminSection = document.getElementById("adminSection");
 
-    /* ── Auth guard ── */
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.replace("index.html"); throw new Error("no session"); }
+    function loadUsers() {
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
+      catch { return []; }
+    }
 
-    const user = session.user;
+    const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    if (!sessionEmail) {
+      window.location.replace("index.html");
+      throw new Error("no session");
+    }
+
+    const users = loadUsers();
+    const user = users.find((u) => (u.email || "").toLowerCase() === sessionEmail.toLowerCase());
+    if (!user) {
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      window.location.replace("index.html");
+      throw new Error("session user missing");
+    }
 
     /* Show admin link for admin user */
-    if (user.email === ADMIN_EMAIL) {
+    if ((user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       adminSection.style.display = "block";
     }
 
-    /* Fetch profile for display name */
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("display_name, phone")
-      .eq("id", user.id)
-      .single();
-
-    const name = profile?.display_name || "User";
+    const name = user.display_name || "User";
     const escapedEmail = user.email.replace(/</g, "&lt;");
     const escapedName = name.replace(/</g, "&lt;");
-    const escapedPhone = (profile?.phone || "").replace(/</g, "&lt;");
+    const escapedPhone = (user.phone || "").replace(/</g, "&lt;");
     userInfo.innerHTML =
       `<p>SIGNED IN AS: <strong>${escapedEmail}</strong></p>` +
       `<p>NAME: ${escapedName}</p>` +
       (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "");
 
     /* ── Logout ── */
-    logoutBtn.addEventListener("click", async () => {
+    logoutBtn.addEventListener("click", () => {
       statusEl.textContent = "Logging out...";
-      const { error } = await supabase.auth.signOut();
-      if (error) { statusEl.textContent = "LOGOUT FAILED: " + error.message; return; }
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
       window.location.replace("index.html");
     });
   </script>

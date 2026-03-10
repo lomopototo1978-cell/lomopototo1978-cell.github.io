@@ -85,12 +85,9 @@
     <div class="cards" id="mobileCards"></div>
   </main>
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-    const SUPABASE_URL = "https://xnwagtojdworipbrfaeu.supabase.co";
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhud2FndG9qZHdvcmlwYnJmYWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxMzI5ODgsImV4cCI6MjA4ODcwODk4OH0.p2Y5CglEHcrIXy0XWTnslQxTdvO-qCCAH-3uw2PAO5k";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+  <script>
+    const USER_KEY = "mvumi_users_v1";
+    const SESSION_KEY = "mvumi_session_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 
     const countEl = document.getElementById("count");
@@ -99,22 +96,26 @@
     const mobileCards = document.getElementById("mobileCards");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    /* ── Auth guard + admin check ── */
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.replace("index.html"); throw new Error("no session"); }
-    if (session.user.email !== ADMIN_EMAIL) { window.location.replace("dashboard.html"); throw new Error("not admin"); }
-
-    /* ── Fetch all profiles ── */
-    const { data: profiles, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      statusEl.textContent = "FAILED TO LOAD ACCOUNTS: " + error.message;
+    function loadUsers() {
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
+      catch { return []; }
     }
 
-    const list = profiles || [];
+    const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    if (!sessionEmail) {
+      window.location.replace("index.html");
+      throw new Error("no session");
+    }
+    if (sessionEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      window.location.replace("dashboard.html");
+      throw new Error("not admin");
+    }
+
+    const list = loadUsers().slice().sort((a, b) => {
+      const aTime = new Date(a.created_at || 0).getTime();
+      const bTime = new Date(b.created_at || 0).getTime();
+      return bTime - aTime;
+    });
     countEl.textContent = `TOTAL ACCOUNTS: ${list.length}`;
 
     /* Helper: escape HTML to prevent XSS */
@@ -144,10 +145,10 @@
     }).join("");
 
     /* ── Logout ── */
-    logoutBtn.addEventListener("click", async () => {
+    logoutBtn.addEventListener("click", () => {
       statusEl.textContent = "Logging out...";
-      const { error } = await supabase.auth.signOut();
-      if (error) { statusEl.textContent = "LOGOUT FAILED: " + error.message; return; }
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
       window.location.replace("index.html");
     });
   </script>
