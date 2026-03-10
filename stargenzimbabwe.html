@@ -6,147 +6,357 @@
   <title>StarGENzimbabwe</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root { --yellow:#FFE500; --black:#000; --paper:#FAFAFA; --ink:#0a0a0a; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
+    :root {
+      --bg: #fff7db;
+      --panel: #fffdf3;
+      --ink: #111111;
+      --accent: #ff6a3d;
+      --accent-2: #2ec4ff;
+      --line: #111111;
+      --soft: #f6efcf;
+      --user: #d8f1ff;
+      --ai: #ffe8dc;
+      --shadow: 6px 6px 0 #111111;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
     body {
-      min-height: 100vh;
-      background: var(--yellow);
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Space Grotesk", sans-serif;
+      background:
+        radial-gradient(circle at 8% 8%, rgba(46, 196, 255, 0.22), transparent 26%),
+        radial-gradient(circle at 90% 88%, rgba(255, 106, 61, 0.22), transparent 28%),
+        var(--bg);
       color: var(--ink);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      overflow: hidden;
     }
+
     .app {
-      width: min(980px, 100%);
-      border: 4px solid var(--black);
-      box-shadow: 8px 8px 0 var(--black);
-      background: var(--paper);
-      padding: 24px;
-    }
-    h1 {
-      font-family: "Bebas Neue", sans-serif;
-      font-size: 52px;
-      line-height: 0.9;
-      margin-bottom: 8px;
-    }
-    .sub { font-size: 13px; font-weight: 700; margin-bottom: 16px; }
-    .grid {
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
+      grid-template-columns: 290px 1fr;
     }
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    .field label { font-size: 12px; font-weight: 700; }
-    input, select, textarea {
-      border: 3px solid var(--black);
+
+    .sidebar {
+      border-right: 4px solid var(--line);
+      background: var(--panel);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .brand {
+      border: 4px solid var(--line);
       background: #fff;
-      min-height: 46px;
-      padding: 8px 10px;
-      font-size: 14px;
+      box-shadow: var(--shadow);
+      padding: 12px;
     }
-    textarea { min-height: 90px; resize: vertical; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 14px; }
-    .btn {
-      border: 4px solid var(--black);
-      background: var(--black);
-      color: var(--yellow);
-      min-height: 48px;
-      padding: 10px 14px;
-      text-decoration: none;
+
+    .brand h1 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 44px;
+      line-height: 0.9;
+      letter-spacing: 0.6px;
+    }
+
+    .brand p {
+      margin-top: 6px;
+      font-size: 12px;
       font-weight: 700;
-      box-shadow: 5px 5px 0 var(--black);
+    }
+
+    .model-chip {
+      display: inline-flex;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .new-chat {
+      width: 100%;
+      min-height: 44px;
+      border: 4px solid var(--line);
+      background: var(--line);
+      color: #ffe500;
+      font-weight: 700;
+      box-shadow: 4px 4px 0 var(--line);
       cursor: pointer;
     }
-    .btn:hover { background: var(--yellow); color: var(--black); }
-    .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .card {
-      border: 3px solid var(--black);
+
+    .new-chat:hover {
+      background: #ffe500;
+      color: var(--line);
+    }
+
+    .quick {
+      border: 3px solid var(--line);
       background: #fff;
       padding: 10px;
     }
-    .card h3 { font-size: 12px; margin-bottom: 6px; }
-    .card p { font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
-    .status { min-height: 20px; font-size: 13px; font-weight: 700; margin-top: 8px; }
 
-    @media (max-width: 720px) {
-      .app { padding: 16px; }
-      h1 { font-size: 42px; }
-      .grid, .result-grid { grid-template-columns: 1fr; }
-      .actions { flex-direction: column; }
-      .btn { width: 100%; text-align: center; }
+    .quick h2 {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .quick-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .q-btn {
+      border: 2px solid var(--line);
+      background: var(--soft);
+      color: var(--ink);
+      text-align: left;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .q-btn:hover {
+      background: #fff;
+    }
+
+    .side-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .link-btn {
+      border: 3px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      text-decoration: none;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .link-btn:hover {
+      background: var(--soft);
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .topbar {
+      border: 4px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .topbar strong {
+      font-size: 14px;
+    }
+
+    .status {
+      border: 2px solid var(--line);
+      background: #f2ffe1;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chat {
+      border: 4px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      border: 3px solid var(--line);
+      padding: 10px;
+      max-width: min(760px, 92%);
+      white-space: pre-wrap;
+      line-height: 1.45;
+      font-size: 14px;
+      animation: msgIn 0.2s ease-out;
+    }
+
+    .msg.user {
+      margin-left: auto;
+      background: var(--user);
+    }
+
+    .msg.ai {
+      margin-right: auto;
+      background: var(--ai);
+    }
+
+    .msg .meta {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .composer {
+      border: 4px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .composer textarea {
+      width: 100%;
+      min-height: 74px;
+      max-height: 220px;
+      resize: vertical;
+      border: 3px solid var(--line);
+      background: #fffdf7;
+      padding: 10px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .send {
+      min-width: 120px;
+      border: 4px solid var(--line);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--line);
+      padding: 10px;
+    }
+
+    .send:disabled {
+      opacity: 0.75;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .hint {
+      grid-column: 1 / -1;
+      font-size: 11px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 4px solid var(--line);
+      }
+
+      .quick-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .quick-list {
+        grid-template-columns: 1fr;
+      }
+
+      .composer {
+        grid-template-columns: 1fr;
+      }
+
+      .send {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <h1>StarGEN<br/>zimbabwe</h1>
-    <p class="sub">Create quick campaign content for local businesses and creators.</p>
+    <aside class="sidebar">
+      <section class="brand">
+        <h1>StarGEN<br/>zimbabwe</h1>
+        <p>Generative AI workspace for local business growth.</p>
+        <span class="model-chip">MODEL: StarGEN-mini (local)</span>
+      </section>
 
-    <div class="grid">
-      <div class="field">
-        <label for="brand">Brand or Business</label>
-        <input id="brand" type="text" placeholder="Example: Mbare Fresh Market" />
+      <button id="newChatBtn" class="new-chat" type="button">+ NEW CHAT</button>
+
+      <section class="quick">
+        <h2>QUICK STARTERS</h2>
+        <div class="quick-list">
+          <button class="q-btn" type="button" data-prompt="Create a 7-day launch plan for a Harare fashion brand.">7-day launch plan</button>
+          <button class="q-btn" type="button" data-prompt="Write 5 punchy taglines for a Zimbabwean food delivery app.">Tagline generator</button>
+          <button class="q-btn" type="button" data-prompt="Generate 3 Facebook ad copies for a local school enrollment campaign.">Ad copy ideas</button>
+          <button class="q-btn" type="button" data-prompt="Build a WhatsApp broadcast message for a weekend retail sale in Bulawayo.">WhatsApp campaign</button>
+        </div>
+      </section>
+
+      <div class="side-footer">
+        <a class="link-btn" href="dashboard.html">BACK TO DASHBOARD</a>
+        <a class="link-btn" href="cv-maker.html">OPEN CV MAKER</a>
       </div>
-      <div class="field">
-        <label for="industry">Industry</label>
-        <select id="industry">
-          <option value="retail">Retail</option>
-          <option value="food">Food</option>
-          <option value="tech">Tech</option>
-          <option value="fashion">Fashion</option>
-          <option value="education">Education</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="tone">Tone</label>
-        <select id="tone">
-          <option value="bold">Bold</option>
-          <option value="friendly">Friendly</option>
-          <option value="premium">Premium</option>
-          <option value="youth">Youthful</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="goal">Campaign Goal</label>
-        <input id="goal" type="text" placeholder="Example: drive weekend foot traffic" />
-      </div>
-    </div>
+    </aside>
 
-    <div class="field">
-      <label for="extra">Extra Context (optional)</label>
-      <textarea id="extra" placeholder="Anything else the generator should include..."></textarea>
-    </div>
+    <section class="main">
+      <header class="topbar">
+        <strong>Conversation: StarGEN Campaign Assistant</strong>
+        <span id="llmStatus" class="status">READY</span>
+      </header>
 
-    <div class="actions">
-      <button id="generateBtn" class="btn" type="button">GENERATE IDEAS</button>
-      <a class="btn" href="dashboard.html">BACK TO DASHBOARD</a>
-      <button id="copyBtn" class="btn" type="button">COPY ALL</button>
-    </div>
+      <section id="chat" class="chat" aria-live="polite"></section>
 
-    <div class="result-grid">
-      <article class="card">
-        <h3>TAGLINE</h3>
-        <p id="taglineOut">-</p>
-      </article>
-      <article class="card">
-        <h3>CAMPAIGN CONCEPT</h3>
-        <p id="conceptOut">-</p>
-      </article>
-      <article class="card">
-        <h3>SOCIAL POST</h3>
-        <p id="socialOut">-</p>
-      </article>
-      <article class="card">
-        <h3>RADIO HOOK</h3>
-        <p id="radioOut">-</p>
-      </article>
-    </div>
-
-    <p id="status" class="status"></p>
+      <form id="composer" class="composer">
+        <textarea id="promptInput" placeholder="Ask StarGEN to generate campaign ideas, content strategy, posts, slogans, or scripts..."></textarea>
+        <button id="sendBtn" class="send" type="submit">GENERATE</button>
+        <p class="hint">Phase 1: local LLM core (no external API key yet). Next step can plug in an online model provider.</p>
+      </form>
+    </section>
   </main>
 
   <script>
@@ -157,82 +367,177 @@
       throw new Error("no session");
     }
 
-    const presets = {
-      retail: ["Smart prices, strong quality", "Shop local. Shine daily."],
-      food: ["Fresh flavor, every day", "Taste that brings everyone together"],
-      tech: ["Built for speed, made for people", "Digital tools, real results"],
-      fashion: ["Wear confidence", "Street style with purpose"],
-      education: ["Learn today, lead tomorrow", "Skills that open doors"]
+    const chatEl = document.getElementById("chat");
+    const composer = document.getElementById("composer");
+    const promptInput = document.getElementById("promptInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const llmStatus = document.getElementById("llmStatus");
+    const newChatBtn = document.getElementById("newChatBtn");
+
+    const QUICK_BTNS = Array.from(document.querySelectorAll(".q-btn"));
+
+    const STATE = {
+      messages: [
+        {
+          role: "assistant",
+          text:
+`Hello. I am StarGEN-mini, your local generative model.
+I can help with:
+- marketing plans
+- ad copy
+- social posts
+- sales scripts
+- brand messaging
+
+Tell me your business, audience, and goal to start.`
+        }
+      ]
     };
 
-    const generateBtn = document.getElementById("generateBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const status = document.getElementById("status");
+    const KNOWLEDGE = {
+      tones: {
+        bold: "direct, high-energy, action-first",
+        friendly: "warm, community-centered, conversational",
+        premium: "confident, polished, value-forward",
+        youth: "playful, short-form, trend-aware"
+      },
+      channels: ["Facebook", "Instagram", "WhatsApp", "TikTok", "Radio"],
+      zimbabweContext: [
+        "use clear pricing where possible",
+        "include WhatsApp-first call-to-action",
+        "prefer concise text for mobile readers",
+        "mention locality when relevant (Harare, Bulawayo, Gweru, Mutare)"
+      ]
+    };
 
-    const brandEl = document.getElementById("brand");
-    const industryEl = document.getElementById("industry");
-    const toneEl = document.getElementById("tone");
-    const goalEl = document.getElementById("goal");
-    const extraEl = document.getElementById("extra");
+    function renderMessages() {
+      chatEl.innerHTML = "";
+      STATE.messages.forEach((m) => {
+        const article = document.createElement("article");
+        article.className = "msg " + (m.role === "user" ? "user" : "ai");
+        const who = m.role === "user" ? "You" : "StarGEN-mini";
+        article.innerHTML = `<span class="meta">${who}</span>${escapeHtml(m.text)}`;
+        chatEl.appendChild(article);
+      });
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
 
-    const taglineOut = document.getElementById("taglineOut");
-    const conceptOut = document.getElementById("conceptOut");
-    const socialOut = document.getElementById("socialOut");
-    const radioOut = document.getElementById("radioOut");
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
 
-    function toneWord(tone) {
-      if (tone === "premium") return "premium";
-      if (tone === "friendly") return "warm";
-      if (tone === "youth") return "high-energy";
+    function detectIntent(prompt) {
+      const p = prompt.toLowerCase();
+      if (/tagline|slogan|motto/.test(p)) return "tagline";
+      if (/plan|strategy|calendar|roadmap/.test(p)) return "plan";
+      if (/post|facebook|instagram|whatsapp|tiktok/.test(p)) return "social";
+      if (/ad|advert|copy|headline/.test(p)) return "adcopy";
+      return "general";
+    }
+
+    function inferTone(prompt) {
+      const p = prompt.toLowerCase();
+      if (/premium|luxury|executive/.test(p)) return "premium";
+      if (/friendly|warm|community/.test(p)) return "friendly";
+      if (/youth|gen z|young|trendy/.test(p)) return "youth";
       return "bold";
     }
 
-    function pick(list, seed) {
-      if (!Array.isArray(list) || !list.length) return "";
-      return list[Math.abs(seed) % list.length];
+    function extractBusiness(prompt) {
+      const m = prompt.match(/for\s+([A-Za-z0-9\-\s]{3,40})/i);
+      if (m && m[1]) return m[1].trim();
+      return "your business";
     }
 
-    function generate() {
-      const brand = brandEl.value.trim() || "Your Brand";
-      const industry = industryEl.value;
-      const tone = toneEl.value;
-      const goal = goalEl.value.trim() || "increase weekly sales";
-      const extra = extraEl.value.trim();
-
-      const base = presets[industry] || presets.retail;
-      const seed = brand.length + goal.length + tone.length;
-      const lineA = pick(base, seed);
-      const lineB = pick(base, seed + 1);
-      const styleWord = toneWord(tone);
-
-      taglineOut.textContent = `${brand}: ${lineA}`;
-      conceptOut.textContent = `${brand} should run a ${styleWord} neighborhood campaign focused on ${goal}. Use simple offers, clear call-to-action, and visible community presence.`;
-      socialOut.textContent = `${brand} is here for you. ${lineB}. This week we focus on ${goal}. Visit us, share with friends, and be part of the movement. #StarGENZimbabwe #LocalPower`;
-      radioOut.textContent = `${brand} brings you ${lineA.toLowerCase()}. Visit today and discover why everyone is talking about us. ${goal}. ${extra ? "Also: " + extra : ""}`;
-
-      status.style.color = "#000";
-      status.textContent = "Generated successfully.";
+    function buildTaglines(business, tone) {
+      const t = KNOWLEDGE.tones[tone];
+      return [
+        `${business}: Better value, bigger results.`,
+        `${business}: Built for Zimbabwe, ready for now.`,
+        `${business}: Smart service. Real impact.`
+      ].map((x, i) => `${i + 1}. ${x} (${t})`).join("\n");
     }
 
-    generateBtn.addEventListener("click", generate);
+    function buildPlan(business, tone) {
+      const context = KNOWLEDGE.zimbabweContext.map((x) => `- ${x}`).join("\n");
+      return `7-Day Campaign Plan for ${business}\n\nDay 1: Clarify offer and target audience.\nDay 2: Launch teaser post on ${KNOWLEDGE.channels[0]} + ${KNOWLEDGE.channels[2]}.\nDay 3: Publish social proof and customer story.\nDay 4: Push limited-time promotion with urgency.\nDay 5: Run short video + CTA to WhatsApp.\nDay 6: Repeat top-performing post with stronger hook.\nDay 7: Recap results and convert warm leads.\n\nTone: ${tone} (${KNOWLEDGE.tones[tone]}).\nLocal optimization:\n${context}`;
+    }
 
-    copyBtn.addEventListener("click", async () => {
-      const joined = [
-        "TAGLINE: " + taglineOut.textContent,
-        "CONCEPT: " + conceptOut.textContent,
-        "SOCIAL: " + socialOut.textContent,
-        "RADIO: " + radioOut.textContent
-      ].join("\n\n");
+    function buildSocial(business, tone) {
+      return `Post Option A:\n${business} is here to help you move faster this week. Message us on WhatsApp for today's offer.\n\nPost Option B:\nNeed dependable quality without stress? ${business} has you covered. Limited slots available.\n\nPost Option C:\nFrom idea to results, ${business} delivers. Send "START" now and let's get you set up.\n\nTone: ${tone}.`;
+    }
 
-      try {
-        await navigator.clipboard.writeText(joined);
-        status.style.color = "#000";
-        status.textContent = "Copied to clipboard.";
-      } catch {
-        status.style.color = "#ff2d2d";
-        status.textContent = "Copy failed on this browser.";
-      }
+    function buildAdCopy(business, tone) {
+      return `Headline: ${business} - Results You Can Feel\n\nPrimary text:\nLooking for a trusted option in your area? ${business} combines speed, quality, and fair value. Tap to connect on WhatsApp and get started today.\n\nCTA: Message Now\nTone: ${tone}.`;
+    }
+
+    function buildGeneral(prompt, business, tone) {
+      return `I can help with that.\n\nRequest understood:\n"${prompt}"\n\nSuggested next output:\n1. Core message for ${business}\n2. 3 content assets (post, ad, WhatsApp text)\n3. 1-week rollout plan\n\nTone guide: ${tone} (${KNOWLEDGE.tones[tone]}).`;
+    }
+
+    function runLocalLLM(prompt) {
+      const intent = detectIntent(prompt);
+      const tone = inferTone(prompt);
+      const business = extractBusiness(prompt);
+
+      if (intent === "tagline") return buildTaglines(business, tone);
+      if (intent === "plan") return buildPlan(business, tone);
+      if (intent === "social") return buildSocial(business, tone);
+      if (intent === "adcopy") return buildAdCopy(business, tone);
+      return buildGeneral(prompt, business, tone);
+    }
+
+    function setBusy(isBusy) {
+      sendBtn.disabled = isBusy;
+      llmStatus.textContent = isBusy ? "THINKING" : "READY";
+      llmStatus.style.background = isBusy ? "#fff0cf" : "#f2ffe1";
+    }
+
+    async function handlePrompt(text) {
+      STATE.messages.push({ role: "user", text });
+      renderMessages();
+      setBusy(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 450));
+      const out = runLocalLLM(text);
+      STATE.messages.push({ role: "assistant", text: out });
+
+      setBusy(false);
+      renderMessages();
+    }
+
+    composer.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = promptInput.value.trim();
+      if (!text) return;
+      promptInput.value = "";
+      await handlePrompt(text);
     });
+
+    QUICK_BTNS.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const p = btn.dataset.prompt || "";
+        if (!p) return;
+        promptInput.value = p;
+        await handlePrompt(p);
+      });
+    });
+
+    newChatBtn.addEventListener("click", () => {
+      STATE.messages = [
+        {
+          role: "assistant",
+          text:
+`New chat started.\nShare your business name, audience, and campaign target, and I will generate assets.`
+        }
+      ];
+      renderMessages();
+    });
+
+    renderMessages();
   </script>
 </body>
 </html>
