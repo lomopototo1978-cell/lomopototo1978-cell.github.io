@@ -3,375 +3,231 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Register — MVUMI</title>
+	<title>Register - MVUMI</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 	<style>
 		:root {
 			--yellow: #FFE500;
-			--black: #000000;
+			--black: #000;
 			--card: #FAFAFA;
 			--error: #FF2D2D;
 			--surface: #FFFFFF;
-			--btn-bg: #000000;
+			--btn-bg: #000;
 			--btn-ink: #FFE500;
 		}
-
-		* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; font-family: "Space Mono", monospace; }
-		html, body { width: 100%; min-height: 100%; }
-
+		* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
 		body {
+			min-height: 100vh;
+			background: var(--yellow);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			min-height: 100vh;
-			background: var(--yellow);
-			overflow-x: hidden;
-			padding: 24px 16px;
-			animation: bgFlash 0.3s linear 1;
-			transition: background 0.2s linear;
+			padding: 20px;
 		}
-
-		/* ── Animated shapes ── */
-		.shape-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
-		.shape { position: absolute; border: 3px solid var(--black); background: transparent; animation-timing-function: linear; animation-iteration-count: infinite; }
-		.circle { border-radius: 50%; }
-		.triangle { width: 0!important; height: 0!important; border-left: var(--size) solid transparent; border-right: var(--size) solid transparent; border-bottom: calc(var(--size)*1.65) solid var(--black); border-top: 0; }
-		.s1  { --size:22px; width:22px; height:22px; left:8%;  top:86%; animation:floatA 11s -1s infinite; }
-		.s2  { --size:36px; width:36px; height:36px; left:17%; top:10%; animation:floatB 18s -5s infinite; }
-		.s3  { --size:28px; width:28px; height:28px; left:33%; top:76%; animation:floatC 12s -3s infinite; }
-		.s4  { --size:44px; width:44px; height:44px; left:58%; top:84%; animation:floatA 20s -7s infinite; }
-		.s5  { --size:52px; width:52px; height:52px; left:71%; top:22%; animation:floatB 10s -2s infinite; }
-		.s6  { --size:20px; width:20px; height:20px; left:80%; top:73%; animation:floatC 14s -4s infinite; }
-		.s7  { --size:32px; width:32px; height:32px; left:5%;  top:36%; animation:floatB  8s -1.5s infinite; }
-		.s8  { --size:24px; width:24px; height:24px; left:90%; top:45%; animation:floatD 13s -6s infinite; }
-
-		/* ── Card ── */
-		.card-wrap { position: relative; z-index: 9; width: min(440px, 94vw); }
-
-		.border-draw { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); pointer-events: none; z-index: 11; }
-		.border-draw rect { fill: none; stroke: var(--black); stroke-width: 4; stroke-dasharray: 2200; stroke-dashoffset: 2200; animation: drawBorder 0.8s ease-out forwards; }
-
 		.card {
-			position: relative; width: 100%; padding: 44px 40px; border: 4px solid var(--black);
-			background: var(--card); box-shadow: 8px 8px 0 var(--black); z-index: 10;
-			animation: cardIn 0.6s ease-out forwards, shadowIn 0.5s ease-out forwards;
-			opacity: 0; transform: translateY(40px); transition: background 0.2s linear;
+			width: min(440px, 100%);
+			border: 4px solid var(--black);
+			background: var(--card);
+			box-shadow: 8px 8px 0 var(--black);
+			padding: 28px 20px;
 		}
-
-		.title {
-			display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
-			font-family: "Bebas Neue", sans-serif; font-size: 52px; line-height: 0.92; letter-spacing: 1px;
-			animation: glitchIn 0.4s steps(2,end) both; animation-delay: 0.25s;
+		h1 {
+			font-family: "Bebas Neue", sans-serif;
+			font-size: 50px;
+			line-height: 0.9;
+			margin-bottom: 14px;
 		}
-		.title-cursor { font-size: 24px; animation: blinkSquare 1s step-end infinite; }
-
-		/* ── Fields ── */
-		.field {
-			position: relative; margin-bottom: 18px;
-			opacity: 0; transform: translateX(-28px); animation: fieldIn 0.45s ease-out forwards;
-		}
-		.field:nth-of-type(1) { animation-delay: 0.30s; }
-		.field:nth-of-type(2) { animation-delay: 0.37s; }
-		.field:nth-of-type(3) { animation-delay: 0.44s; }
-		.field:nth-of-type(4) { animation-delay: 0.51s; }
-		.field:nth-of-type(5) { animation-delay: 0.58s; }
-
+		.field { margin-bottom: 12px; }
 		.field input {
-			width: 100%; border: 4px solid var(--black); background: var(--surface);
-			padding: 17px 14px 11px; font-size: 15px; caret-color: var(--black);
-			transition: transform 0.15s, box-shadow 0.15s; min-height: 48px;
+			width: 100%;
+			min-height: 48px;
+			border: 4px solid var(--black);
+			background: var(--surface);
+			padding: 10px 12px;
+			font-size: 15px;
 		}
-		.field input:focus { outline: none; transform: translate(-3px,-3px); box-shadow: 5px 5px 0 var(--black); }
-		.field label {
-			position: absolute; left: 14px; top: 15px; background: var(--card); padding: 0 3px;
-			font-size: 13px; transition: transform 0.15s, font-size 0.15s, top 0.15s; pointer-events: none;
+		.btn {
+			width: 100%;
+			min-height: 52px;
+			border: 4px solid var(--black);
+			background: var(--btn-bg);
+			color: var(--btn-ink);
+			font-weight: 700;
+			padding: 10px 12px;
+			box-shadow: 5px 5px 0 var(--black);
+			cursor: pointer;
 		}
-		.field input:focus + label,
-		.field input:not(:placeholder-shown) + label { top: -9px; font-size: 11px; transform: translateY(-2px); font-weight: 700; }
-
-		/* ── Button ── */
-		.submit-btn {
-			width: 100%; border: 4px solid var(--black); background: var(--btn-bg); color: var(--btn-ink);
-			font-weight: 700; font-size: 18px; padding: 14px 12px; min-height: 52px;
-			box-shadow: 0 0 0 var(--black); transform: scale(0.8); opacity: 0;
-			animation: btnIn 0.65s cubic-bezier(0.22,1.35,0.4,1) forwards; animation-delay: 0.65s;
-			transition: background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.15s; cursor: pointer;
+		.btn:disabled { opacity: 0.85; box-shadow: none; }
+		.message {
+			min-height: 22px;
+			margin-top: 10px;
+			font-size: 13px;
+			font-weight: 700;
+			color: var(--error);
 		}
-		.submit-btn:hover { background: var(--btn-ink); color: var(--btn-bg); box-shadow: 5px 5px 0 var(--black); animation: btnShake 0.2s linear 1; }
-		.submit-btn:active { transform: translate(4px,4px); box-shadow: 2px 2px 0 var(--black); }
+		.small {
+			margin-top: 10px;
+			font-size: 12px;
+			text-align: center;
+		}
+		.small a { color: var(--black); font-weight: 700; text-decoration: none; }
+		#otpPanel { display: none; margin-top: 10px; }
+		@media (max-width: 520px) {
+			h1 { font-size: 42px; }
+			.card { padding: 22px 14px; }
+		}
+	</style>
+</head>
+<body>
+	<main class="card">
+		<h1>REGISTER</h1>
+		<form id="registerForm" novalidate>
+			<div class="field"><input id="displayName" type="text" placeholder="Display name" required /></div>
+			<div class="field"><input id="phone" type="tel" placeholder="Phone" required /></div>
+			<div class="field"><input id="email" type="email" placeholder="Email" required /></div>
+			<div class="field"><input id="password" type="password" placeholder="Password" required /></div>
+			<div class="field"><input id="confirmPassword" type="password" placeholder="Confirm password" required /></div>
+			<button class="btn" id="createBtn" type="submit">CREATE ACCOUNT</button>
+			<p class="message" id="formMessage"></p>
+		</form>
 
-		.dots { display: inline-flex; min-width: 20px; justify-content: flex-start; margin-left: 2px; }
-		.dot { opacity: 0; animation: dotBlink 1s infinite; display: inline-block; width: 6px; }
-		.dot:nth-child(1) { animation-delay: 0s; }
-		.dot:nth-child(2) { animation-delay: 0.2s; }
-		.dot:nth-child(3) { animation-delay: 0.4s; }
+		<div id="otpPanel">
+			<div class="field"><input id="otpCode" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" /></div>
+			<button class="btn" id="verifyBtn" type="button">VERIFY CODE</button>
+			<button class="btn" id="resendBtn" type="button" style="margin-top:10px;">GENERATE NEW CODE</button>
+			<p class="message" id="otpMessage"></p>
+		</div>
 
-		.message { min-height: 22px; margin-top: 14px; font-size: 13px; color: var(--error); font-weight: 700; }
-		<script>
-			const USER_KEY = "mvumi_users_v1";
-			const SESSION_KEY = "mvumi_session_v1";
-			const PENDING_KEY = "mvumi_pending_signup_v1";
+		<p class="small">Already have an account? <a href="index.html">LOGIN</a></p>
+	</main>
 
-			const form = document.getElementById("registerForm");
-			const btn = form.querySelector(".submit-btn");
-			const message = document.getElementById("formMessage");
-			const otpPanel = document.getElementById("otpPanel");
-			const verifyBtn = document.getElementById("verifyBtn");
-			const continueBtn = document.getElementById("continueBtn");
-			const otpMessage = document.getElementById("otpMessage");
-			const resendBtn = document.getElementById("resendBtn");
+	<script>
+		const USER_KEY = "mvumi_users_v1";
+		const SESSION_KEY = "mvumi_session_v1";
+		const PENDING_KEY = "mvumi_pending_signup_v1";
 
-			if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {
-				window.location.replace("dashboard.html");
+		const form = document.getElementById("registerForm");
+		const createBtn = document.getElementById("createBtn");
+		const formMessage = document.getElementById("formMessage");
+		const otpPanel = document.getElementById("otpPanel");
+		const verifyBtn = document.getElementById("verifyBtn");
+		const resendBtn = document.getElementById("resendBtn");
+		const otpMessage = document.getElementById("otpMessage");
+
+		if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {
+			window.location.replace("dashboard.html");
+		}
+
+		function loadUsers() {
+			try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
+			catch { return []; }
+		}
+		function saveUsers(users) { localStorage.setItem(USER_KEY, JSON.stringify(users)); }
+		function savePending(p) { sessionStorage.setItem(PENDING_KEY, JSON.stringify(p)); }
+		function loadPending() {
+			try { return JSON.parse(sessionStorage.getItem(PENDING_KEY) || "null"); }
+			catch { return null; }
+		}
+		function clearPending() { sessionStorage.removeItem(PENDING_KEY); }
+		function setSession(email) {
+			sessionStorage.setItem(SESSION_KEY, email);
+			localStorage.removeItem(SESSION_KEY);
+		}
+		function generateCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+
+		async function hashPassword(text) {
+			const bytes = new TextEncoder().encode(text);
+			const digest = await crypto.subtle.digest("SHA-256", bytes);
+			return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+		}
+
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			formMessage.textContent = "";
+			formMessage.style.color = "var(--error)";
+
+			const displayName = document.getElementById("displayName").value.trim();
+			const phone = document.getElementById("phone").value.trim();
+			const email = document.getElementById("email").value.trim().toLowerCase();
+			const password = document.getElementById("password").value;
+			const confirmPassword = document.getElementById("confirmPassword").value;
+
+			if (!displayName || !phone || !email || !password || !confirmPassword) {
+				formMessage.textContent = "ALL FIELDS ARE REQUIRED.";
+				return;
+			}
+			if (password.length < 6) {
+				formMessage.textContent = "PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
+				return;
+			}
+			if (password !== confirmPassword) {
+				formMessage.textContent = "PASSWORDS DO NOT MATCH.";
+				return;
+			}
+			if (loadUsers().some((u) => (u.email || "").toLowerCase() === email)) {
+				formMessage.textContent = "ACCOUNT ALREADY EXISTS. LOGIN INSTEAD.";
+				return;
 			}
 
-			function loadUsers() {
-				try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
-				catch { return []; }
-			}
-
-			function saveUsers(users) {
-				localStorage.setItem(USER_KEY, JSON.stringify(users));
-			}
-
-			function savePending(pending) {
-				sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
-			}
-
-			function loadPending() {
-				try { return JSON.parse(sessionStorage.getItem(PENDING_KEY) || "null"); }
-				catch { return null; }
-			}
-
-			function clearPending() {
-				sessionStorage.removeItem(PENDING_KEY);
-			}
-
-			function setSession(email) {
-				sessionStorage.setItem(SESSION_KEY, email);
-				localStorage.removeItem(SESSION_KEY);
-			}
-
-			async function hashPassword(text) {
-				const bytes = new TextEncoder().encode(text);
-				const digest = await crypto.subtle.digest("SHA-256", bytes);
-				return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
-			}
-
-			function generateCode() {
-				return Math.floor(100000 + Math.random() * 900000).toString();
-			}
-
-			function setLoading(on) {
-				if (!on) { btn.disabled = false; btn.textContent = "CREATE ACCOUNT"; return; }
-				btn.disabled = true;
-				btn.innerHTML = 'CREATING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
-			}
-
-			function setVerifyLoading(on) {
-				if (!on) { verifyBtn.disabled = false; verifyBtn.textContent = "VERIFY CODE"; return; }
-				verifyBtn.disabled = true;
-				verifyBtn.innerHTML = 'VERIFYING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
-			}
-
-			function showOtpPanel(note) {
-				form.style.display = "none";
-				otpPanel.style.display = "block";
-				otpMessage.style.color = "#000";
-				otpMessage.textContent = note;
-				document.getElementById("otpCode").focus();
-			}
-
-			form.addEventListener("submit", async (e) => {
-				e.preventDefault();
-				message.textContent = "";
-				message.style.color = "var(--error)";
-
-				const displayName = document.getElementById("displayName").value.trim();
-				const phone = document.getElementById("phone").value.trim();
-				const email = document.getElementById("email").value.trim().toLowerCase();
-				const password = document.getElementById("password").value;
-				const confirm = document.getElementById("confirmPassword").value;
-
-				if (!displayName || !phone || !email || !password) { message.textContent = "ERROR: ALL FIELDS ARE REQUIRED."; return; }
-				if (password.length < 6) { message.textContent = "PASSWORD MUST BE AT LEAST 6 CHARACTERS."; return; }
-				if (password !== confirm) { message.textContent = "PASSWORDS DO NOT MATCH."; return; }
-
-				const users = loadUsers();
-				if (users.some((u) => (u.email || "").toLowerCase() === email)) {
-					message.textContent = "ACCOUNT ALREADY EXISTS. LOGIN INSTEAD.";
-					return;
-				}
-
-				setLoading(true);
-				const passwordHash = await hashPassword(password);
-				const code = generateCode();
-				const pending = {
-					email,
-					displayName,
-					phone,
-					passwordHash,
-					code,
-					expiresAt: Date.now() + 10 * 60 * 1000
-				};
-				savePending(pending);
-				setLoading(false);
-
-				showOtpPanel(`CODE GENERATED FOR ${email}: ${code}. ENTER IT BELOW (VALID FOR 10 MINUTES).`);
-			});
-
-			verifyBtn.addEventListener("click", () => {
-				const code = document.getElementById("otpCode").value.trim();
-				const pending = loadPending();
-				otpMessage.style.color = "var(--error)";
-
-				if (!pending) { otpMessage.textContent = "NO PENDING REGISTRATION FOUND. REGISTER AGAIN."; return; }
-				if (Date.now() > pending.expiresAt) { otpMessage.textContent = "CODE EXPIRED. RESEND TO GENERATE A NEW CODE."; return; }
-				if (!code || code.length < 6) { otpMessage.textContent = "ENTER THE FULL 6-DIGIT CODE."; return; }
-				if (code !== pending.code) { otpMessage.textContent = "INVALID CODE."; return; }
-
-				setVerifyLoading(true);
-				const users = loadUsers();
-				users.push({
-					email: pending.email,
-					display_name: pending.displayName,
-					phone: pending.phone,
-					passwordHash: pending.passwordHash,
-					created_at: new Date().toISOString()
-				});
-				saveUsers(users);
-				setSession(pending.email);
-				clearPending();
-				setVerifyLoading(false);
-
-				otpMessage.style.color = "#000";
-				otpMessage.textContent = "VERIFIED! REDIRECTING...";
-				setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
-			});
-
-			continueBtn.addEventListener("click", () => {
-				otpMessage.style.color = "var(--error)";
-				otpMessage.textContent = "USE THE GENERATED CODE SHOWN ABOVE, THEN PRESS VERIFY CODE.";
-			});
-
-			resendBtn.addEventListener("click", (e) => {
-				e.preventDefault();
-				const pending = loadPending();
-				if (!pending) {
-					otpMessage.style.color = "var(--error)";
-					otpMessage.textContent = "NO PENDING REGISTRATION FOUND. REGISTER AGAIN.";
-					return;
-				}
-
-				pending.code = generateCode();
-				pending.expiresAt = Date.now() + 10 * 60 * 1000;
-				savePending(pending);
-				otpMessage.style.color = "#000";
-				otpMessage.textContent = `NEW CODE: ${pending.code}. ENTER IT BELOW.`;
-			});
-		</script>
-			}
-
-			setLoading(true);
-
-			const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+			createBtn.disabled = true;
+			const passwordHash = await hashPassword(password);
+			const code = generateCode();
+			savePending({
+				displayName,
+				phone,
 				email,
-				password,
-				options: {
-					data: { display_name: displayName, phone },
-					emailRedirectTo: window.location.origin + "/register.html"
-				}
+				passwordHash,
+				code,
+				expiresAt: Date.now() + 10 * 60 * 1000
 			});
+			createBtn.disabled = false;
 
-			setLoading(false);
-
-			if (signUpError) {
-				message.textContent = "REGISTER FAILED: " + mapAuthError(signUpError, "signup");
-				return;
-			}
-
-			/* Store for OTP step */
-			pendingEmail = email;
-			pendingProfile = { id: signUpData.user?.id, email, display_name: displayName, phone };
-
-			if (signUpData.session) {
-				/* Email confirmation disabled — session is live now */
-				await supabase.from("profiles").insert(pendingProfile);
-				message.style.color = "#000";
-				message.textContent = "ACCOUNT CREATED! REDIRECTING...";
-				setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
-				return;
-			}
-
-			/* Confirmation required — show OTP panel */
 			form.style.display = "none";
 			otpPanel.style.display = "block";
 			otpMessage.style.color = "#000";
-			otpMessage.textContent = `CHECK ${email}. USE CODE OR CLICK THE EMAIL LINK, THEN TAP \"I CLICKED THE EMAIL LINK\".`;
-			document.getElementById("otpCode").focus();
+			otpMessage.textContent = `YOUR GENERATED CODE IS: ${code}`;
 		});
 
-		/* ── Step 2: Verify OTP ── */
-		verifyBtn.addEventListener("click", async () => {
+		verifyBtn.addEventListener("click", () => {
 			const code = document.getElementById("otpCode").value.trim();
+			const pending = loadPending();
 			otpMessage.style.color = "var(--error)";
-			if (!code || code.length < 6) { otpMessage.textContent = "ENTER THE FULL 6-DIGIT CODE."; return; }
 
-			setVerifyLoading(true);
-			const { data, error } = await supabase.auth.verifyOtp({
-				email: pendingEmail,
-				token: code,
-				type: "signup"
+			if (!pending) { otpMessage.textContent = "NO PENDING REGISTRATION. REGISTER AGAIN."; return; }
+			if (Date.now() > pending.expiresAt) { otpMessage.textContent = "CODE EXPIRED. GENERATE NEW CODE."; return; }
+			if (code !== pending.code) { otpMessage.textContent = "INVALID CODE."; return; }
+
+			const users = loadUsers();
+			users.push({
+				email: pending.email,
+				display_name: pending.displayName,
+				phone: pending.phone,
+				passwordHash: pending.passwordHash,
+				created_at: new Date().toISOString()
 			});
-			setVerifyLoading(false);
-
-			if (error) {
-				otpMessage.textContent = mapAuthError(error, "verify");
-				return;
-			}
-
-			/* User is now authenticated — insert profile */
-			if (data.user?.id) {
-				pendingProfile.id = data.user.id;
-				await supabase.from("profiles").insert(pendingProfile);
-			}
+			saveUsers(users);
+			setSession(pending.email);
+			clearPending();
 
 			otpMessage.style.color = "#000";
-			otpMessage.textContent = "VERIFIED! REDIRECTING...";
-			setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+			otpMessage.textContent = "VERIFIED. REDIRECTING...";
+			setTimeout(() => window.location.href = "dashboard.html", 450);
 		});
 
-		continueBtn.addEventListener("click", async () => {
-			otpMessage.style.color = "#000";
-			otpMessage.textContent = "CHECKING CONFIRMATION...";
-			const { data: { session } } = await supabase.auth.getSession();
-			if (!session) {
+		resendBtn.addEventListener("click", () => {
+			const pending = loadPending();
+			if (!pending) {
 				otpMessage.style.color = "var(--error)";
-				otpMessage.textContent = "NOT CONFIRMED YET. CLICK THE EMAIL LINK FIRST, THEN TRY AGAIN.";
+				otpMessage.textContent = "NO PENDING REGISTRATION. REGISTER AGAIN.";
 				return;
 			}
-
-			if (pendingProfile?.id) {
-				await supabase.from("profiles").upsert(pendingProfile, { onConflict: "id" });
-			}
-			window.location.replace("dashboard.html");
-		});
-
-		/* ── Resend code ── */
-		resendBtn.addEventListener("click", async (e) => {
-			e.preventDefault();
-			if (!pendingEmail) return;
+			pending.code = generateCode();
+			pending.expiresAt = Date.now() + 10 * 60 * 1000;
+			savePending(pending);
 			otpMessage.style.color = "#000";
-			otpMessage.textContent = "RESENDING...";
-			const { error } = await supabase.auth.resend({ type: "signup", email: pendingEmail });
-			if (error) {
-				otpMessage.style.color = "var(--error)";
-				otpMessage.textContent = "RESEND FAILED: " + mapAuthError(error, "resend");
-				return;
-			}
-			otpMessage.textContent = "CODE RESENT. CHECK EMAIL.";
+			otpMessage.textContent = `NEW CODE: ${pending.code}`;
 		});
 	</script>
 </body>
