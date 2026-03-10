@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI CV Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FFE500;
+      --card: #FAFAFA;
+      --accent: #FF2D2D;
+      --ink: #0A0A0A;
+      --black: #000;
+      --shadow: 6px 6px 0px #000;
+    }
+
+    * {
+      box-sizing: border-box;
+      border-radius: 0;
+      font-family: "Space Mono", monospace;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 18px;
+      position: relative;
+    }
+
+    .shape-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .shape {
+      position: absolute;
+      border: 3px solid var(--black);
+      background: transparent;
+      width: 26px;
+      height: 26px;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+
+    .shape.triangle {
+      width: 0;
+      height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-bottom: 26px solid var(--black);
+      border-top: 0;
+      background: transparent;
+    }
+
+    .s1 { left: 8%; top: 86%; animation: floatA 12s -1s infinite; }
+    .s2 { left: 18%; top: 10%; width: 38px; height: 38px; animation: floatB 20s -4s infinite; }
+    .s3 { left: 30%; top: 72%; animation: floatC 14s -2s infinite; }
+    .s4 { left: 44%; top: 14%; width: 44px; height: 44px; animation: floatD 23s -8s infinite; }
+    .s5 { left: 59%; top: 80%; animation: floatA 16s -6s infinite; }
+    .s6 { left: 72%; top: 20%; width: 30px; height: 30px; animation: floatB 10s -2s infinite; }
+    .s7 { left: 84%; top: 70%; animation: floatC 25s -9s infinite; }
+    .s8 { left: 92%; top: 18%; width: 52px; height: 52px; animation: floatD 18s -5s infinite; }
+
+    .app {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, 100%);
+      min-height: 82vh;
+      border: 4px solid var(--black);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 4px solid var(--black);
+      background: #fff;
+    }
+
+    .brand {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 30px;
+      letter-spacing: 0.6px;
+    }
+
+    .top-btn {
+      border: 3px solid var(--black);
+      background: var(--black);
+      color: var(--bg);
+      padding: 8px 12px;
+      font-weight: 700;
+      box-shadow: 4px 4px 0 #000;
+      min-height: 42px;
+      cursor: pointer;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 58px 0 0 0;
+      padding: 18px;
+      overflow: auto;
+      opacity: 1;
+      transform: translateX(0);
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      background: var(--card);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .screen-exit {
+      transform: translateX(-40px);
+      opacity: 0;
+    }
+
+    .screen-enter {
+      transform: translateX(40px);
+      opacity: 0;
+    }
+
+    .screen.active-enter {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .title {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 48px;
+      margin: 0 0 14px;
+      line-height: 0.9;
+    }
+
+    .form-wrap {
+      max-width: 960px;
+      margin: 0 auto 90px;
+    }
+
+    .section {
+      border: 3px solid var(--black);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--black);
+      padding: 8px 10px;
+    }
+
+    .section-head::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 20px;
+      background: var(--bg);
+      border: 2px solid var(--black);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 3px solid var(--black);
+      background: #fff;
+      color: var(--ink);
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+      min-height: 46px;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow);
+    }
+
+    .entry {
+      border: 3px solid var(--black);
+      padding: 10px;
+      margin-bottom: 10px;
+      background: var(--card);
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mini-btn {
+      border: 3px solid var(--black);
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 4px 4px 0 #000;
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-btn.remove {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary-btn {
+      width: 100%;
+      border: 4px solid var(--black);
+      background: var(--black);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 20px;
+      min-height: 58px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.12s linear, color 0.12s linear;
+    }
+
+    .primary-btn:hover {
+      background: var(--bg);
+      color: var(--ink);
+      animation: shake 0.22s linear 1;
+    }
+
+    .primary-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .primary-btn:disabled {
+      opacity: 0.85;
+      animation: none;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .msg {
+      min-height: 22px;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .cv-stage {
+      margin: 0 auto 88px;
+      width: min(1020px, 100%);
+      border: 4px solid var(--black);
+      box-shadow: var(--shadow);
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    .cv-stage.cv-enter {
+      animation: cvSlideIn 0.5s ease forwards;
+    }
+
+    .grain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .cv-header {
+      border-bottom: 3px solid var(--black);
+      padding: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cv-name {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 52px;
+      line-height: 0.9;
+      margin: 0;
+    }
+
+    .cv-title {
+      margin: 6px 0 8px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .cv-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cv-contact span.sep::before {
+      content: "■";
+      margin-right: 8px;
+    }
+
+    .cv-body {
+      display: grid;
+      grid-template-columns: 30% 70%;
+      min-height: 500px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sidebar {
+      border-right: 3px solid var(--black);
+      padding: 12px;
+      background: #fff;
+    }
+
+    .main {
+      padding: 12px;
+      background: #fff;
+    }
+
+    .box {
+      border: 3px solid var(--black);
+      margin-bottom: 10px;
+      background: var(--card);
+    }
+
+    .box-head {
+      background: var(--bg);
+      border-bottom: 3px solid var(--black);
+      padding: 7px 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .box-content {
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    .divider {
+      height: 2px;
+      background: var(--black);
+      margin: 10px 0;
+    }
+
+    .exp-item {
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--black);
+      padding-bottom: 8px;
+    }
+
+    .exp-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-weight: 700;
+    }
+
+    .bullet {
+      margin: 5px 0 0;
+      padding-left: 0;
+      list-style: none;
+      font-size: 13px;
+    }
+
+    .bullet li {
+      margin: 3px 0;
+    }
+
+    .bullet li::before {
+      content: "▸ ";
+      font-weight: 700;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .skill-tag {
+      border: 2px solid var(--black);
+      padding: 3px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      transform: scale(0);
+      opacity: 0;
+      animation: popIn 0.42s cubic-bezier(0.2, 1.3, 0.4, 1) forwards;
+    }
+
+    .stagger {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUp 0.35s ease forwards;
+      animation-delay: var(--d, 0s);
+    }
+
+    .actions-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 8;
+      border-top: 4px solid var(--black);
+      background: #fff;
+      padding: 10px 14px;
+      display: none;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .actions-bar.show {
+      display: flex;
+    }
+
+    .action-btn {
+      border: 4px solid var(--black);
+      background: var(--black);
+      color: var(--bg);
+      min-height: 48px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .action-btn:active {
+      transform: translate(4px, 4px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .success-wrap {
+      min-height: calc(82vh - 56px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    .success-title {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 72px;
+      line-height: 0.9;
+      margin: 0;
+    }
+
+    .flash {
+      animation: flash 0.35s linear 1;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(2px); }
+      50% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes cvSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0); }
+      65% { opacity: 1; transform: scale(1.12); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes flash {
+      0% { background: var(--bg); }
+      45% { background: #fff; }
+      100% { background: var(--bg); }
+    }
+
+    @keyframes floatA {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(45px, -52px) rotate(180deg); }
+      100% { transform: translate(-30px, -95px) rotate(360deg); }
+    }
+
+    @keyframes floatB {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-50px, 32px) rotate(180deg); }
+      100% { transform: translate(-90px, -38px) rotate(360deg); }
+    }
+
+    @keyframes floatC {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(52px, 24px) rotate(180deg); }
+      100% { transform: translate(85px, -48px) rotate(360deg); }
+    }
+
+    @keyframes floatD {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-24px, -50px) rotate(180deg); }
+      100% { transform: translate(50px, -86px) rotate(360deg); }
+    }
+
+    @media (max-width: 900px) {
+      .cv-body { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 3px solid var(--black); }
+      .title { font-size: 42px; }
+      .success-title { font-size: 58px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (hover: none) {
+      * { cursor: default !important; }
+    }
+
+    @media print {
+      body { padding: 0; background: #fff; }
+      .shape-layer, .topbar, .screen:not(#screenPreview), .actions-bar { display: none !important; }
+      .app { border: 0; box-shadow: none; width: 100%; min-height: auto; }
+      #screenPreview { display: block !important; position: static; inset: auto; padding: 0; }
+      .cv-stage { width: 100%; border: 0; box-shadow: none; margin: 0; transform: none !important; opacity: 1 !important; }
+      .grain { opacity: 0.02; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shape-layer" aria-hidden="true">
+    <div class="shape s1"></div>
+    <div class="shape triangle s2"></div>
+    <div class="shape s3"></div>
+    <div class="shape triangle s4"></div>
+    <div class="shape s5"></div>
+    <div class="shape triangle s6"></div>
+    <div class="shape s7"></div>
+    <div class="shape triangle s8"></div>
+  </div>
+
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">MVUMI AI CV MAKER</div>
+      <button id="logoutBtn" class="top-btn" type="button">LOGOUT</button>
+    </div>
+
+    <section id="screenForm" class="screen">
+      <div class="form-wrap">
+        <h1 class="title">■ BUILD YOUR CV</h1>
+
+        <div class="section">
+          <div class="section-head">TARGET ROLE</div>
+          <input id="targetRole" type="text" placeholder="Target Job Role (example: Frontend Developer)" />
+        </div>
+
+        <div class="section">
+          <div class="section-head">PERSONAL INFO</div>
+          <div class="grid-2">
+            <input id="fullName" type="text" placeholder="Full Name" />
+            <input id="jobTitle" type="text" placeholder="Professional Title" />
+            <input id="email" type="email" placeholder="Email" />
+            <input id="phone" type="text" placeholder="Phone" />
+            <input id="location" type="text" placeholder="Location" />
+            <input id="linkedin" type="text" placeholder="LinkedIn URL" />
+          </div>
+          <input id="github" type="text" placeholder="GitHub URL" style="margin-top:10px;" />
+        </div>
+
+        <div class="section">
+          <div class="section-head">SKILLS</div>
+          <div class="grid-2">
+            <textarea id="skillsTechnical" placeholder="Technical Skills (comma-separated)"></textarea>
+            <textarea id="skillsTools" placeholder="Tools / Platforms (comma-separated)"></textarea>
+          </div>
+          <textarea id="skillsSoft" placeholder="Soft Skills (comma-separated)" style="margin-top:10px;"></textarea>
+        </div>
+
+        <div class="section">
+          <div class="section-head">EXPERIENCE</div>
+          <div id="experienceList"></div>
+          <div class="mini-actions">
+            <button id="addExperienceBtn" class="mini-btn" type="button">+ ADD EXPERIENCE</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">EDUCATION</div>
+          <div id="educationList"></div>
+          <div class="mini-actions">
+            <button id="addEducationBtn" class="mini-btn" type="button">+ ADD EDUCATION</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">PROJECTS</div>
+          <div id="projectList"></div>
+          <div class="mini-actions">
+            <button id="addProjectBtn" class="mini-btn" type="button">+ ADD PROJECT</button>
+          </div>
+        </div>
+
+        <button id="generateBtn" class="primary-btn" type="button">GENERATE MY CV ▶</button>
+        <p id="formMessage" class="msg"></p>
+      </div>
+    </section>
+
+    <section id="screenPreview" class="screen hidden">
+      <div id="cvStage" class="cv-stage">
+        <div class="grain" aria-hidden="true"></div>
+        <div id="cvRender"></div>
+      </div>
+    </section>
+
+    <section id="screenSuccess" class="screen hidden">
+      <div class="success-wrap">
+        <h2 class="success-title">■ CV READY</h2>
+        <p style="font-weight:700; margin:8px 0 18px;">Your career just leveled up.</p>
+        <button id="startOverBtn" class="primary-btn" style="max-width:340px;" type="button">START OVER</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="actionsBar" class="actions-bar">
+    <button id="editBtn" class="action-btn" type="button">◀ EDIT</button>
+    <button id="downloadBtn" class="action-btn" type="button">⬇ DOWNLOAD PDF</button>
+    <button id="regenBtn" class="action-btn" type="button">↻ REGENERATE</button>
+  </div>
+
+  <script>
+    const USER_KEY = "mvumi_users_v1";
+    const SESSION_KEY = "mvumi_session_v1";
+    const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+
+    const ANTHROPIC_API_KEY = window.ANTHROPIC_API_KEY || "";
+
+    const systemPrompt = "You are an expert CV writer. Transform the raw user input into a polished professional CV. Use strong action verbs. Turn duties into achievements with measurable impact. Write a punchy 2-3 line summary tailored to the target role. Respond in strict JSON only with fields: name, title, email, phone, location, linkedin, github, summary, skills (object of categories), experience (array with role/company/duration/bullets), education (array), projects (array with name/description/tech)";
+
+    const screenForm = document.getElementById("screenForm");
+    const screenPreview = document.getElementById("screenPreview");
+    const screenSuccess = document.getElementById("screenSuccess");
+    const actionsBar = document.getElementById("actionsBar");
+
+    const experienceList = document.getElementById("experienceList");
+    const educationList = document.getElementById("educationList");
+    const projectList = document.getElementById("projectList");
+
+    const addExperienceBtn = document.getElementById("addExperienceBtn");
+    const addEducationBtn = document.getElementById("addEducationBtn");
+    const addProjectBtn = document.getElementById("addProjectBtn");
+
+    const generateBtn = document.getElementById("generateBtn");
+    const formMessage = document.getElementById("formMessage");
+
+    const cvStage = document.getElementById("cvStage");
+    const cvRender = document.getElementById("cvRender");
+
+    const editBtn = document.getElementById("editBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const regenBtn = document.getElementById("regenBtn");
+    const startOverBtn = document.getElementById("startOverBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    let lastRawInput = null;
+    let lastCvJson = null;
+    let printRequested = false;
+
+    function loadUsers() {
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function getSessionEmail() {
+      return localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY) || "";
+    }
+
+    function routeGuard() {
+      const email = getSessionEmail();
+      if (!email) {
+        window.location.replace("index.html");
+        return false;
+      }
+      if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        window.location.replace("dashboard.html");
+        return false;
+      }
+      return true;
+    }
+
+    if (!routeGuard()) {
+      throw new Error("route blocked");
+    }
+
+    function setExitEnter(from, to) {
+      from.classList.remove("hidden");
+      from.classList.add("screen-exit");
+      to.classList.remove("hidden");
+      to.classList.add("screen-enter");
+
+      requestAnimationFrame(() => {
+        to.classList.add("active-enter");
+      });
+
+      setTimeout(() => {
+        from.classList.add("hidden");
+        from.classList.remove("screen-exit");
+        to.classList.remove("screen-enter", "active-enter");
+      }, 420);
+    }
+
+    function showForm() {
+      actionsBar.classList.remove("show");
+      if (screenForm.classList.contains("hidden")) {
+        if (!screenPreview.classList.contains("hidden")) setExitEnter(screenPreview, screenForm);
+        if (!screenSuccess.classList.contains("hidden")) setExitEnter(screenSuccess, screenForm);
+      }
+    }
+
+    function showPreview() {
+      actionsBar.classList.add("show");
+      if (screenPreview.classList.contains("hidden")) {
+        setExitEnter(screenForm, screenPreview);
+      }
+      cvStage.classList.remove("cv-enter");
+      void cvStage.offsetWidth;
+      cvStage.classList.add("cv-enter");
+    }
+
+    function showSuccess() {
+      actionsBar.classList.remove("show");
+      document.body.classList.add("flash");
+      setTimeout(() => document.body.classList.remove("flash"), 380);
+      setExitEnter(screenPreview, screenSuccess);
+    }
+
+    function createEntry(kind) {
+      const wrap = document.createElement("div");
+      wrap.className = "entry";
+
+      if (kind === "experience") {
+        wrap.innerHTML = `
+          <input data-k="role" type="text" placeholder="Role" />
+          <input data-k="company" type="text" placeholder="Company" style="margin-top:8px;" />
+          <input data-k="duration" type="text" placeholder="Duration (example: 2022-2025)" style="margin-top:8px;" />
+          <textarea data-k="bullets" placeholder="Achievements / duties (one per line)" style="margin-top:8px;"></textarea>
+          <div class="mini-actions"><button type="button" class="mini-btn remove">REMOVE</button></div>
+        `;
+      }
+
+      if (kind === "education") {
+        wrap.innerHTML = `
+          <input data-k="degree" type="text" placeholder="Degree / Qualification" />
+          <input data-k="school" type="text" placeholder="School / Institution" style="margin-top:8px;" />
+          <input data-k="duration" type="text" placeholder="Duration" style="margin-top:8px;" />
+          <textarea data-k="details" placeholder="Highlights / achievements" style="margin-top:8px;"></textarea>
+          <div class="mini-actions"><button type="button" class="mini-btn remove">REMOVE</button></div>
+        `;
+      }
+
+      if (kind === "project") {
+        wrap.innerHTML = `
+          <input data-k="name" type="text" placeholder="Project Name" />
+          <textarea data-k="description" placeholder="Project Description" style="margin-top:8px;"></textarea>
+          <input data-k="tech" type="text" placeholder="Tech used (comma-separated)" style="margin-top:8px;" />
+          <div class="mini-actions"><button type="button" class="mini-btn remove">REMOVE</button></div>
+        `;
+      }
+
+      wrap.querySelector(".remove").addEventListener("click", () => wrap.remove());
+      return wrap;
+    }
+
+    addExperienceBtn.addEventListener("click", () => experienceList.appendChild(createEntry("experience")));
+    addEducationBtn.addEventListener("click", () => educationList.appendChild(createEntry("education")));
+    addProjectBtn.addEventListener("click", () => projectList.appendChild(createEntry("project")));
+
+    experienceList.appendChild(createEntry("experience"));
+    educationList.appendChild(createEntry("education"));
+    projectList.appendChild(createEntry("project"));
+
+    function collectEntries(container) {
+      return Array.from(container.querySelectorAll(".entry")).map((entry) => {
+        const obj = {};
+        entry.querySelectorAll("[data-k]").forEach((el) => {
+          obj[el.dataset.k] = el.value.trim();
+        });
+        return obj;
+      }).filter((item) => Object.values(item).some(Boolean));
+    }
+
+    function collectRawInput() {
+      return {
+        targetRole: document.getElementById("targetRole").value.trim(),
+        personal: {
+          name: document.getElementById("fullName").value.trim(),
+          title: document.getElementById("jobTitle").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          location: document.getElementById("location").value.trim(),
+          linkedin: document.getElementById("linkedin").value.trim(),
+          github: document.getElementById("github").value.trim()
+        },
+        skills: {
+          technical: document.getElementById("skillsTechnical").value.trim(),
+          tools: document.getElementById("skillsTools").value.trim(),
+          soft: document.getElementById("skillsSoft").value.trim()
+        },
+        experience: collectEntries(experienceList),
+        education: collectEntries(educationList),
+        projects: collectEntries(projectList)
+      };
+    }
+
+    function cleanJsonText(text) {
+      const match = text.match(/\{[\s\S]*\}$/);
+      if (match) return match[0];
+      return text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+    }
+
+    async function callClaude(rawInput) {
+      if (!ANTHROPIC_API_KEY) {
+        throw new Error("Missing ANTHROPIC key. Set window.ANTHROPIC_API_KEY before this script in cv-maker.html.");
+      }
+
+      const prompt = {
+        target_role: rawInput.targetRole,
+        personal_info: rawInput.personal,
+        skills_input: rawInput.skills,
+        experience_input: rawInput.experience,
+        education_input: rawInput.education,
+        projects_input: rawInput.projects,
+        instruction: "Return strict JSON only. No markdown."
+      };
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1800,
+          system: systemPrompt,
+          messages: [{
+            role: "user",
+            content: "Transform this into a polished CV JSON:\n" + JSON.stringify(prompt, null, 2)
+          }]
+        })
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error("API error: " + txt.slice(0, 200));
+      }
+
+      const data = await res.json();
+      const text = Array.isArray(data.content)
+        ? data.content.map((x) => x.text || "").join("\n")
+        : "";
+
+      const jsonText = cleanJsonText(text);
+      return JSON.parse(jsonText);
+    }
+
+    function ensureArray(val) {
+      return Array.isArray(val) ? val : [];
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function skillsToHtml(skills) {
+      const obj = skills && typeof skills === "object" ? skills : {};
+      const categories = Object.keys(obj);
+      if (!categories.length) return "<div class=\"box-content\">No skills provided.</div>";
+
+      let delay = 0;
+      return `<div class="box-content">` + categories.map((cat) => {
+        const list = Array.isArray(obj[cat]) ? obj[cat] : String(obj[cat] || "").split(",").map((x) => x.trim()).filter(Boolean);
+        const tags = list.map((item) => {
+          delay += 0.04;
+          return `<span class="skill-tag" style="animation-delay:${delay}s">${escapeHtml(item)}</span>`;
+        }).join("");
+        return `<div style="margin-bottom:8px;"><strong>${escapeHtml(cat)}</strong><div class="skill-tags">${tags}</div></div>`;
+      }).join("") + `</div>`;
+    }
+
+    function renderCv(cv) {
+      const contactParts = [cv.email, cv.phone, cv.location, cv.linkedin, cv.github].filter(Boolean);
+      const contactHtml = contactParts.map((c, i) => `<span class="${i ? "sep" : ""}">${escapeHtml(c)}</span>`).join("");
+
+      const educationHtml = ensureArray(cv.education).map((e) => (
+        `<div style="margin-bottom:8px;"><strong>${escapeHtml(e.degree || e.qualification || "")}</strong><div>${escapeHtml(e.school || e.institution || "")}</div><div>${escapeHtml(e.duration || "")}</div></div>`
+      )).join("") || "No education provided.";
+
+      const projectsHtml = ensureArray(cv.projects).map((p) => (
+        `<div style="margin-bottom:8px;"><strong>${escapeHtml(p.name || "")}</strong><div>${escapeHtml(p.description || "")}</div><div><em>${escapeHtml(Array.isArray(p.tech) ? p.tech.join(", ") : (p.tech || ""))}</em></div></div>`
+      )).join("") || "No projects provided.";
+
+      const expHtml = ensureArray(cv.experience).map((exp, idx) => {
+        const bullets = ensureArray(exp.bullets).map((b) => `<li>${escapeHtml(b)}</li>`).join("");
+        return `<div class="exp-item stagger" style="--d:${(idx + 2) * 0.1}s;">
+          <div class="exp-head"><span>${escapeHtml(exp.role || "")} - ${escapeHtml(exp.company || "")}</span><span>${escapeHtml(exp.duration || "")}</span></div>
+          <ul class="bullet">${bullets}</ul>
+        </div>`;
+      }).join("") || "<p>No experience provided.</p>";
+
+      cvRender.innerHTML = `
+        <div class="cv-header stagger" style="--d:0.02s;">
+          <h2 class="cv-name">${escapeHtml(cv.name || "YOUR NAME")}</h2>
+          <div class="cv-title">${escapeHtml(cv.title || "Professional Title")}</div>
+          <div class="cv-contact">${contactHtml || "No contact info"}</div>
+        </div>
+        <div class="cv-body">
+          <aside class="sidebar">
+            <div class="box stagger" style="--d:0.10s;"><div class="box-head">Skills</div>${skillsToHtml(cv.skills || {})}</div>
+            <div class="box stagger" style="--d:0.20s;"><div class="box-head">Education</div><div class="box-content">${educationHtml}</div></div>
+            <div class="box stagger" style="--d:0.30s;"><div class="box-head">Projects</div><div class="box-content">${projectsHtml}</div></div>
+          </aside>
+          <section class="main">
+            <div class="stagger" style="--d:0.16s;"><strong>Summary</strong><div class="divider"></div><p>${escapeHtml(cv.summary || "")}</p></div>
+            <div class="divider"></div>
+            <div class="stagger" style="--d:0.22s;"><strong>Experience</strong><div class="divider"></div>${expHtml}</div>
+          </section>
+        </div>
+      `;
+    }
+
+    function setGenerating(on) {
+      if (!on) {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "GENERATE MY CV ▶";
+        return;
+      }
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = "GENERATING...";
+    }
+
+    async function generateCv(rawInput) {
+      formMessage.style.color = "var(--accent)";
+      formMessage.textContent = "";
+      setGenerating(true);
+
+      try {
+        const cv = await callClaude(rawInput);
+        lastCvJson = cv;
+        renderCv(cv);
+        showPreview();
+      } catch (err) {
+        formMessage.textContent = "GENERATION FAILED: " + (err.message || "Unknown error");
+      } finally {
+        setGenerating(false);
+      }
+    }
+
+    generateBtn.addEventListener("click", async () => {
+      const rawInput = collectRawInput();
+      if (!rawInput.targetRole) {
+        formMessage.textContent = "TARGET JOB ROLE IS REQUIRED.";
+        return;
+      }
+      if (!rawInput.personal.name || !rawInput.personal.email) {
+        formMessage.textContent = "NAME AND EMAIL ARE REQUIRED.";
+        return;
+      }
+      lastRawInput = rawInput;
+      await generateCv(rawInput);
+    });
+
+    editBtn.addEventListener("click", () => {
+      showForm();
+    });
+
+    regenBtn.addEventListener("click", async () => {
+      if (!lastRawInput) return;
+      showForm();
+      await generateCv(lastRawInput);
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      printRequested = true;
+      window.print();
+      setTimeout(() => {
+        if (printRequested) {
+          printRequested = false;
+          showSuccess();
+        }
+      }, 800);
+    });
+
+    window.addEventListener("afterprint", () => {
+      if (printRequested) {
+        printRequested = false;
+        showSuccess();
+      }
+    });
+
+    startOverBtn.addEventListener("click", () => {
+      document.querySelectorAll("input, textarea").forEach((el) => { el.value = ""; });
+      experienceList.innerHTML = "";
+      educationList.innerHTML = "";
+      projectList.innerHTML = "";
+      experienceList.appendChild(createEntry("experience"));
+      educationList.appendChild(createEntry("education"));
+      projectList.appendChild(createEntry("project"));
+      lastRawInput = null;
+      lastCvJson = null;
+      formMessage.textContent = "";
+      showForm();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      window.location.replace("index.html");
+    });
+  </script>
+</body>
+</html>

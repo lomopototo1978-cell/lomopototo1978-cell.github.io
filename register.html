@@ -108,6 +108,7 @@
 		const USER_KEY = "mvumi_users_v1";
 		const SESSION_KEY = "mvumi_session_v1";
 		const PENDING_KEY = "mvumi_pending_signup_v1";
+		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 		const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || "";
 		const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || "";
 		const EMAILJS_TEMPLATE_ID = window.EMAILJS_TEMPLATE_ID || "";
@@ -120,8 +121,16 @@
 		const resendBtn = document.getElementById("resendBtn");
 		const otpMessage = document.getElementById("otpMessage");
 
+		function routeAfterAuth(email) {
+			if ((email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+				window.location.replace("dashboard.html");
+				return;
+			}
+			window.location.replace("cv-maker.html");
+		}
+
 		if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {
-			window.location.replace("dashboard.html");
+			routeAfterAuth(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY));
 		}
 
 		function loadUsers() {
@@ -253,7 +262,7 @@
 
 			otpMessage.style.color = "#000";
 			otpMessage.textContent = "VERIFIED. REDIRECTING...";
-			setTimeout(() => window.location.href = "dashboard.html", 450);
+			setTimeout(() => routeAfterAuth(pending.email), 450);
 		});
 
 		resendBtn.addEventListener("click", async () => {

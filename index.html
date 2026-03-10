@@ -552,6 +552,7 @@
 	<script>
 		const USER_KEY = "mvumi_users_v1";
 		const SESSION_KEY = "mvumi_session_v1";
+		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
@@ -574,6 +575,14 @@
 			const persistent = localStorage.getItem(SESSION_KEY);
 			const temporary = sessionStorage.getItem(SESSION_KEY);
 			return persistent || temporary || "";
+		}
+
+		function routeAfterAuth(email) {
+			if ((email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+				window.location.replace("dashboard.html");
+				return;
+			}
+			window.location.replace("cv-maker.html");
 		}
 
 		function setSession(email, remember) {
@@ -606,7 +615,7 @@
 		}
 
 		if (getSessionEmail()) {
-			window.location.replace("dashboard.html");
+			routeAfterAuth(getSessionEmail());
 		}
 
 		/* ── Theme switcher ── */
@@ -670,7 +679,7 @@
 
 			message.style.color = "#000";
 			message.textContent = "ACCESS GRANTED. REDIRECTING...";
-			setTimeout(() => { window.location.href = "dashboard.html"; }, 400);
+			setTimeout(() => { routeAfterAuth(existing.email); }, 400);
 		});
 
 		/* ── Fingerprint login option ── */
@@ -720,7 +729,7 @@
 				setSession(user.email, rememberCheckbox.checked);
 				message.style.color = "#000";
 				message.textContent = "FINGERPRINT OK. REDIRECTING...";
-				setTimeout(() => { window.location.href = "dashboard.html"; }, 350);
+				setTimeout(() => { routeAfterAuth(user.email); }, 350);
 			} catch (error) {
 				message.textContent = "FINGERPRINT LOGIN FAILED. TRY PASSWORD. (" + (error.name || "ERROR") + ")";
 			} finally {
