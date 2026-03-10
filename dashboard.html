@@ -62,6 +62,11 @@
     <section class="panel">
       <p>Welcome to your protected dashboard. Only authenticated users can access this page.</p>
 
+      <div class="actions" style="margin-top:10px;">
+        <button class="btn" id="enrollBioBtn" type="button">ENABLE FINGERPRINT</button>
+        <button class="btn" id="removeBioBtn" type="button">REMOVE FINGERPRINT</button>
+      </div>
+
       <div class="actions">
         <a class="btn" href="index.html">BACK TO LOGIN</a>
         <button class="btn" id="logoutBtn" type="button">LOGOUT</button>
@@ -83,10 +88,27 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const statusEl = document.getElementById("status");
     const adminSection = document.getElementById("adminSection");
+    const enrollBioBtn = document.getElementById("enrollBioBtn");
+    const removeBioBtn = document.getElementById("removeBioBtn");
 
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
       catch { return []; }
+    }
+
+    function saveUsers(nextUsers) {
+      localStorage.setItem(USER_KEY, JSON.stringify(nextUsers));
+    }
+
+    function bytesToB64Url(bytes) {
+      const binary = String.fromCharCode(...bytes);
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function randomChallenge(size = 32) {
+      const buffer = new Uint8Array(size);
+      crypto.getRandomValues(buffer);
+      return buffer;
     }
 
     const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
@@ -116,7 +138,81 @@
     userInfo.innerHTML =
       `<p>SIGNED IN AS: <strong>${escapedEmail}</strong></p>` +
       `<p>NAME: ${escapedName}</p>` +
-      (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "");
+      (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "") +
+      `<p>FINGERPRINT: ${user.biometricCredentialId ? "ENABLED" : "NOT SET"}</p>`;
+
+    enrollBioBtn.addEventListener("click", async () => {
+      if (!window.PublicKeyCredential || !navigator.credentials) {
+        statusEl.textContent = "FINGERPRINT NOT SUPPORTED ON THIS DEVICE/BROWSER.";
+        return;
+      }
+
+      try {
+        enrollBioBtn.disabled = true;
+        enrollBioBtn.textContent = "SCANNING...";
+        statusEl.textContent = "Confirm fingerprint on your device...";
+
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: randomChallenge(),
+            rp: { name: "MVUMI" },
+            user: {
+              id: new TextEncoder().encode(user.email),
+              name: user.email,
+              displayName: user.display_name || user.email
+            },
+            pubKeyCredParams: [
+              { type: "public-key", alg: -7 },
+              { type: "public-key", alg: -257 }
+            ],
+            authenticatorSelection: {
+              authenticatorAttachment: "platform",
+              userVerification: "required",
+              residentKey: "preferred"
+            },
+            timeout: 60000,
+            attestation: "none"
+          }
+        });
+
+        if (!credential || !credential.rawId) {
+          statusEl.textContent = "FINGERPRINT ENROLLMENT FAILED.";
+          return;
+        }
+
+        const usersNow = loadUsers();
+        const idx = usersNow.findIndex((u) => (u.email || "").toLowerCase() === user.email.toLowerCase());
+        if (idx === -1) {
+          statusEl.textContent = "ACCOUNT NOT FOUND.";
+          return;
+        }
+
+        usersNow[idx].biometricCredentialId = bytesToB64Url(new Uint8Array(credential.rawId));
+        saveUsers(usersNow);
+        statusEl.style.color = "#000";
+        statusEl.textContent = "FINGERPRINT ENABLED. YOU CAN NOW USE FINGERPRINT LOGIN.";
+      } catch (error) {
+        statusEl.style.color = "var(--error)";
+        statusEl.textContent = "FINGERPRINT SETUP FAILED: " + (error.name || "UNKNOWN_ERROR");
+      } finally {
+        enrollBioBtn.disabled = false;
+        enrollBioBtn.textContent = "ENABLE FINGERPRINT";
+      }
+    });
+
+    removeBioBtn.addEventListener("click", () => {
+      const usersNow = loadUsers();
+      const idx = usersNow.findIndex((u) => (u.email || "").toLowerCase() === user.email.toLowerCase());
+      if (idx === -1) {
+        statusEl.textContent = "ACCOUNT NOT FOUND.";
+        return;
+      }
+
+      delete usersNow[idx].biometricCredentialId;
+      saveUsers(usersNow);
+      statusEl.style.color = "#000";
+      statusEl.textContent = "FINGERPRINT REMOVED.";
+    });
 
     /* ── Logout ── */
     logoutBtn.addEventListener("click", () => {

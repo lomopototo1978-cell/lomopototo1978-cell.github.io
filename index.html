@@ -295,6 +295,23 @@
 			cursor: not-allowed;
 		}
 
+		.bio-btn {
+			width: 100%;
+			margin-top: 10px;
+			border: 4px solid var(--black);
+			background: var(--yellow);
+			color: var(--black);
+			font-weight: 700;
+			font-size: 16px;
+			padding: 12px;
+			box-shadow: 5px 5px 0 var(--black);
+		}
+
+		.bio-btn:disabled {
+			opacity: 0.6;
+			box-shadow: none;
+		}
+
 		.dots {
 			display: inline-flex;
 			min-width: 20px;
@@ -524,6 +541,7 @@
 				</div>
 
 				<button id="loginBtn" class="login-btn" type="submit">LOGIN</button>
+				<button id="bioLoginBtn" class="bio-btn" type="button">FINGERPRINT LOGIN</button>
 				<p class="message" id="formMessage"></p>
 			</form>
 
@@ -537,6 +555,7 @@
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
+		const bioLoginBtn = document.getElementById("bioLoginBtn");
 		const message = document.getElementById("formMessage");
 		const forgotLink = document.getElementById("forgotLink");
 		const rememberCheckbox = document.querySelector(".remember input");
@@ -545,6 +564,10 @@
 		function loadUsers() {
 			try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
 			catch { return []; }
+		}
+
+		function saveUsers(users) {
+			localStorage.setItem(USER_KEY, JSON.stringify(users));
 		}
 
 		function getSessionEmail() {
@@ -567,6 +590,19 @@
 			const bytes = new TextEncoder().encode(text);
 			const digest = await crypto.subtle.digest("SHA-256", bytes);
 			return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+		}
+
+		function randomChallenge(size = 32) {
+			const buffer = new Uint8Array(size);
+			crypto.getRandomValues(buffer);
+			return buffer;
+		}
+
+		function b64UrlToBytes(base64url) {
+			const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+			const pad = "=".repeat((4 - (base64.length % 4)) % 4);
+			const raw = atob(base64 + pad);
+			return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 		}
 
 		if (getSessionEmail()) {
@@ -635,6 +671,62 @@
 			message.style.color = "#000";
 			message.textContent = "ACCESS GRANTED. REDIRECTING...";
 			setTimeout(() => { window.location.href = "dashboard.html"; }, 400);
+		});
+
+		/* ── Fingerprint login option ── */
+		bioLoginBtn.addEventListener("click", async () => {
+			message.style.color = "var(--error)";
+			message.textContent = "";
+
+			if (!window.PublicKeyCredential || !navigator.credentials) {
+				message.textContent = "FINGERPRINT IS NOT SUPPORTED ON THIS DEVICE/BROWSER.";
+				return;
+			}
+
+			const email = form.email.value.trim().toLowerCase();
+			if (!email) {
+				message.textContent = "ENTER YOUR EMAIL FIRST, THEN TAP FINGERPRINT LOGIN.";
+				return;
+			}
+
+			const users = loadUsers();
+			const user = users.find((u) => (u.email || "").toLowerCase() === email);
+			if (!user || !user.biometricCredentialId) {
+				message.textContent = "NO FINGERPRINT SET FOR THIS ACCOUNT. LOGIN WITH PASSWORD FIRST.";
+				return;
+			}
+
+			try {
+				bioLoginBtn.disabled = true;
+				bioLoginBtn.textContent = "SCANNING...";
+
+				const assertion = await navigator.credentials.get({
+					publicKey: {
+						challenge: randomChallenge(),
+						allowCredentials: [{
+							type: "public-key",
+							id: b64UrlToBytes(user.biometricCredentialId)
+						}],
+						userVerification: "required",
+						timeout: 60000
+					}
+				});
+
+				if (!assertion) {
+					message.textContent = "FINGERPRINT AUTH FAILED.";
+					return;
+				}
+
+				setSession(user.email, rememberCheckbox.checked);
+				message.style.color = "#000";
+				message.textContent = "FINGERPRINT OK. REDIRECTING...";
+				setTimeout(() => { window.location.href = "dashboard.html"; }, 350);
+			} catch (error) {
+				message.textContent = "FINGERPRINT LOGIN FAILED. TRY PASSWORD. (" + (error.name || "ERROR") + ")";
+			} finally {
+				bioLoginBtn.disabled = false;
+				bioLoginBtn.textContent = "FINGERPRINT LOGIN";
+			}
 		});
 
 		/* Static app cannot send real reset emails without external provider */
