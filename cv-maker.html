@@ -6,7 +6,7 @@
   <title>AI CV Maker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Merriweather:wght@700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #FFE500;
@@ -343,6 +343,104 @@
       --cv-accent: #FF9A6A;
       --cv-panel: #FFE7DA;
       --cv-side: #FFF1E7;
+    }
+
+    /* Give each theme a distinct visual language, not just a palette swap. */
+    .cv-stage.theme-minimal .cv-header {
+      border-bottom-width: 1px;
+      background: var(--cv-bg);
+    }
+
+    .cv-stage.theme-minimal .cv-name {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 40px;
+      letter-spacing: 0;
+    }
+
+    .cv-stage.theme-minimal .sidebar,
+    .cv-stage.theme-minimal .box,
+    .cv-stage.theme-minimal .box-head {
+      border-width: 1px;
+    }
+
+    .cv-stage.theme-minimal .box-head {
+      background: var(--cv-bg);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .cv-stage.theme-minimal .bullet li::before {
+      content: "- ";
+    }
+
+    .cv-stage.theme-executive .cv-header {
+      background: linear-gradient(90deg, var(--cv-panel), #f8f1e1);
+      border-bottom-width: 4px;
+    }
+
+    .cv-stage.theme-executive .cv-name {
+      font-family: "Merriweather", serif;
+      font-size: 42px;
+      letter-spacing: 1px;
+    }
+
+    .cv-stage.theme-executive .cv-title {
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    .cv-stage.theme-executive .box {
+      border-width: 2px;
+      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    .cv-stage.theme-forest .cv-body {
+      grid-template-columns: 34% 66%;
+    }
+
+    .cv-stage.theme-forest .cv-name {
+      font-family: "Merriweather", serif;
+      font-size: 44px;
+    }
+
+    .cv-stage.theme-forest .sidebar {
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--cv-side),
+        var(--cv-side) 8px,
+        #ebf7ee 8px,
+        #ebf7ee 16px
+      );
+    }
+
+    .cv-stage.theme-forest .box-head {
+      background: #a7d8b0;
+    }
+
+    .cv-stage.theme-sunset .cv-body {
+      grid-template-columns: 1fr;
+    }
+
+    .cv-stage.theme-sunset .sidebar {
+      border-right: 0;
+      border-bottom: 3px solid var(--cv-border);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .cv-stage.theme-sunset .box {
+      margin-bottom: 0;
+      background: #fff7f0;
+    }
+
+    .cv-stage.theme-sunset .cv-name {
+      font-size: 48px;
+      text-shadow: 2px 2px 0 rgba(255, 154, 106, 0.45);
+    }
+
+    .cv-stage.theme-sunset .bullet li::before {
+      content: "◆ ";
     }
 
     .cv-stage.cv-enter {
