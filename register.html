@@ -246,6 +246,22 @@
 			verifyBtn.innerHTML = 'VERIFYING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
 		}
 
+		function mapAuthError(error, mode) {
+			const raw = (error?.message || "").toLowerCase();
+			if (raw.includes("rate limit") || raw.includes("over_email_send_rate_limit")) {
+				if (mode === "signup") {
+					return "TOO MANY EMAILS SENT. WAIT ABOUT 1 HOUR, OR TURN OFF EMAIL CONFIRMATION IN SUPABASE AUTH SETTINGS.";
+				}
+				if (mode === "resend") {
+					return "RESEND LIMIT HIT. WAIT ABOUT 1 HOUR BEFORE TRYING AGAIN.";
+				}
+			}
+			if (mode === "verify") {
+				return "CODE INVALID OR EXPIRED. REQUEST A NEW CODE AND TRY AGAIN.";
+			}
+			return (error?.message || "UNKNOWN_ERROR").toUpperCase();
+		}
+
 		/* ── Step 1: Register ── */
 		form.addEventListener("submit", async (e) => {
 			e.preventDefault();
@@ -279,7 +295,8 @@
 			setLoading(false);
 
 			if (signUpError) {
-				message.textContent = "REGISTER FAILED: " + signUpError.message; return;
+				message.textContent = "REGISTER FAILED: " + mapAuthError(signUpError, "signup");
+				return;
 			}
 
 			/* Store for OTP step */
@@ -317,7 +334,10 @@
 			});
 			setVerifyLoading(false);
 
-			if (error) { otpMessage.textContent = "INVALID CODE: " + error.message; return; }
+			if (error) {
+				otpMessage.textContent = mapAuthError(error, "verify");
+				return;
+			}
 
 			/* User is now authenticated — insert profile */
 			if (data.user?.id) {
@@ -337,7 +357,11 @@
 			otpMessage.style.color = "#000";
 			otpMessage.textContent = "RESENDING...";
 			const { error } = await supabase.auth.resend({ type: "signup", email: pendingEmail });
-			if (error) { otpMessage.style.color = "var(--error)"; otpMessage.textContent = "RESEND FAILED: " + error.message; return; }
+			if (error) {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = "RESEND FAILED: " + mapAuthError(error, "resend");
+				return;
+			}
 			otpMessage.textContent = "CODE RESENT. CHECK EMAIL.";
 		});
 	</script>
