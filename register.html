@@ -96,17 +96,21 @@
 		<div id="otpPanel">
 			<div class="field"><input id="otpCode" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" /></div>
 			<button class="btn" id="verifyBtn" type="button">VERIFY CODE</button>
-			<button class="btn" id="resendBtn" type="button" style="margin-top:10px;">GENERATE NEW CODE</button>
+			<button class="btn" id="resendBtn" type="button" style="margin-top:10px;">RESEND CODE</button>
 			<p class="message" id="otpMessage"></p>
 		</div>
 
 		<p class="small">Already have an account? <a href="index.html">LOGIN</a></p>
 	</main>
 
+	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 	<script>
 		const USER_KEY = "mvumi_users_v1";
 		const SESSION_KEY = "mvumi_session_v1";
 		const PENDING_KEY = "mvumi_pending_signup_v1";
+		const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || "";
+		const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || "";
+		const EMAILJS_TEMPLATE_ID = window.EMAILJS_TEMPLATE_ID || "";
 
 		const form = document.getElementById("registerForm");
 		const createBtn = document.getElementById("createBtn");
@@ -136,6 +140,26 @@
 			localStorage.removeItem(SESSION_KEY);
 		}
 		function generateCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+
+		function isEmailJsConfigured() {
+			return Boolean(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
+		}
+
+		async function sendCodeEmail(targetEmail, targetName, code) {
+			if (!isEmailJsConfigured()) {
+				return { ok: false, reason: "EMAILJS_NOT_CONFIGURED" };
+			}
+
+			window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+			const result = await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+				to_email: targetEmail,
+				to_name: targetName || "User",
+				otp_code: code,
+				app_name: "MVUMI"
+			});
+
+			return { ok: result.status >= 200 && result.status < 300 };
+		}
 
 		async function hashPassword(text) {
 			const bytes = new TextEncoder().encode(text);
@@ -172,6 +196,7 @@
 			}
 
 			createBtn.disabled = true;
+			createBtn.textContent = "CREATING...";
 			const passwordHash = await hashPassword(password);
 			const code = generateCode();
 			savePending({
@@ -182,12 +207,27 @@
 				code,
 				expiresAt: Date.now() + 10 * 60 * 1000
 			});
+
+			let emailSent = false;
+			try {
+				const emailResult = await sendCodeEmail(email, displayName, code);
+				emailSent = emailResult.ok;
+			} catch {
+				emailSent = false;
+			}
+
 			createBtn.disabled = false;
+			createBtn.textContent = "CREATE ACCOUNT";
 
 			form.style.display = "none";
 			otpPanel.style.display = "block";
-			otpMessage.style.color = "#000";
-			otpMessage.textContent = `YOUR GENERATED CODE IS: ${code}`;
+			if (emailSent) {
+				otpMessage.style.color = "#000";
+				otpMessage.textContent = "CODE SENT TO YOUR EMAIL. ENTER IT BELOW.";
+			} else {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = `EMAIL SEND FAILED/NOT SET. USE THIS CODE: ${code}`;
+			}
 		});
 
 		verifyBtn.addEventListener("click", () => {
@@ -216,18 +256,38 @@
 			setTimeout(() => window.location.href = "dashboard.html", 450);
 		});
 
-		resendBtn.addEventListener("click", () => {
+		resendBtn.addEventListener("click", async () => {
 			const pending = loadPending();
 			if (!pending) {
 				otpMessage.style.color = "var(--error)";
 				otpMessage.textContent = "NO PENDING REGISTRATION. REGISTER AGAIN.";
 				return;
 			}
+
+			resendBtn.disabled = true;
+			resendBtn.textContent = "SENDING...";
 			pending.code = generateCode();
 			pending.expiresAt = Date.now() + 10 * 60 * 1000;
 			savePending(pending);
-			otpMessage.style.color = "#000";
-			otpMessage.textContent = `NEW CODE: ${pending.code}`;
+
+			let emailSent = false;
+			try {
+				const emailResult = await sendCodeEmail(pending.email, pending.displayName, pending.code);
+				emailSent = emailResult.ok;
+			} catch {
+				emailSent = false;
+			}
+
+			resendBtn.disabled = false;
+			resendBtn.textContent = "RESEND CODE";
+
+			if (emailSent) {
+				otpMessage.style.color = "#000";
+				otpMessage.textContent = "NEW CODE SENT TO EMAIL.";
+			} else {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = `EMAIL SEND FAILED/NOT SET. NEW CODE: ${pending.code}`;
+			}
 		});
 	</script>
 </body>
