@@ -286,6 +286,15 @@
 			box-shadow: 2px 2px 0 var(--black);
 		}
 
+		.login-btn:disabled {
+			background: var(--btn-bg) !important;
+			color: var(--btn-ink) !important;
+			box-shadow: none !important;
+			animation: none !important;
+			opacity: 0.85;
+			cursor: not-allowed;
+		}
+
 		.dots {
 			display: inline-flex;
 			min-width: 20px;
@@ -458,6 +467,12 @@
 
 		@media (hover: none) {
 			*, a, button, input, label, .remember, .register a, .forgot { cursor: default !important; }
+			.login-btn:hover {
+				background: var(--btn-bg);
+				color: var(--btn-ink);
+				box-shadow: none;
+				animation: none;
+			}
 		}
 	</style>
 </head>
@@ -529,8 +544,11 @@
 		const forgotLink = document.getElementById("forgotLink");
 		const swatches = Array.from(document.querySelectorAll(".swatch"));
 
-		/* ── Auth guard: redirect if already logged in ── */
+		/* ── Auth guard: redirect if already logged in or just confirmed via email link ── */
 		supabase.auth.getSession().then(({ data: { session } }) => {
+			if (session) window.location.replace("dashboard.html");
+		});
+		supabase.auth.onAuthStateChange((event, session) => {
 			if (session) window.location.replace("dashboard.html");
 		});
 

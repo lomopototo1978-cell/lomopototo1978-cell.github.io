@@ -194,6 +194,18 @@
 				<p class="message" id="formMessage"></p>
 			</form>
 
+			<!-- OTP verification step (displayed after signup) -->
+			<div id="otpPanel" style="display:none; margin-top:8px;">
+				<p style="font-size:13px; font-weight:700; margin-bottom:16px; color:#000;">CODE SENT — ENTER THE 6-DIGIT CODE FROM YOUR EMAIL.</p>
+				<div class="field" style="animation:none; opacity:1; transform:none;">
+					<input id="otpCode" type="text" inputmode="numeric" placeholder=" " maxlength="6" autocomplete="one-time-code" />
+					<label for="otpCode">6-DIGIT CODE</label>
+				</div>
+				<button class="submit-btn" id="verifyBtn" type="button" style="animation:none; opacity:1; transform:scale(1);">VERIFY CODE</button>
+				<p class="message" id="otpMessage"></p>
+				<p style="margin-top:12px; font-size:12px; text-align:center;">Didn't receive it? <a href="#" id="resendBtn" style="color:var(--black); font-weight:700; text-decoration:none;">RESEND CODE</a></p>
+			</div>
+
 			<p class="login-link">Already have an account? <a href="index.html">LOGIN</a></p>
 		</section>
 	</div>
@@ -208,6 +220,14 @@
 		const form = document.getElementById("registerForm");
 		const btn = form.querySelector(".submit-btn");
 		const message = document.getElementById("formMessage");
+		const otpPanel = document.getElementById("otpPanel");
+		const verifyBtn = document.getElementById("verifyBtn");
+		const otpMessage = document.getElementById("otpMessage");
+		const resendBtn = document.getElementById("resendBtn");
+
+		/* State kept across signup → OTP steps */
+		let pendingEmail = "";
+		let pendingProfile = {};
 
 		/* Already logged in? Go to dashboard */
 		supabase.auth.getSession().then(({ data: { session } }) => {
@@ -220,6 +240,13 @@
 			btn.innerHTML = 'CREATING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
 		}
 
+		function setVerifyLoading(on) {
+			if (!on) { verifyBtn.disabled = false; verifyBtn.textContent = "VERIFY CODE"; return; }
+			verifyBtn.disabled = true;
+			verifyBtn.innerHTML = 'VERIFYING<span class="dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+		}
+
+		/* ── Step 1: Register ── */
 		form.addEventListener("submit", async (e) => {
 			e.preventDefault();
 			message.textContent = "";
@@ -232,57 +259,86 @@
 			const confirm     = document.getElementById("confirmPassword").value;
 
 			if (!displayName || !phone || !email || !password) {
-				message.textContent = "ERROR: ALL FIELDS ARE REQUIRED.";
-				return;
+				message.textContent = "ERROR: ALL FIELDS ARE REQUIRED."; return;
 			}
-
 			if (password.length < 6) {
-				message.textContent = "PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
-				return;
+				message.textContent = "PASSWORD MUST BE AT LEAST 6 CHARACTERS."; return;
 			}
-
 			if (password !== confirm) {
-				message.textContent = "PASSWORDS DO NOT MATCH.";
-				return;
+				message.textContent = "PASSWORDS DO NOT MATCH."; return;
 			}
 
 			setLoading(true);
 
-			/* 1. Create auth user */
 			const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
 				email,
 				password,
 				options: { data: { display_name: displayName, phone } }
 			});
 
-			if (signUpError) {
-				setLoading(false);
-				message.textContent = "REGISTER FAILED: " + signUpError.message;
-				return;
-			}
-
-			/* 2. Insert profile row */
-			const userId = signUpData.user?.id;
-			if (userId) {
-				await supabase.from("profiles").insert({
-					id: userId,
-					email,
-					display_name: displayName,
-					phone
-				});
-			}
-
 			setLoading(false);
-			message.style.color = "#000";
 
-			/* If email confirmation is required, session will be null */
-			if (!signUpData.session) {
-				message.textContent = "ACCOUNT CREATED! CHECK YOUR EMAIL AND CLICK THE CONFIRMATION LINK, THEN LOGIN.";
+			if (signUpError) {
+				message.textContent = "REGISTER FAILED: " + signUpError.message; return;
+			}
+
+			/* Store for OTP step */
+			pendingEmail = email;
+			pendingProfile = { id: signUpData.user?.id, email, display_name: displayName, phone };
+
+			if (signUpData.session) {
+				/* Email confirmation disabled — session is live now */
+				await supabase.from("profiles").insert(pendingProfile);
+				message.style.color = "#000";
+				message.textContent = "ACCOUNT CREATED! REDIRECTING...";
+				setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
 				return;
 			}
 
-			message.textContent = "ACCOUNT CREATED! REDIRECTING...";
+			/* Confirmation required — show OTP panel */
+			form.style.display = "none";
+			otpPanel.style.display = "block";
+			otpMessage.style.color = "#000";
+			otpMessage.textContent = `CODE SENT TO ${email}. CHECK INBOX (AND SPAM).`;
+			document.getElementById("otpCode").focus();
+		});
+
+		/* ── Step 2: Verify OTP ── */
+		verifyBtn.addEventListener("click", async () => {
+			const code = document.getElementById("otpCode").value.trim();
+			otpMessage.style.color = "var(--error)";
+			if (!code || code.length < 6) { otpMessage.textContent = "ENTER THE FULL 6-DIGIT CODE."; return; }
+
+			setVerifyLoading(true);
+			const { data, error } = await supabase.auth.verifyOtp({
+				email: pendingEmail,
+				token: code,
+				type: "signup"
+			});
+			setVerifyLoading(false);
+
+			if (error) { otpMessage.textContent = "INVALID CODE: " + error.message; return; }
+
+			/* User is now authenticated — insert profile */
+			if (data.user?.id) {
+				pendingProfile.id = data.user.id;
+				await supabase.from("profiles").insert(pendingProfile);
+			}
+
+			otpMessage.style.color = "#000";
+			otpMessage.textContent = "VERIFIED! REDIRECTING...";
 			setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+		});
+
+		/* ── Resend code ── */
+		resendBtn.addEventListener("click", async (e) => {
+			e.preventDefault();
+			if (!pendingEmail) return;
+			otpMessage.style.color = "#000";
+			otpMessage.textContent = "RESENDING...";
+			const { error } = await supabase.auth.resend({ type: "signup", email: pendingEmail });
+			if (error) { otpMessage.style.color = "var(--error)"; otpMessage.textContent = "RESEND FAILED: " + error.message; return; }
+			otpMessage.textContent = "CODE RESENT. CHECK EMAIL.";
 		});
 	</script>
 </body>
