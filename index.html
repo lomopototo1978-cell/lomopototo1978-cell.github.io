@@ -173,8 +173,6 @@
 			font-size: 56px;
 			line-height: 0.92;
 			letter-spacing: 1px;
-			animation: glitchIn 0.4s steps(2, end) both;
-			animation-delay: 0.25s;
 		}
 
 		.title-cursor {
@@ -522,7 +520,7 @@
 		</svg>
 
 		<section class="card">
-			<h1 class="title">LOGIN <span class="title-cursor">■</span></h1>
+			<h1 class="title"><span id="typed-title"></span><span class="title-cursor">■</span></h1>
 
 			<form id="loginForm" novalidate>
 				<div class="field">
@@ -746,6 +744,19 @@
 			message.style.color = "#000";
 			message.textContent = "RESET VIA EMAIL IS DISABLED IN LOCAL MODE. CREATE A NEW ACCOUNT OR USE AN EXTERNAL EMAIL API SERVICE.";
 		});
+		/* ── Typing animation for title ── */
+		(function typeTitle() {
+			const target = document.getElementById("typed-title");
+			const text = "LOGIN";
+			let i = 0;
+			function next() {
+				if (i < text.length) {
+					target.textContent += text[i++];
+					setTimeout(next, 120);
+				}
+			}
+			setTimeout(next, 300);
+		})();
 	</script>
 </body>
 </html>
