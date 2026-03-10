@@ -834,17 +834,23 @@
         }
       }
 
-      if ((r = bestLearnedAnswer(input))) return r;
-
       const n = normalize(input);
       if (/\b(hi|hello|hey|greetings|good morning|good afternoon|good evening|sup|yo)\b/.test(n)) {
         const greetings = ["Hey there! Ask me anything.", "Hello! What would you like to know?", "Hi! I'm ready to help. Ask away!", "Hey! Try asking me about Zimbabwe, science, history, or anything else."];
         return greetings[Math.floor(Math.random() * greetings.length)];
       }
+      if (/\bhow are you\b/.test(n)) {
+        const replies = ["I'm doing great, thanks for asking! What can I help you with?", "All good here! Ready to answer your questions.", "I'm running well! Ask me anything.", "Doing fine, thanks! Fire away with a question."];
+        return replies[Math.floor(Math.random() * replies.length)];
+      }
+      if (/\b(what'?s up|whats up|wassup)\b/.test(n)) return "Not much — just here waiting for your questions! Ask me anything.";
       if (/\b(who are you|what are you|your name)\b/.test(n)) return "I'm Ask Star \u2014 a local mini model that runs in your browser. I come pre-loaded with knowledge about Zimbabwe, Africa, science, history, programming, and much more. You can also teach me new things!";
+      if (/\b(how do you work|how were you made|how were you built)\b/.test(n)) return "I'm a local mini model that runs entirely in your browser using TF-IDF scoring, synonym expansion, and word stemming. I come pre-loaded with knowledge and you can teach me more!";
       if (/\b(thank|thanks|cheers)\b/.test(n)) return "You're welcome! Feel free to ask more questions.";
       if (/\b(bye|goodbye|see you|later)\b/.test(n)) return "Goodbye! Come back anytime.";
       if (/^(help|commands|\?)\s*$/i.test(n) || /\bhelp me\b/.test(n)) return "Commands:\n/teach question => answer \u2014 teach me something new\n/forget question \u2014 remove knowledge\n/list \u2014 see what I know\n\nOr just ask me a question! I know about Zimbabwe, Africa, science, history, geography, programming, and much more.\n\nTip: If I get something wrong, just say \"actually [correct answer]\" and I'll learn!";
+
+      if ((r = bestLearnedAnswer(input))) return r;
       return "I don't know that yet. You can teach me with:\n/teach your question => your answer";
     }
 
