@@ -360,7 +360,7 @@
           </svg>
         </button>
       </form>
-      <p class="footer-note">Enter sends. Shift+Enter adds a new line.</p>
+      <p class="footer-note">Enter sends. Shift+Enter adds a new line. Teach: /teach question => answer</p>
     </div>
   </main>
 
@@ -411,9 +411,7 @@
       throw new Error("no session");
     }
 
-    const CLAUDE_API_URL = window.CLAUDE_API_URL || "https://api.anthropic.com/v1/messages";
-    const CLAUDE_API_KEY = window.ANTHROPIC_API_KEY || "";
-    const CLAUDE_MODEL = window.CLAUDE_MODEL || "claude-3-5-sonnet-latest";
+    const KNOWLEDGE_KEY = "stargen_mini_model_v1";
 
     const feed = document.getElementById("feed");
     const feedInner = document.getElementById("feedInner");
@@ -425,11 +423,177 @@
       messages: [
         {
           role: "assistant",
-          content: "Ask Star is ready. Send a message to start the conversation."
+          content: "Ask Star mini model is ready. Teach me with /teach question => answer"
         }
       ],
-      thinking: false
+      thinking: false,
+      knowledge: []
     };
+
+    function loadKnowledge() {
+      try {
+        const data = JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) || "[]");
+        if (!Array.isArray(data)) {
+          return [];
+        }
+        return data.filter((item) => item && item.q && item.a).slice(0, 600);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveKnowledge() {
+      localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(state.knowledge.slice(0, 600)));
+    }
+
+    function normalize(text) {
+      return String(text || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function overlapScore(a, b) {
+      const aTokens = new Set(normalize(a).split(" ").filter(Boolean));
+      const bTokens = new Set(normalize(b).split(" ").filter(Boolean));
+      if (!aTokens.size || !bTokens.size) {
+        return 0;
+      }
+      let overlap = 0;
+      aTokens.forEach((token) => {
+        if (bTokens.has(token)) {
+          overlap += 1;
+        }
+      });
+      return overlap / Math.max(aTokens.size, bTokens.size);
+    }
+
+    function bestLearnedAnswer(input) {
+      const normalizedInput = normalize(input);
+      if (!normalizedInput) {
+        return null;
+      }
+
+      let best = null;
+      let bestScore = 0;
+
+      state.knowledge.forEach((item) => {
+        const nq = normalize(item.q);
+        if (!nq) {
+          return;
+        }
+        const exact = normalizedInput === nq ? 1 : 0;
+        const score = Math.max(exact, overlapScore(normalizedInput, nq));
+        if (score > bestScore) {
+          bestScore = score;
+          best = item;
+        }
+      });
+
+      if (best && bestScore >= 0.45) {
+        return best.a;
+      }
+      return null;
+    }
+
+    function handleTeachCommand(input) {
+      const match = input.match(/^\s*\/teach\s+(.+?)\s*=>\s*(.+)\s*$/i);
+      if (!match) {
+        return null;
+      }
+
+      const q = match[1].trim();
+      const a = match[2].trim();
+      if (!q || !a) {
+        return "Teaching failed. Use: /teach question => answer";
+      }
+
+      const normalizedQ = normalize(q);
+      const existing = state.knowledge.find((item) => normalize(item.q) === normalizedQ);
+      if (existing) {
+        existing.a = a;
+      } else {
+        state.knowledge.unshift({ q, a });
+      }
+
+      saveKnowledge();
+      return `Learned: "${q}"`;
+    }
+
+    function handleForgetCommand(input) {
+      const match = input.match(/^\s*\/forget\s+(.+)\s*$/i);
+      if (!match) {
+        return null;
+      }
+
+      const q = match[1].trim();
+      const normalizedQ = normalize(q);
+      const before = state.knowledge.length;
+      state.knowledge = state.knowledge.filter((item) => normalize(item.q) !== normalizedQ);
+      saveKnowledge();
+
+      if (state.knowledge.length < before) {
+        return `Forgot: "${q}"`;
+      }
+      return `I did not find that memory. Try /list to see what I learned.`;
+    }
+
+    function handleListCommand(input) {
+      if (!/^\s*\/list\s*$/i.test(input)) {
+        return null;
+      }
+
+      if (!state.knowledge.length) {
+        return "I have no learned items yet. Teach me with /teach question => answer";
+      }
+
+      const preview = state.knowledge
+        .slice(0, 12)
+        .map((item, index) => `${index + 1}. ${item.q}`)
+        .join("\n");
+      return `Learned prompts:\n${preview}`;
+    }
+
+    async function callMiniModel(input) {
+      const teachReply = handleTeachCommand(input);
+      if (teachReply) {
+        return teachReply;
+      }
+
+      const forgetReply = handleForgetCommand(input);
+      if (forgetReply) {
+        return forgetReply;
+      }
+
+      const listReply = handleListCommand(input);
+      if (listReply) {
+        return listReply;
+      }
+
+      const learned = bestLearnedAnswer(input);
+      if (learned) {
+        return learned;
+      }
+
+      const normalized = normalize(input);
+      if (/\b(hi|hello|hey)\b/.test(normalized)) {
+        return "Hi. Teach me anything with /teach question => answer and I will remember it.";
+      }
+      if (/\b(who are you|what are you)\b/.test(normalized)) {
+        return "I am your local mini model for Ask Star. I run in your browser and learn from your commands.";
+      }
+      if (/\b(help|how)\b/.test(normalized)) {
+        return [
+          "Commands:",
+          "/teach question => answer",
+          "/forget question",
+          "/list"
+        ].join("\n");
+      }
+
+      return "I do not know that yet. Teach me using /teach your question => your answer";
+    }
 
     function escapeHtml(value) {
       return String(value || "")
@@ -474,43 +638,6 @@
       scrollToBottom();
     }
 
-    async function callClaudeApi() {
-      if (!CLAUDE_API_KEY) {
-        throw new Error("Anthropic API key is not configured. Set window.ANTHROPIC_API_KEY before using this page.");
-      }
-
-      const apiMessages = state.messages.map((message) => ({
-        role: message.role,
-        content: message.content
-      }));
-
-      const response = await fetch(CLAUDE_API_URL, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": CLAUDE_API_KEY,
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: CLAUDE_MODEL,
-          max_tokens: 1024,
-          messages: apiMessages
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        const errorText = data && data.error && data.error.message ? data.error.message : "Claude request failed.";
-        throw new Error(errorText);
-      }
-
-      const text = Array.isArray(data.content)
-        ? data.content.filter((part) => part.type === "text").map((part) => part.text).join("\n")
-        : "";
-
-      return text || "No response returned.";
-    }
-
     async function handleSubmit() {
       const text = prompt.value.trim();
       if (!text || state.thinking) {
@@ -525,12 +652,13 @@
       render();
 
       try {
-        const assistantText = await callClaudeApi();
+        await new Promise((resolve) => setTimeout(resolve, 260));
+        const assistantText = await callMiniModel(text);
         state.messages.push({ role: "assistant", content: assistantText });
       } catch (error) {
         state.messages.push({
           role: "assistant",
-          content: "Error: " + (error && error.message ? error.message : "Unable to reach Claude.")
+          content: "Error: " + (error && error.message ? error.message : "Mini model failed.")
         });
       } finally {
         state.thinking = false;
@@ -553,6 +681,7 @@
       }
     });
 
+    state.knowledge = loadKnowledge();
     autoResize();
     render();
   </script>
