@@ -196,12 +196,13 @@
 
 			<!-- OTP verification step (displayed after signup) -->
 			<div id="otpPanel" style="display:none; margin-top:8px;">
-				<p style="font-size:13px; font-weight:700; margin-bottom:16px; color:#000;">CODE SENT — ENTER THE 6-DIGIT CODE FROM YOUR EMAIL.</p>
+				<p style="font-size:13px; font-weight:700; margin-bottom:16px; color:#000;">CONFIRM YOUR ACCOUNT: ENTER THE 6-DIGIT CODE OR CLICK THE EMAIL LINK.</p>
 				<div class="field" style="animation:none; opacity:1; transform:none;">
 					<input id="otpCode" type="text" inputmode="numeric" placeholder=" " maxlength="6" autocomplete="one-time-code" />
 					<label for="otpCode">6-DIGIT CODE</label>
 				</div>
 				<button class="submit-btn" id="verifyBtn" type="button" style="animation:none; opacity:1; transform:scale(1);">VERIFY CODE</button>
+				<button class="submit-btn" id="continueBtn" type="button" style="animation:none; opacity:1; transform:scale(1); margin-top:10px;">I CLICKED THE EMAIL LINK</button>
 				<p class="message" id="otpMessage"></p>
 				<p style="margin-top:12px; font-size:12px; text-align:center;">Didn't receive it? <a href="#" id="resendBtn" style="color:var(--black); font-weight:700; text-decoration:none;">RESEND CODE</a></p>
 			</div>
@@ -222,6 +223,7 @@
 		const message = document.getElementById("formMessage");
 		const otpPanel = document.getElementById("otpPanel");
 		const verifyBtn = document.getElementById("verifyBtn");
+		const continueBtn = document.getElementById("continueBtn");
 		const otpMessage = document.getElementById("otpMessage");
 		const resendBtn = document.getElementById("resendBtn");
 
@@ -232,6 +234,15 @@
 		/* Already logged in? Go to dashboard */
 		supabase.auth.getSession().then(({ data: { session } }) => {
 			if (session) window.location.replace("dashboard.html");
+		});
+
+		/* If user returns here after clicking email link, redirect automatically */
+		supabase.auth.onAuthStateChange(async (_event, session) => {
+			if (!session) return;
+			if (pendingProfile?.id) {
+				await supabase.from("profiles").upsert(pendingProfile, { onConflict: "id" });
+			}
+			window.location.replace("dashboard.html");
 		});
 
 		function setLoading(on) {
@@ -289,7 +300,10 @@
 			const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
 				email,
 				password,
-				options: { data: { display_name: displayName, phone } }
+				options: {
+					data: { display_name: displayName, phone },
+					emailRedirectTo: window.location.origin + "/register.html"
+				}
 			});
 
 			setLoading(false);
@@ -316,7 +330,7 @@
 			form.style.display = "none";
 			otpPanel.style.display = "block";
 			otpMessage.style.color = "#000";
-			otpMessage.textContent = `CODE SENT TO ${email}. CHECK INBOX (AND SPAM).`;
+			otpMessage.textContent = `CHECK ${email}. USE CODE OR CLICK THE EMAIL LINK, THEN TAP \"I CLICKED THE EMAIL LINK\".`;
 			document.getElementById("otpCode").focus();
 		});
 
@@ -348,6 +362,22 @@
 			otpMessage.style.color = "#000";
 			otpMessage.textContent = "VERIFIED! REDIRECTING...";
 			setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+		});
+
+		continueBtn.addEventListener("click", async () => {
+			otpMessage.style.color = "#000";
+			otpMessage.textContent = "CHECKING CONFIRMATION...";
+			const { data: { session } } = await supabase.auth.getSession();
+			if (!session) {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = "NOT CONFIRMED YET. CLICK THE EMAIL LINK FIRST, THEN TRY AGAIN.";
+				return;
+			}
+
+			if (pendingProfile?.id) {
+				await supabase.from("profiles").upsert(pendingProfile, { onConflict: "id" });
+			}
+			window.location.replace("dashboard.html");
 		});
 
 		/* ── Resend code ── */
