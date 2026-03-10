@@ -282,15 +282,67 @@
     }
 
     .cv-stage {
+      --cv-bg: #fff;
+      --cv-ink: #0A0A0A;
+      --cv-border: #000;
+      --cv-accent: #FFE500;
+      --cv-panel: #FAFAFA;
+      --cv-side: #fff;
       margin: 0 auto 88px;
       width: min(1020px, 100%);
-      border: 4px solid var(--black);
+      border: 4px solid var(--cv-border);
       box-shadow: var(--shadow);
-      background: #fff;
+      background: var(--cv-bg);
+      color: var(--cv-ink);
       position: relative;
       overflow: hidden;
       transform: translateX(100%);
       opacity: 0;
+    }
+
+    .cv-stage.theme-neo {
+      --cv-bg: #fff;
+      --cv-ink: #0A0A0A;
+      --cv-border: #000;
+      --cv-accent: #FFE500;
+      --cv-panel: #FAFAFA;
+      --cv-side: #fff;
+    }
+
+    .cv-stage.theme-minimal {
+      --cv-bg: #FBFBFB;
+      --cv-ink: #1B1B1B;
+      --cv-border: #1B1B1B;
+      --cv-accent: #D7D7D7;
+      --cv-panel: #F1F1F1;
+      --cv-side: #F8F8F8;
+    }
+
+    .cv-stage.theme-executive {
+      --cv-bg: #F6F4EE;
+      --cv-ink: #171717;
+      --cv-border: #171717;
+      --cv-accent: #C9B27C;
+      --cv-panel: #EFE8D7;
+      --cv-side: #F3EEDF;
+    }
+
+    .cv-stage.theme-forest {
+      --cv-bg: #F6FFF7;
+      --cv-ink: #0E2212;
+      --cv-border: #0E2212;
+      --cv-accent: #8BCF98;
+      --cv-panel: #E9F7EC;
+      --cv-side: #F1FBF3;
+    }
+
+    .cv-stage.theme-sunset {
+      --cv-bg: #FFF8F2;
+      --cv-ink: #2A140F;
+      --cv-border: #2A140F;
+      --cv-accent: #FF9A6A;
+      --cv-panel: #FFE7DA;
+      --cv-side: #FFF1E7;
     }
 
     .cv-stage.cv-enter {
@@ -306,10 +358,11 @@
     }
 
     .cv-header {
-      border-bottom: 3px solid var(--black);
+      border-bottom: 3px solid var(--cv-border);
       padding: 14px;
       position: relative;
       z-index: 2;
+      background: var(--cv-panel);
     }
 
     .cv-name {
@@ -347,25 +400,25 @@
     }
 
     .sidebar {
-      border-right: 3px solid var(--black);
+      border-right: 3px solid var(--cv-border);
       padding: 12px;
-      background: #fff;
+      background: var(--cv-side);
     }
 
     .main {
       padding: 12px;
-      background: #fff;
+      background: var(--cv-bg);
     }
 
     .box {
-      border: 3px solid var(--black);
+      border: 3px solid var(--cv-border);
       margin-bottom: 10px;
-      background: var(--card);
+      background: var(--cv-panel);
     }
 
     .box-head {
-      background: var(--bg);
-      border-bottom: 3px solid var(--black);
+      background: var(--cv-accent);
+      border-bottom: 3px solid var(--cv-border);
       padding: 7px 8px;
       font-weight: 700;
       text-transform: uppercase;
@@ -379,13 +432,13 @@
 
     .divider {
       height: 2px;
-      background: var(--black);
+      background: var(--cv-border);
       margin: 10px 0;
     }
 
     .exp-item {
       margin-bottom: 10px;
-      border-bottom: 1px solid var(--black);
+      border-bottom: 1px solid var(--cv-border);
       padding-bottom: 8px;
     }
 
@@ -421,13 +474,41 @@
     }
 
     .skill-tag {
-      border: 2px solid var(--black);
+      border: 2px solid var(--cv-border);
       padding: 3px 6px;
       font-size: 11px;
       font-weight: 700;
+      background: var(--cv-bg);
       transform: scale(0);
       opacity: 0;
       animation: popIn 0.42s cubic-bezier(0.2, 1.3, 0.4, 1) forwards;
+    }
+
+    .design-note {
+      margin: 0 auto 10px;
+      width: min(1020px, 100%);
+      border: 3px solid var(--black);
+      box-shadow: var(--shadow);
+      background: #fff;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .theme-btn {
+      border: 3px solid var(--black);
+      background: #fff;
+      color: var(--ink);
+      min-height: 44px;
+      padding: 8px 10px;
+      box-shadow: 4px 4px 0 #000;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .theme-btn.active {
+      background: var(--black);
+      color: var(--bg);
     }
 
     .stagger {
@@ -652,6 +733,7 @@
     </section>
 
     <section id="screenPreview" class="screen hidden">
+      <div id="designNote" class="design-note">AI style suggestions will appear here after generation.</div>
       <div id="cvStage" class="cv-stage">
         <div class="grain" aria-hidden="true"></div>
         <div id="cvRender"></div>
@@ -671,6 +753,11 @@
     <button id="editBtn" class="action-btn" type="button">◀ EDIT</button>
     <button id="downloadBtn" class="action-btn" type="button">⬇ DOWNLOAD PDF</button>
     <button id="regenBtn" class="action-btn" type="button">↻ REGENERATE</button>
+    <button id="themeNeoBtn" class="theme-btn" type="button">NEO</button>
+    <button id="themeMinimalBtn" class="theme-btn" type="button">MINIMAL</button>
+    <button id="themeExecutiveBtn" class="theme-btn" type="button">EXECUTIVE</button>
+    <button id="themeForestBtn" class="theme-btn" type="button">FOREST</button>
+    <button id="themeSunsetBtn" class="theme-btn" type="button">SUNSET</button>
   </div>
 
   <script>
@@ -707,16 +794,48 @@
 
     const cvStage = document.getElementById("cvStage");
     const cvRender = document.getElementById("cvRender");
+    const designNote = document.getElementById("designNote");
 
     const editBtn = document.getElementById("editBtn");
     const downloadBtn = document.getElementById("downloadBtn");
     const regenBtn = document.getElementById("regenBtn");
+    const themeNeoBtn = document.getElementById("themeNeoBtn");
+    const themeMinimalBtn = document.getElementById("themeMinimalBtn");
+    const themeExecutiveBtn = document.getElementById("themeExecutiveBtn");
+    const themeForestBtn = document.getElementById("themeForestBtn");
+    const themeSunsetBtn = document.getElementById("themeSunsetBtn");
     const startOverBtn = document.getElementById("startOverBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
     let lastRawInput = null;
     let lastCvJson = null;
+    let currentTheme = "neo";
     let printRequested = false;
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      cvStage.classList.remove("theme-neo", "theme-minimal", "theme-executive", "theme-forest", "theme-sunset");
+      cvStage.classList.add(`theme-${theme}`);
+
+      const buttons = [
+        [themeNeoBtn, "neo"],
+        [themeMinimalBtn, "minimal"],
+        [themeExecutiveBtn, "executive"],
+        [themeForestBtn, "forest"],
+        [themeSunsetBtn, "sunset"]
+      ];
+      buttons.forEach(([btn, key]) => btn.classList.toggle("active", key === theme));
+    }
+
+    function suggestThemes(targetRole) {
+      const role = String(targetRole || "").toLowerCase();
+      if (/design|creative|marketing|brand/.test(role)) return ["sunset", "forest", "minimal"];
+      if (/manager|lead|director|product/.test(role)) return ["executive", "minimal", "forest"];
+      if (/engineer|developer|devops|data|software/.test(role)) return ["minimal", "executive", "forest"];
+      return ["minimal", "forest", "executive"];
+    }
+
+    setTheme("neo");
 
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
@@ -1057,6 +1176,9 @@
       try {
         const cv = generateLocalCv(rawInput);
         lastCvJson = cv;
+        const suggestions = suggestThemes(rawInput.targetRole);
+        designNote.textContent = `AI DESIGN OPTIONS: ${suggestions[0].toUpperCase()} | ${suggestions[1].toUpperCase()} | ${suggestions[2].toUpperCase()} (plus NEO).`;
+        setTheme(suggestions[0]);
         renderCv(cv);
         showPreview();
       } catch (err) {
@@ -1089,6 +1211,12 @@
       showForm();
       await generateCv(lastRawInput);
     });
+
+    themeNeoBtn.addEventListener("click", () => setTheme("neo"));
+    themeMinimalBtn.addEventListener("click", () => setTheme("minimal"));
+    themeExecutiveBtn.addEventListener("click", () => setTheme("executive"));
+    themeForestBtn.addEventListener("click", () => setTheme("forest"));
+    themeSunsetBtn.addEventListener("click", () => setTheme("sunset"));
 
     downloadBtn.addEventListener("click", () => {
       printRequested = true;
