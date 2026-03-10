@@ -6,7 +6,7 @@
   <title>AI CV Maker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Montserrat:wght@500;700;800&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #FFE500;
@@ -281,6 +281,56 @@
       font-weight: 700;
     }
 
+    .learn-area {
+      border: 3px dashed var(--black);
+      background: #fff;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .learn-title {
+      font-weight: 800;
+      margin: 0 0 8px;
+      font-size: 13px;
+    }
+
+    .learn-help {
+      font-size: 12px;
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    .learn-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .learn-btn {
+      border: 3px solid var(--black);
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 4px 4px 0 #000;
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .learn-btn.primary {
+      background: var(--black);
+      color: var(--bg);
+    }
+
+    .learn-status {
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #14532d;
+    }
+
     .cv-stage {
       --cv-bg: #fff;
       --cv-ink: #0A0A0A;
@@ -310,39 +360,238 @@
     }
 
     .cv-stage.theme-minimal {
-      --cv-bg: #FBFBFB;
-      --cv-ink: #1B1B1B;
-      --cv-border: #1B1B1B;
-      --cv-accent: #D7D7D7;
-      --cv-panel: #F1F1F1;
-      --cv-side: #F8F8F8;
+      --cv-bg: #FFFFFF;
+      --cv-ink: #1A1A1A;
+      --cv-border: #DDDCDA;
+      --cv-accent: #E8E8E8;
+      --cv-panel: #F7F7F7;
+      --cv-side: #FAFAFA;
+      border-width: 1px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .cv-stage.theme-minimal .cv-header {
+      border-bottom-width: 1px;
+      padding: 22px 20px;
+    }
+
+    .cv-stage.theme-minimal .cv-name {
+      font-family: "Space Mono", monospace;
+      font-size: 36px;
+      letter-spacing: -0.5px;
+    }
+
+    .cv-stage.theme-minimal .cv-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #666;
+    }
+
+    .cv-stage.theme-minimal .box {
+      border-width: 1px;
+    }
+
+    .cv-stage.theme-minimal .box-head {
+      background: transparent;
+      border-bottom-width: 1px;
+      color: var(--cv-ink);
+      font-size: 11px;
+      letter-spacing: 2px;
+    }
+
+    .cv-stage.theme-minimal .cv-avatar {
+      border-width: 1px;
+      box-shadow: none;
+      background: #F0F0F0;
+      font-size: 18px;
+      width: 56px;
+      height: 56px;
+    }
+
+    .cv-stage.theme-minimal .bullet li::before {
+      content: "– ";
+      color: #999;
+    }
+
+    .cv-stage.theme-minimal .skill-tag {
+      border-width: 1px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .cv-stage.theme-executive {
-      --cv-bg: #F6F4EE;
-      --cv-ink: #171717;
-      --cv-border: #171717;
-      --cv-accent: #C9B27C;
-      --cv-panel: #EFE8D7;
-      --cv-side: #F3EEDF;
+      --cv-bg: #FFFDF6;
+      --cv-ink: #1A1409;
+      --cv-border: #1A1409;
+      --cv-accent: #C4A24E;
+      --cv-panel: #F5EDDA;
+      --cv-side: #FAF4E6;
+      box-shadow: 8px 8px 0 #1A1409;
+    }
+
+    .cv-stage.theme-executive .cv-header {
+      background: linear-gradient(135deg, #1A1409 0%, #2D250E 100%);
+      color: #F5EDDA;
+      border-bottom: 3px solid var(--cv-accent);
+      padding: 22px 20px;
+    }
+
+    .cv-stage.theme-executive .cv-header .cv-name {
+      color: #F5EDDA;
+    }
+
+    .cv-stage.theme-executive .cv-header .cv-title {
+      color: var(--cv-accent);
+    }
+
+    .cv-stage.theme-executive .cv-header .cv-contact {
+      color: #D8CAA8;
+    }
+
+    .cv-stage.theme-executive .cv-avatar {
+      background: var(--cv-accent);
+      color: #1A1409;
+      border-color: var(--cv-accent);
+      box-shadow: 3px 3px 0 rgba(196,162,78,0.3);
+    }
+
+    .cv-stage.theme-executive .box-head {
+      background: var(--cv-accent);
+      color: #1A1409;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 15px;
+      letter-spacing: 1.5px;
+    }
+
+    .cv-stage.theme-executive .exp-head {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .cv-stage.theme-executive .skill-tag {
+      background: var(--cv-accent);
+      color: #1A1409;
+      border-color: #1A1409;
+      font-weight: 800;
     }
 
     .cv-stage.theme-forest {
-      --cv-bg: #F6FFF7;
-      --cv-ink: #0E2212;
-      --cv-border: #0E2212;
-      --cv-accent: #8BCF98;
-      --cv-panel: #E9F7EC;
-      --cv-side: #F1FBF3;
+      --cv-bg: #F7FFF8;
+      --cv-ink: #0D1F11;
+      --cv-border: #0D1F11;
+      --cv-accent: #34D058;
+      --cv-panel: #E6F9EA;
+      --cv-side: #EDFBF0;
+      box-shadow: 6px 6px 0 #0D1F11;
+    }
+
+    .cv-stage.theme-forest .cv-header {
+      background: linear-gradient(135deg, #0D1F11 0%, #1A3A21 100%);
+      color: #E6F9EA;
+      border-bottom: 3px solid var(--cv-accent);
+      padding: 20px 18px;
+    }
+
+    .cv-stage.theme-forest .cv-header .cv-name { color: #E6F9EA; }
+    .cv-stage.theme-forest .cv-header .cv-title { color: var(--cv-accent); }
+    .cv-stage.theme-forest .cv-header .cv-contact { color: #A8D9B2; }
+
+    .cv-stage.theme-forest .cv-avatar {
+      background: var(--cv-accent);
+      color: #0D1F11;
+      border-color: var(--cv-accent);
+    }
+
+    .cv-stage.theme-forest .box-head {
+      background: var(--cv-accent);
+      color: #0D1F11;
+    }
+
+    .cv-stage.theme-forest .bullet li::before {
+      content: "→ ";
+      color: var(--cv-accent);
+      font-weight: 700;
+    }
+
+    .cv-stage.theme-forest .skill-tag {
+      background: #D5F5DC;
+      border-color: var(--cv-accent);
     }
 
     .cv-stage.theme-sunset {
-      --cv-bg: #FFF8F2;
-      --cv-ink: #2A140F;
-      --cv-border: #2A140F;
-      --cv-accent: #FF9A6A;
-      --cv-panel: #FFE7DA;
-      --cv-side: #FFF1E7;
+      --cv-bg: #FFFAF5;
+      --cv-ink: #2A1508;
+      --cv-border: #2A1508;
+      --cv-accent: #FF6B35;
+      --cv-panel: #FFF0E5;
+      --cv-side: #FFF5ED;
+      box-shadow: 6px 6px 0 #2A1508;
+    }
+
+    .cv-stage.theme-sunset .cv-header {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+      color: #fff;
+      border-bottom: 3px solid #2A1508;
+      padding: 20px 18px;
+    }
+
+    .cv-stage.theme-sunset .cv-header .cv-name { color: #fff; }
+    .cv-stage.theme-sunset .cv-header .cv-title { color: #FFE0CC; }
+    .cv-stage.theme-sunset .cv-header .cv-contact { color: #FFD4BA; }
+
+    .cv-stage.theme-sunset .cv-avatar {
+      background: #fff;
+      color: #FF6B35;
+      border-color: #2A1508;
+    }
+
+    .cv-stage.theme-sunset .box-head {
+      background: var(--cv-accent);
+      color: #fff;
+    }
+
+    .cv-stage.theme-sunset .bullet li::before {
+      content: "◆ ";
+      color: var(--cv-accent);
+    }
+
+    .cv-stage.theme-sunset .skill-tag {
+      background: #FFE0CC;
+      border-color: var(--cv-accent);
+      color: #2A1508;
+    }
+
+    .cv-stage.theme-tokyo {
+      --cv-bg: #0C1016;
+      --cv-ink: #E7EDF7;
+      --cv-border: #E7EDF7;
+      --cv-accent: #67E8F9;
+      --cv-panel: #121924;
+      --cv-side: #0F1622;
+      box-shadow: 8px 8px 0 #020407;
+    }
+
+    .cv-stage.theme-editorial {
+      --cv-bg: #FBFAF7;
+      --cv-ink: #1F1D1B;
+      --cv-border: #332E2A;
+      --cv-accent: #D8C4A2;
+      --cv-panel: #F3EDE4;
+      --cv-side: #F8F3EC;
+      box-shadow: 8px 8px 0 #2D2824;
+    }
+
+    .cv-stage.theme-professional {
+      --cv-bg: #F4F7FB;
+      --cv-ink: #152033;
+      --cv-border: #152033;
+      --cv-accent: #7BA6D8;
+      --cv-panel: #E6EFFA;
+      --cv-side: #EDF3FA;
+      box-shadow: 8px 8px 0 #0E1624;
     }
 
     .cv-stage.cv-enter {
@@ -372,6 +621,20 @@
       margin: 0;
     }
 
+    .cv-avatar {
+      width: 74px;
+      height: 74px;
+      border: 3px solid var(--cv-border);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 22px;
+      margin-bottom: 10px;
+      background: var(--cv-accent);
+      color: #101010;
+      box-shadow: 4px 4px 0 var(--cv-border);
+    }
+
     .cv-title {
       margin: 6px 0 8px;
       font-weight: 700;
@@ -391,12 +654,106 @@
       margin-right: 8px;
     }
 
+    .bubble-shell {
+      width: 88px;
+      height: 88px;
+      position: relative;
+      margin-bottom: 10px;
+      filter: url("#goo");
+    }
+
+    .bubble-core,
+    .bubble-node {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--cv-accent);
+      border: 2px solid var(--cv-border);
+    }
+
+    .bubble-core {
+      inset: 14px;
+    }
+
+    .bubble-node {
+      width: 16px;
+      height: 16px;
+      animation: bubbleDance 2.6s ease-in-out infinite;
+    }
+
+    .bubble-node.b1 { left: 6px; top: 8px; animation-delay: 0s; }
+    .bubble-node.b2 { right: 8px; top: 10px; animation-delay: 0.22s; }
+    .bubble-node.b3 { left: 0; bottom: 15px; animation-delay: 0.42s; }
+    .bubble-node.b4 { right: 4px; bottom: 8px; animation-delay: 0.6s; }
+
     .cv-body {
       display: grid;
       grid-template-columns: 30% 70%;
       min-height: 500px;
       position: relative;
       z-index: 2;
+    }
+
+    .cv-stage.theme-tokyo .cv-header,
+    .cv-stage.theme-tokyo .box-head {
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .cv-stage.theme-tokyo .cv-name,
+    .cv-stage.theme-tokyo .cv-title,
+    .cv-stage.theme-tokyo .box-head,
+    .cv-stage.theme-tokyo .exp-head {
+      font-family: "Montserrat", sans-serif;
+    }
+
+    .cv-stage.theme-tokyo .bullet li::before {
+      content: "■ ";
+      color: var(--cv-accent);
+    }
+
+    .cv-stage.theme-editorial .cv-name,
+    .cv-stage.theme-editorial .box-head,
+    .cv-stage.theme-editorial .exp-head {
+      font-family: "Playfair Display", serif;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .cv-stage.theme-editorial .cv-title,
+    .cv-stage.theme-editorial .box-content,
+    .cv-stage.theme-editorial .main,
+    .cv-stage.theme-editorial .cv-contact {
+      font-family: "Open Sans", sans-serif;
+    }
+
+    .cv-stage.theme-editorial .cv-header {
+      border-bottom-width: 2px;
+    }
+
+    .cv-stage.theme-editorial .box,
+    .cv-stage.theme-editorial .sidebar {
+      border-width: 2px;
+    }
+
+    .cv-stage.theme-professional .cv-name,
+    .cv-stage.theme-professional .cv-title,
+    .cv-stage.theme-professional .box-head,
+    .cv-stage.theme-professional .exp-head {
+      font-family: "Montserrat", sans-serif;
+    }
+
+    .cv-stage.theme-professional .box-head {
+      border-bottom-width: 2px;
+    }
+
+    .cv-stage.theme-professional .skill-tag {
+      border-radius: 14px;
+      padding: 3px 8px;
+    }
+
+    .cv-stage.theme-professional .bullet li::before {
+      content: "- ";
+      color: var(--cv-ink);
     }
 
     .sidebar {
@@ -602,6 +959,12 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
+    @keyframes bubbleDance {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(4px, -5px) scale(1.08); }
+      100% { transform: translate(-3px, 3px) scale(0.95); }
+    }
+
     @keyframes flash {
       0% { background: var(--bg); }
       45% { background: #fff; }
@@ -727,12 +1090,37 @@
           </div>
         </div>
 
+        <div class="section">
+          <div class="section-head">TEACH MINI MODEL (HYBRID)</div>
+          <div class="learn-area">
+            <p class="learn-title">Paste JSON from ChatGPT/API output (or any CV JSON)</p>
+            <p class="learn-help">The app extracts verbs, skills, titles, summaries, and stores learned knowledge locally for faster future generations.</p>
+            <textarea id="teachJson" placeholder='Example: {"cv":{"title":"Customer Service Representative","summary":"...","skills":{"Technical":["CRM"]},"experience":[{"bullets":["Resolved 50+ tickets daily"]}]}}'></textarea>
+            <div class="learn-actions">
+              <button id="teachApplyBtn" class="learn-btn primary" type="button">TEACH FROM JSON</button>
+              <button id="teachFromLastBtn" class="learn-btn" type="button">TEACH FROM LAST CV</button>
+              <button id="teachExportBtn" class="learn-btn" type="button">EXPORT LEARNED MODEL</button>
+              <button id="teachResetBtn" class="learn-btn" type="button">RESET LEARNED DATA</button>
+            </div>
+            <p id="learnStatus" class="learn-status"></p>
+          </div>
+        </div>
+
         <button id="generateBtn" class="primary-btn" type="button">GENERATE MY CV ▶</button>
         <p id="formMessage" class="msg"></p>
       </div>
     </section>
 
     <section id="screenPreview" class="screen hidden">
+      <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"></feGaussianBlur>
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 16 -7" result="goo"></feColorMatrix>
+            <feBlend in="SourceGraphic" in2="goo"></feBlend>
+          </filter>
+        </defs>
+      </svg>
       <div id="designNote" class="design-note">AI style suggestions will appear here after generation.</div>
       <div id="cvStage" class="cv-stage">
         <div class="grain" aria-hidden="true"></div>
@@ -758,11 +1146,15 @@
     <button id="themeExecutiveBtn" class="theme-btn" type="button">EXECUTIVE</button>
     <button id="themeForestBtn" class="theme-btn" type="button">FOREST</button>
     <button id="themeSunsetBtn" class="theme-btn" type="button">SUNSET</button>
+    <button id="themeTokyoBtn" class="theme-btn" type="button">TOKYO</button>
+    <button id="themeEditorialBtn" class="theme-btn" type="button">EDITORIAL</button>
+    <button id="themeProfessionalBtn" class="theme-btn" type="button">PROFESSIONAL</button>
   </div>
 
   <script>
     const USER_KEY = "mvumi_users_v1";
     const SESSION_KEY = "mvumi_session_v1";
+    const LEARNED_MODEL_KEY = "mvumi_learned_model_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 
     let localModel = {
@@ -774,7 +1166,10 @@
       ],
       skills: [],
       titles: [],
-      themeCatalog: []
+      themeCatalog: [],
+      domainProfiles: [],
+      bulletTemplates: [],
+      seniorityModifiers: {}
     };
 
     const screenForm = document.getElementById("screenForm");
@@ -792,6 +1187,12 @@
 
     const generateBtn = document.getElementById("generateBtn");
     const formMessage = document.getElementById("formMessage");
+    const teachJson = document.getElementById("teachJson");
+    const teachApplyBtn = document.getElementById("teachApplyBtn");
+    const teachFromLastBtn = document.getElementById("teachFromLastBtn");
+    const teachExportBtn = document.getElementById("teachExportBtn");
+    const teachResetBtn = document.getElementById("teachResetBtn");
+    const learnStatus = document.getElementById("learnStatus");
 
     const cvStage = document.getElementById("cvStage");
     const cvRender = document.getElementById("cvRender");
@@ -805,6 +1206,9 @@
     const themeExecutiveBtn = document.getElementById("themeExecutiveBtn");
     const themeForestBtn = document.getElementById("themeForestBtn");
     const themeSunsetBtn = document.getElementById("themeSunsetBtn");
+    const themeTokyoBtn = document.getElementById("themeTokyoBtn");
+    const themeEditorialBtn = document.getElementById("themeEditorialBtn");
+    const themeProfessionalBtn = document.getElementById("themeProfessionalBtn");
     const startOverBtn = document.getElementById("startOverBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
@@ -816,12 +1220,15 @@
       minimal: ["minimal", "mono", "flat", "typewriter", "nordic", "reference", "government"],
       executive: ["executive", "consultant", "investor", "operations", "professional", "bureau", "product-manager"],
       forest: ["academic", "community", "university", "coastal", "horizon", "garden"],
-      sunset: ["creative", "studio", "marketing", "pink", "desert", "portfolio", "editorial", "californian"]
+      sunset: ["creative", "studio", "marketing", "pink", "desert", "portfolio", "californian"],
+      tokyo: ["tokyo", "kendo", "paper", "stack", "sudokus", "kanji", "cyan", "terminal"],
+      editorial: ["editorial", "book", "writer", "journal", "typeface", "print", "magazine"],
+      professional: ["professional", "official", "classic", "clean", "corporate", "premium", "formal"]
     };
 
     function setTheme(theme) {
       currentTheme = theme;
-      cvStage.classList.remove("theme-neo", "theme-minimal", "theme-executive", "theme-forest", "theme-sunset");
+      cvStage.classList.remove("theme-neo", "theme-minimal", "theme-executive", "theme-forest", "theme-sunset", "theme-tokyo", "theme-editorial", "theme-professional");
       cvStage.classList.add(`theme-${theme}`);
 
       const buttons = [
@@ -829,7 +1236,10 @@
         [themeMinimalBtn, "minimal"],
         [themeExecutiveBtn, "executive"],
         [themeForestBtn, "forest"],
-        [themeSunsetBtn, "sunset"]
+        [themeSunsetBtn, "sunset"],
+        [themeTokyoBtn, "tokyo"],
+        [themeEditorialBtn, "editorial"],
+        [themeProfessionalBtn, "professional"]
       ];
       buttons.forEach(([btn, key]) => btn.classList.toggle("active", key === theme));
     }
@@ -838,19 +1248,23 @@
       const role = String(targetRole || "").toLowerCase();
 
       const base = /design|creative|marketing|brand/.test(role)
-        ? ["sunset", "forest", "minimal"]
+        ? ["editorial", "sunset", "minimal"]
+        : /customer|service|support|call|help\s*desk|client/.test(role)
+          ? ["professional", "editorial", "minimal"]
+        : /admin|office|assistant|operations|coordinator|finance|hr|healthcare|teacher|education/.test(role)
+          ? ["professional", "minimal", "editorial"]
         : /manager|lead|director|product/.test(role)
-          ? ["executive", "minimal", "forest"]
+          ? ["professional", "executive", "minimal"]
           : /engineer|developer|devops|data|software/.test(role)
-            ? ["minimal", "executive", "forest"]
-            : ["minimal", "forest", "executive"];
+            ? ["tokyo", "minimal", "professional"]
+            : ["professional", "minimal", "editorial"];
 
       if (!localModel.themeCatalog || !localModel.themeCatalog.length) {
         return base;
       }
 
       // Rank local themes using jsonresume.org theme names.
-      const score = { minimal: 0, executive: 0, forest: 0, sunset: 0 };
+      const score = { minimal: 0, executive: 0, forest: 0, sunset: 0, tokyo: 0, editorial: 0, professional: 0 };
       localModel.themeCatalog.forEach((name) => {
         const n = String(name || "").toLowerCase();
         Object.entries(themeKeywordMap).forEach(([theme, words]) => {
@@ -864,7 +1278,7 @@
         .sort((a, b) => b[1] - a[1])
         .map(([k]) => k);
 
-      const merged = [...base, ...ranked].filter((v, i, arr) => arr.indexOf(v) === i);
+      const merged = ["neo", ...base, ...ranked].filter((v, i, arr) => arr.indexOf(v) === i);
       return merged.slice(0, 3);
     }
 
@@ -873,6 +1287,106 @@
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
       catch { return []; }
+    }
+
+    function toArray(value) {
+      return Array.isArray(value) ? value : [];
+    }
+
+    function uniqueMerge(listA, listB, max = 120) {
+      const seen = new Set();
+      const merged = [];
+      [...toArray(listA), ...toArray(listB)].forEach((item) => {
+        const clean = String(item || "").trim();
+        if (!clean) return;
+        const key = clean.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        merged.push(clean);
+      });
+      return merged.slice(0, max);
+    }
+
+    function extractLearningFromCv(cv) {
+      const out = { verbs: [], skills: [], titles: [], summaries: [] };
+      if (!cv || typeof cv !== "object") return out;
+
+      if (cv.title) out.titles.push(String(cv.title));
+      if (cv.summary) out.summaries.push(String(cv.summary));
+
+      const skillsObj = cv.skills && typeof cv.skills === "object" ? cv.skills : {};
+      Object.values(skillsObj).forEach((bucket) => {
+        const arr = Array.isArray(bucket)
+          ? bucket
+          : String(bucket || "").split(",").map((x) => x.trim()).filter(Boolean);
+        out.skills.push(...arr);
+      });
+
+      toArray(cv.experience).forEach((exp) => {
+        if (exp && exp.role) out.titles.push(String(exp.role));
+        toArray(exp && exp.bullets).forEach((bullet) => {
+          const sentence = String(bullet || "").trim();
+          if (!sentence) return;
+          const firstWord = sentence.split(/\s+/)[0] || "";
+          if (/^[A-Za-z][A-Za-z-]{2,}$/.test(firstWord)) out.verbs.push(firstWord);
+        });
+      });
+
+      return out;
+    }
+
+    function mergeLearnedPatch(patch) {
+      localModel.verbs = uniqueMerge(localModel.verbs, patch.verbs || [], 180);
+      localModel.skills = uniqueMerge(localModel.skills, patch.skills || [], 220);
+      localModel.titles = uniqueMerge(localModel.titles, patch.titles || [], 180);
+      localModel.summaries = uniqueMerge(localModel.summaries, patch.summaries || [], 80);
+      localModel.themeCatalog = uniqueMerge(localModel.themeCatalog, patch.themeCatalog || [], 120);
+
+      if (Array.isArray(patch.domainProfiles) && patch.domainProfiles.length) {
+        const existing = Array.isArray(localModel.domainProfiles) ? localModel.domainProfiles : [];
+        const byName = new Map(existing.map((p) => [String(p.name || "").toLowerCase(), p]));
+
+        patch.domainProfiles.forEach((profile) => {
+          const name = String(profile && profile.name ? profile.name : "").toLowerCase();
+          if (!name) return;
+
+          const base = byName.get(name) || { name };
+          base.keywords = uniqueMerge(base.keywords || [], profile.keywords || [], 60);
+          base.titles = uniqueMerge(base.titles || [], profile.titles || [], 80);
+          base.verbs = uniqueMerge(base.verbs || [], profile.verbs || [], 80);
+          base.skills = uniqueMerge(base.skills || [], profile.skills || [], 120);
+          base.summarySnippets = uniqueMerge(base.summarySnippets || [], profile.summarySnippets || [], 60);
+          base.impactPhrases = uniqueMerge(base.impactPhrases || [], profile.impactPhrases || [], 80);
+          byName.set(name, base);
+        });
+
+        localModel.domainProfiles = Array.from(byName.values());
+      }
+    }
+
+    function saveLearnedModel() {
+      const payload = {
+        verbs: localModel.verbs,
+        skills: localModel.skills,
+        titles: localModel.titles,
+        summaries: localModel.summaries,
+        themeCatalog: localModel.themeCatalog,
+        domainProfiles: localModel.domainProfiles,
+        learnedAt: new Date().toISOString()
+      };
+      localStorage.setItem(LEARNED_MODEL_KEY, JSON.stringify(payload));
+      return payload;
+    }
+
+    function loadLearnedModel() {
+      try {
+        const raw = localStorage.getItem(LEARNED_MODEL_KEY);
+        if (!raw) return;
+        const learned = JSON.parse(raw);
+        mergeLearnedPatch(learned);
+      } catch {
+        // Ignore malformed learned payload.
+      }
     }
 
     function getSessionEmail() {
@@ -922,14 +1436,45 @@
           summaries: Array.isArray(data.summaries) ? data.summaries : localModel.summaries,
           skills: cleanSkills.length ? cleanSkills : localModel.skills,
           titles: cleanTitles.length ? cleanTitles : localModel.titles,
-          themeCatalog: Array.isArray(data.themeCatalog) ? data.themeCatalog : localModel.themeCatalog
+          themeCatalog: Array.isArray(data.themeCatalog) ? data.themeCatalog : localModel.themeCatalog,
+          domainProfiles: Array.isArray(data.domainProfiles) ? data.domainProfiles : localModel.domainProfiles,
+          bulletTemplates: Array.isArray(data.bulletTemplates) ? data.bulletTemplates : localModel.bulletTemplates,
+          seniorityModifiers: data.seniorityModifiers && typeof data.seniorityModifiers === "object" ? data.seniorityModifiers : localModel.seniorityModifiers
         };
       } catch {
         // Fallback model remains active.
       }
+
+      // Apply locally learned knowledge after base model loads.
+      loadLearnedModel();
     }
 
     loadLocalModel();
+
+    function teachModelFromObject(input) {
+      const obj = input && typeof input === "object" ? input : {};
+      const cvPayload = obj.cv && typeof obj.cv === "object" ? obj.cv : (obj.resume && typeof obj.resume === "object" ? obj.resume : null);
+      const extracted = cvPayload ? extractLearningFromCv(cvPayload) : { verbs: [], skills: [], titles: [], summaries: [] };
+
+      const patch = {
+        verbs: uniqueMerge(obj.verbs || [], extracted.verbs || []),
+        skills: uniqueMerge(obj.skills || [], extracted.skills || []),
+        titles: uniqueMerge(obj.titles || [], extracted.titles || []),
+        summaries: uniqueMerge(obj.summaries || [], extracted.summaries || []),
+        themeCatalog: toArray(obj.themeCatalog),
+        domainProfiles: toArray(obj.domainProfiles)
+      };
+
+      mergeLearnedPatch(patch);
+      const saved = saveLearnedModel();
+      return {
+        verbs: saved.verbs.length,
+        skills: saved.skills.length,
+        titles: saved.titles.length,
+        summaries: saved.summaries.length,
+        domains: Array.isArray(saved.domainProfiles) ? saved.domainProfiles.length : 0
+      };
+    }
 
     function setExitEnter(from, to) {
       from.classList.remove("hidden");
@@ -1077,20 +1622,101 @@
       return `${verb} ${clean.charAt(0).toLowerCase() + clean.slice(1)} for ${role || "the team"}, ${impact}.`;
     }
 
+    function getRoleText(rawInput) {
+      return `${rawInput.targetRole || ""} ${rawInput.personal && rawInput.personal.title ? rawInput.personal.title : ""}`.toLowerCase();
+    }
+
+    function detectSeniority(rawInput) {
+      const roleText = getRoleText(rawInput);
+      if (/\b(lead|director|head|vp|chief|principal|staff)\b/.test(roleText)) return "lead";
+      if (/\b(senior|sr\.?|experienced|expert)\b/.test(roleText)) return "senior";
+      if (/\b(junior|jr\.?|intern|trainee|entry|graduate|apprentice)\b/.test(roleText)) return "junior";
+      return "mid";
+    }
+
+    function getSeniorityMod(level) {
+      const mods = localModel.seniorityModifiers || {};
+      return mods[level] || mods["mid"] || { prefixes: [], summaryTone: "" };
+    }
+
+    function pickDomainProfile(rawInput) {
+      const profiles = Array.isArray(localModel.domainProfiles) ? localModel.domainProfiles : [];
+      if (!profiles.length) return null;
+
+      const roleText = getRoleText(rawInput);
+      let best = null;
+      let bestScore = 0;
+
+      profiles.forEach((profile) => {
+        const keywords = Array.isArray(profile.keywords) ? profile.keywords : [];
+        const score = keywords.reduce((acc, kw) => acc + (roleText.includes(String(kw).toLowerCase()) ? 1 : 0), 0);
+        if (score > bestScore) {
+          bestScore = score;
+          best = profile;
+        }
+      });
+
+      return best;
+    }
+
+    function enrichBulletWithProfile(text, index, role, profile, seniority) {
+      const clean = String(text || "").trim().replace(/[.!?]+$/, "");
+      if (!clean) return "";
+
+      const mod = getSeniorityMod(seniority || "mid");
+      const profileVerbs = profile && Array.isArray(profile.verbs) ? profile.verbs : [];
+      const profileImpacts = profile && Array.isArray(profile.impactPhrases) ? profile.impactPhrases : [];
+      const seniorityPrefixes = Array.isArray(mod.prefixes) ? mod.prefixes : [];
+
+      // Pick verb: prefer seniority prefix, then profile verb, then global verb
+      const verb = pick(seniorityPrefixes, index) || pick(profileVerbs, index) || pick(localModel.verbs, index) || "Delivered";
+      const metric = 10 + ((index * 7 + 3) % 35);
+      const impact = pick(profileImpacts, index) || pick([
+        "improving delivery quality",
+        "increasing execution consistency",
+        "reducing turnaround time",
+        "strengthening team outcomes"
+      ], index);
+
+      // Try bullet templates from model
+      const templates = Array.isArray(localModel.bulletTemplates) ? localModel.bulletTemplates : [];
+      if (templates.length) {
+        const tpl = pick(templates, index);
+        const scope = role || "the team";
+        const task = clean.charAt(0).toLowerCase() + clean.slice(1);
+        const result = tpl
+          .replace("{verb}", verb)
+          .replace("{verb_lower}", verb.charAt(0).toLowerCase() + verb.slice(1))
+          .replace("{task}", task)
+          .replace("{impact}", `${impact}`)
+          .replace("{metric}", String(metric))
+          .replace("{scope}", scope);
+        return result;
+      }
+
+      return `${verb} ${clean.charAt(0).toLowerCase() + clean.slice(1)} for ${role || "the team"}, ${impact}.`;
+    }
+
     function generateLocalCv(rawInput) {
+      const profile = pickDomainProfile(rawInput);
+      const seniority = detectSeniority(rawInput);
+      const mod = getSeniorityMod(seniority);
+
       const technical = splitSkillList(rawInput.skills.technical);
       const tools = splitSkillList(rawInput.skills.tools);
       const soft = splitSkillList(rawInput.skills.soft);
-      const fallbackSkills = localModel.skills.slice(0, 8);
+      const profileSkills = profile && Array.isArray(profile.skills) ? profile.skills : [];
+      const fallbackSkills = profileSkills.length ? profileSkills.slice(0, 8) : localModel.skills.slice(0, 8);
+      const profileTitles = profile && Array.isArray(profile.titles) ? profile.titles : [];
 
       const experiences = ensureArray(rawInput.experience).map((exp, idx) => {
         const rawBullets = String(exp.bullets || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
         const polishedBullets = (rawBullets.length ? rawBullets : ["owned key initiatives", "collaborated across teams"])
           .slice(0, 5)
-          .map((b, i) => enrichBullet(b, idx + i, exp.role || rawInput.targetRole));
+          .map((b, i) => enrichBulletWithProfile(b, idx * 5 + i, exp.role || rawInput.targetRole, profile, seniority));
 
         return {
-          role: exp.role || rawInput.targetRole || pick(localModel.titles, idx) || "Professional",
+          role: exp.role || rawInput.targetRole || pick(profileTitles, idx) || pick(localModel.titles, idx) || "Professional",
           company: exp.company || "Confidential Company",
           duration: exp.duration || "Recent",
           bullets: polishedBullets
@@ -1111,9 +1737,13 @@
       }));
 
       const role = rawInput.targetRole || rawInput.personal.title || "Professional";
-      const summaryA = `Results-driven ${role} with hands-on experience delivering high-impact solutions in fast-paced environments.`;
-      const summaryB = `Combines product thinking, technical depth, and clear stakeholder communication to turn priorities into measurable outcomes.`;
-      const summaryC = `Known for ownership, execution speed, and continuous improvement across delivery, quality, and team performance.`;
+      const profileSummaries = profile && Array.isArray(profile.summarySnippets) ? profile.summarySnippets : [];
+
+      // Build seniority-aware summary
+      const seniorityTone = mod.summaryTone || "";
+      const summaryA = seniorityTone || pick(profileSummaries, 0) || `Results-driven ${role} with hands-on experience delivering high-impact solutions in fast-paced environments.`;
+      const summaryB = pick(profileSummaries, seniorityTone ? 0 : 1) || `Combines product thinking, technical depth, and clear stakeholder communication to turn priorities into measurable outcomes.`;
+      const summaryC = pick(profileSummaries, seniorityTone ? 1 : 2) || `Known for ownership, execution speed, and continuous improvement across delivery, quality, and team performance.`;
 
       return {
         name: rawInput.personal.name || "Your Name",
@@ -1160,6 +1790,17 @@
     }
 
     function renderCv(cv) {
+      const initials = String(cv.name || "CV")
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "CV";
+
+      const avatarHtml = currentTheme === "tokyo"
+        ? `<div class="bubble-shell" aria-hidden="true"><div class="bubble-core"></div><div class="bubble-node b1"></div><div class="bubble-node b2"></div><div class="bubble-node b3"></div><div class="bubble-node b4"></div></div>`
+        : `<div class="cv-avatar" aria-hidden="true">${escapeHtml(initials)}</div>`;
+
       const contactParts = [cv.email, cv.phone, cv.location, cv.linkedin, cv.github].filter(Boolean);
       const contactHtml = contactParts.map((c, i) => `<span class="${i ? "sep" : ""}">${escapeHtml(c)}</span>`).join("");
 
@@ -1181,6 +1822,7 @@
 
       cvRender.innerHTML = `
         <div class="cv-header stagger" style="--d:0.02s;">
+          ${avatarHtml}
           <h2 class="cv-name">${escapeHtml(cv.name || "YOUR NAME")}</h2>
           <div class="cv-title">${escapeHtml(cv.title || "Professional Title")}</div>
           <div class="cv-contact">${contactHtml || "No contact info"}</div>
@@ -1222,7 +1864,7 @@
         const catalogHint = localModel.themeCatalog && localModel.themeCatalog.length
           ? ` Inspired by ${localModel.themeCatalog.length} jsonresume theme references.`
           : "";
-        designNote.textContent = `AI DESIGN OPTIONS: ${suggestions[0].toUpperCase()} | ${suggestions[1].toUpperCase()} | ${suggestions[2].toUpperCase()} (plus NEO).${catalogHint}`;
+        designNote.textContent = `AI DESIGN OPTIONS: ${suggestions[0].toUpperCase()} | ${suggestions[1].toUpperCase()} | ${suggestions[2].toUpperCase()}.${catalogHint}`;
         setTheme(suggestions[0]);
         renderCv(cv);
         showPreview();
@@ -1247,6 +1889,47 @@
       await generateCv(rawInput);
     });
 
+    teachApplyBtn.addEventListener("click", () => {
+      try {
+        const parsed = JSON.parse(teachJson.value || "{}");
+        const stats = teachModelFromObject(parsed);
+        learnStatus.style.color = "#14532d";
+        learnStatus.textContent = `LEARNED. VERBS:${stats.verbs} SKILLS:${stats.skills} TITLES:${stats.titles} SUMMARIES:${stats.summaries} DOMAINS:${stats.domains}`;
+      } catch (err) {
+        learnStatus.style.color = "#991b1b";
+        learnStatus.textContent = `INVALID JSON: ${err.message || "Cannot parse input"}`;
+      }
+    });
+
+    teachFromLastBtn.addEventListener("click", () => {
+      if (!lastCvJson) {
+        learnStatus.style.color = "#991b1b";
+        learnStatus.textContent = "NO PREVIOUS CV FOUND. GENERATE A CV FIRST.";
+        return;
+      }
+      const stats = teachModelFromObject({ cv: lastCvJson });
+      learnStatus.style.color = "#14532d";
+      learnStatus.textContent = `TAUGHT FROM LAST CV. VERBS:${stats.verbs} SKILLS:${stats.skills} TITLES:${stats.titles} SUMMARIES:${stats.summaries} DOMAINS:${stats.domains}`;
+    });
+
+    teachExportBtn.addEventListener("click", () => {
+      try {
+        const learned = JSON.parse(localStorage.getItem(LEARNED_MODEL_KEY) || "{}");
+        teachJson.value = JSON.stringify(learned, null, 2);
+        learnStatus.style.color = "#14532d";
+        learnStatus.textContent = "LEARNED MODEL EXPORTED INTO THE TEXT AREA.";
+      } catch {
+        learnStatus.style.color = "#991b1b";
+        learnStatus.textContent = "NO LEARNED MODEL TO EXPORT YET.";
+      }
+    });
+
+    teachResetBtn.addEventListener("click", () => {
+      localStorage.removeItem(LEARNED_MODEL_KEY);
+      learnStatus.style.color = "#991b1b";
+      learnStatus.textContent = "LEARNED DATA RESET. REFRESH PAGE TO RELOAD BASE MODEL ONLY.";
+    });
+
     editBtn.addEventListener("click", () => {
       showForm();
     });
@@ -1262,6 +1945,9 @@
     themeExecutiveBtn.addEventListener("click", () => setTheme("executive"));
     themeForestBtn.addEventListener("click", () => setTheme("forest"));
     themeSunsetBtn.addEventListener("click", () => setTheme("sunset"));
+    themeTokyoBtn.addEventListener("click", () => setTheme("tokyo"));
+    themeEditorialBtn.addEventListener("click", () => setTheme("editorial"));
+    themeProfessionalBtn.addEventListener("click", () => setTheme("professional"));
 
     downloadBtn.addEventListener("click", () => {
       printRequested = true;
