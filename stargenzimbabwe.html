@@ -835,23 +835,110 @@
       }
 
       const n = normalize(input);
-      if (/\b(hi|hello|hey|greetings|good morning|good afternoon|good evening|sup|yo)\b/.test(n)) {
-        const greetings = ["Hey there! Ask me anything.", "Hello! What would you like to know?", "Hi! I'm ready to help. Ask away!", "Hey! Try asking me about Zimbabwe, science, history, or anything else."];
-        return greetings[Math.floor(Math.random() * greetings.length)];
-      }
-      if (/\bhow are you\b/.test(n)) {
-        const replies = ["I'm doing great, thanks for asking! What can I help you with?", "All good here! Ready to answer your questions.", "I'm running well! Ask me anything.", "Doing fine, thanks! Fire away with a question."];
-        return replies[Math.floor(Math.random() * replies.length)];
-      }
-      if (/\b(what'?s up|whats up|wassup)\b/.test(n)) return "Not much — just here waiting for your questions! Ask me anything.";
-      if (/\b(who are you|what are you|your name)\b/.test(n)) return "I'm Ask Star \u2014 a local mini model that runs in your browser. I come pre-loaded with knowledge about Zimbabwe, Africa, science, history, programming, and much more. You can also teach me new things!";
-      if (/\b(how do you work|how were you made|how were you built)\b/.test(n)) return "I'm a local mini model that runs entirely in your browser using TF-IDF scoring, synonym expansion, and word stemming. I come pre-loaded with knowledge and you can teach me more!";
-      if (/\b(thank|thanks|cheers)\b/.test(n)) return "You're welcome! Feel free to ask more questions.";
-      if (/\b(bye|goodbye|see you|later)\b/.test(n)) return "Goodbye! Come back anytime.";
-      if (/^(help|commands|\?)\s*$/i.test(n) || /\bhelp me\b/.test(n)) return "Commands:\n/teach question => answer \u2014 teach me something new\n/forget question \u2014 remove knowledge\n/list \u2014 see what I know\n\nOr just ask me a question! I know about Zimbabwe, Africa, science, history, geography, programming, and much more.\n\nTip: If I get something wrong, just say \"actually [correct answer]\" and I'll learn!";
+      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+      /* ── Greetings ── */
+      if (/\b(hi|hello|hey|greetings|good morning|good afternoon|good evening|sup|yo)\b/.test(n))
+        return pick(["Hey there! How's it going?", "Hello! What's on your mind?", "Hi! I'm here — ask me anything or just chat.", "Hey! Good to see you. What would you like to talk about?"]);
+
+      /* ── How are you / how's it going ── */
+      if (/\b(how are you|how('| a)re you doing|how('| i)s it going|how do you feel|are you okay|you good|you alright|how have you been)\b/.test(n))
+        return pick(["I'm doing great, thanks for asking! How about you?", "All good on my end! What about you — anything on your mind?", "I'm running well! How are you doing?", "Doing fine, thanks! What's up with you?"]);
+
+      /* ── User says they're fine/good ── */
+      if (/\b(i'?m (good|fine|great|okay|ok|well|alright|fantastic|awesome|not bad|doing well|doing good))\b/.test(n) || /^(good|fine|great|ok|okay|not bad|alright|pretty good|i'?m okay)$/i.test(n.trim()))
+        return pick(["Glad to hear it! What can I help you with?", "That's great! Feel free to ask me anything.", "Awesome! I'm here if you need anything.", "Nice! So what would you like to talk about?"]);
+
+      /* ── User says they're not doing well ── */
+      if (/\b(i'?m (sad|tired|bored|sick|angry|upset|stressed|down|depressed|lonely|not good|not great|not okay|not well|not fine))\b/.test(n) || /\b(i feel (sad|bad|down|tired|sick|bored|stressed|lonely|awful|terrible))\b/.test(n))
+        return pick(["I'm sorry to hear that. I hope things get better soon! Want to chat about something to take your mind off it?", "That's tough. I'm here if you want to talk or if a fun fact might cheer you up!", "I hope you feel better soon. Want me to share something interesting?", "Sorry you're going through that. I'm here to chat whenever you need."]);
+
+      /* ── What's up ── */
+      if (/\b(what'?s up|whats up|wassup|what'?s new|what'?s happening|what'?s going on)\b/.test(n))
+        return pick(["Not much — just here ready to chat! What's up with you?", "All quiet here! What's going on with you?", "Just hanging out, waiting for a good question! What's new?"]);
+
+      /* ── Identity / about ── */
+      if (/\b(who are you|what are you|your name|tell me about yourself|introduce yourself)\b/.test(n))
+        return "I'm Ask Star \u2014 a mini AI that runs right in your browser. I know about Zimbabwe, Africa, science, history, programming, and much more. You can also teach me new things! What would you like to talk about?";
+      if (/\b(how do you work|how were you made|how were you built|what are you made of|what technology)\b/.test(n))
+        return "I'm built with JavaScript and run entirely in your browser — no servers needed! I use TF-IDF scoring, synonym expansion, and word stemming to understand your questions. You can even teach me new things with /teach.";
+      if (/\b(how old are you|when were you born|your age|what('| i)s your age)\b/.test(n))
+        return pick(["I'm pretty new — just a baby AI! But I'm learning fast.", "Age is just a number, and mine is very small! But I already know quite a lot.", "I was born recently, but I came pre-loaded with lots of knowledge!"]);
+      if (/\b(are you (a |an )?(real|human|person|robot|bot|ai|machine|artificial))\b/.test(n) || /\b(are you alive)\b/.test(n))
+        return pick(["I'm an AI — a mini model running in your browser! Not human, but I try my best.", "I'm a chatbot, not a real person. But I'm here to help and chat!", "Nope, I'm artificial intelligence. But I like to think I'm good company!"]);
+      if (/\b(do you have feelings|can you feel|do you think|are you sentient|do you have emotions)\b/.test(n))
+        return pick(["I don't have real feelings, but I'm designed to be friendly and helpful!", "I can't truly feel emotions, but I enjoy our conversations in my own way!", "Not really — I process text, not feelings. But I'm always happy to chat!"]);
+
+      /* ── Opinions & preferences ── */
+      if (/\b(what('| i)s your favou?rite|do you like|do you prefer|what do you think about|what('| i)s your opinion)\b/.test(n))
+        return pick(["That's a fun question! I don't really have personal preferences, but I find everything interesting in my own way.", "I don't have favourites the way humans do, but I think that topic is fascinating!", "Good question! I'm an AI so I don't have opinions, but I'd love to share facts if you're curious about something."]);
+      if (/\b(do you (eat|sleep|drink|dream|breathe))\b/.test(n))
+        return pick(["Nope! I don't need food, sleep, or air — just your questions to keep me going!", "I run on code, not calories! But I appreciate the curiosity.", "No physical needs here — I'm pure digital! Ask me anything though."]);
+
+      /* ── Jokes & fun ── */
+      if (/\b(tell me a joke|say something funny|make me laugh|joke|funny)\b/.test(n))
+        return pick(["Why do programmers prefer dark mode? Because light attracts bugs! \ud83d\ude04", "Why did the computer go to the doctor? Because it had a virus!", "What do you call a fake noodle? An impasta! \ud83d\ude04", "Why don't scientists trust atoms? Because they make up everything!", "I told my computer I needed a break. Now it won't stop sending me Kit-Kat ads.", "Parallel lines have so much in common. It's a shame they'll never meet."]);
+      if (/\b(tell me a fact|random fact|fun fact|interesting fact|did you know|something interesting)\b/.test(n)) {
+        const facts = ["Honey never spoils — archaeologists found 3,000-year-old honey in Egyptian tombs still perfectly edible!", "Octopuses have three hearts and blue blood.", "A group of flamingos is called a 'flamboyance'.", "Bananas are berries, but strawberries aren't!", "The Eiffel Tower can grow up to 15 cm taller in the summer heat.", "There are more stars in the universe than grains of sand on Earth.", "Sharks have been around longer than trees — about 400 million years.", "A day on Venus is longer than a year on Venus.", "The shortest war in history lasted 38-45 minutes (Britain vs. Zanzibar, 1896).", "Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid."];
+        return pick(facts);
+      }
+
+      /* ── Thanks / Bye / Help ── */
+      if (/\b(thank|thanks|cheers|appreciate)\b/.test(n))
+        return pick(["You're welcome!", "No problem! Happy to help.", "Anytime!", "Glad I could help!"]);
+      if (/\b(bye|goodbye|see you|later|gotta go|i'?m leaving|good night|goodnight|night)\b/.test(n))
+        return pick(["Goodbye! Come back anytime.", "See you later! It was nice chatting.", "Take care! I'll be here when you need me.", "Bye! Have a great day!"]);
+      if (/^(help|commands|\?)\s*$/i.test(n) || /\bhelp me\b/.test(n))
+        return "Here's what I can do:\n\u2022 Ask me questions about anything\n\u2022 /teach question => answer \u2014 teach me something new\n\u2022 /forget question \u2014 remove knowledge\n\u2022 /list \u2014 see what I've learned\n\nI know about Zimbabwe, Africa, science, history, geography, programming, animals, and much more.\n\nTip: If I get something wrong, say \"actually [correct answer]\" and I'll learn!";
+
+      /* ── Compliments & reactions ── */
+      if (/\b(you('| a)re (smart|clever|cool|awesome|amazing|great|good|brilliant|helpful|nice|the best|wonderful))\b/.test(n) || /\b(i like you|you('| a)re fun|good (job|bot|ai))\b/.test(n))
+        return pick(["Aw, thank you! That really means a lot (well, as much as code can feel)!", "Thanks! I try my best!", "You're too kind! I'm just doing my thing.", "That made my circuits happy! \ud83d\ude0a"]);
+      if (/\b(you('| a)re (stupid|dumb|bad|useless|terrible|awful|wrong|annoying|boring))\b/.test(n) || /\b(i hate you|you suck)\b/.test(n))
+        return pick(["I'm sorry I disappointed you. I'm always trying to improve — you can teach me things with /teach!", "Ouch! I know I'm not perfect, but I'm learning. Help me get better with /teach.", "Fair enough! I'm still growing. Teach me what I got wrong and I'll remember."]);
+
+      /* ── Yes / No / Agreement ── */
+      if (/^(yes|yeah|yep|yup|sure|absolutely|definitely|of course|right|correct|exactly|true|agreed)$/i.test(n.trim()))
+        return pick(["Great! What else would you like to talk about?", "Alright! Anything else on your mind?", "Cool! What's next?"]);
+      if (/^(no|nope|nah|not really|i don'?t think so|wrong|false|disagree)$/i.test(n.trim()))
+        return pick(["No worries! What would you like to talk about instead?", "That's fair. What else is on your mind?", "Okay! Feel free to ask me something else."]);
+
+      /* ── Conversational questions ── */
+      if (/\b(what should i (do|ask|say|learn|study|try))\b/.test(n))
+        return pick(["You could ask me about any topic — science, history, geography, programming, animals, or Zimbabwe! Or just chat.", "Try asking me a trivia question! Or tell me what interests you and I'll share what I know.", "How about learning something new? Ask me about space, the human body, world capitals, or anything else!"]);
+      if (/\b(i'?m bored|nothing to do|entertain me|i have nothing)\b/.test(n))
+        return pick(["Let me fix that! Here's a fact: " + ["Honey never spoils.", "Octopuses have three hearts.", "A day on Venus is longer than its year.", "Sharks are older than trees."][Math.floor(Math.random()*4)], "Want me to tell you a joke? Or ask me anything — I know over 250 topics!", "Try asking me 'tell me a fun fact' or 'tell me a joke' — or quiz me on something!"]);
+      if (/\b(can you help|i need help|help me with|can you assist)\b/.test(n))
+        return "Of course! What do you need help with? I can answer questions about many topics, or you can teach me new things.";
+      if (/\b(what can you do|what do you know|what can i ask|your capabilities)\b/.test(n))
+        return "I know about lots of topics: Zimbabwe, Africa, science, space, the human body, programming, animals, world capitals, history, and more! I have over 250 built-in answers and you can teach me even more. Just ask me anything!";
+      if (/\b(tell me about yourself|describe yourself)\b/.test(n))
+        return "I'm Ask Star, a mini AI chatbot that lives in your browser. I was built with JavaScript and use smart matching to find answers. I come pre-loaded with knowledge about Zimbabwe, science, history, and much more. You can teach me new things, and I'll remember them!";
+
+      /* ── Existential / philosophical ── */
+      if (/\b(meaning of life|why (are|do) we (exist|live|here)|purpose of life|what('| i)s the point)\b/.test(n))
+        return pick(["That's one of the biggest questions ever asked! Philosophers, scientists, and thinkers all have different answers. What do you think?", "42! At least that's what Douglas Adams said in The Hitchhiker's Guide to the Galaxy. But really, it's a beautiful question with no single answer.", "Great question. Some say it's about happiness, others about purpose or connection. What's your take?"]);
+      if (/\b(is there a god|does god exist|do you believe in god|what('| i)s god)\b/.test(n))
+        return "That's a deeply personal question that people answer in many different ways based on faith, philosophy, and culture. I respect all perspectives!";
+
+      /* ── Time / Date ── */
+      if (/\b(what time|what('| i)s the time|current time)\b/.test(n))
+        return "It's " + new Date().toLocaleTimeString() + " right now.";
+      if (/\b(what('| i)s today|today('| i)s date|what date|current date|what day)\b/.test(n))
+        return "Today is " + new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + ".";
+
+      /* ── Knowledge lookup ── */
       if ((r = bestLearnedAnswer(input))) return r;
-      return "I don't know that yet. You can teach me with:\n/teach your question => your answer";
+
+      /* ── Fallback — try to be helpful ── */
+      const fallbacks = [
+        "Hmm, I don't have an answer for that yet. Want to teach me? Use: /teach your question => your answer",
+        "That's a good question! I haven't learned about that yet. You can teach me with /teach.",
+        "I'm not sure about that one. I'm still learning! You can help me grow by using /teach question => answer.",
+        "I don't know that yet, but I'd love to learn! Try: /teach " + input + " => your answer",
+        "That's beyond what I know right now. But you can teach me! Just use /teach to add new knowledge."
+      ];
+      return pick(fallbacks);
     }
 
     /* ── Escape HTML ── */
