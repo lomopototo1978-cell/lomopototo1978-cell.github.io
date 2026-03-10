@@ -1,340 +1,292 @@
 <!doctype html>
-<!-- v2 local mini model -->
+<!-- v3 ChatGPT-style light UI with local mini model -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   <title>Ask Star</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #ffffff;
-      --card: #ffffff;
-      --line: rgba(122, 130, 184, 0.2);
-      --accent: #5f56f5;
-      --accent2: #30a4ff;
-      --text: #172033;
-      --muted: #617091;
-      --input: #ffffff;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; min-height: 100%; }
+    html, body { width: 100%; height: 100%; }
 
     body {
-      font-family: "Sora", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    /* ── Animated aurora background ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      animation: aurora 14s ease-in-out infinite alternate;
-    }
-
-    @keyframes aurora {
-      0% {
-        background:
-          radial-gradient(ellipse at 18% 38%, rgba(95,86,245,0.12) 0%, transparent 55%),
-          radial-gradient(ellipse at 82% 12%, rgba(48,164,255,0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at 42% 88%, rgba(115,157,255,0.1) 0%, transparent 48%);
-      }
-      50% {
-        background:
-          radial-gradient(ellipse at 62% 18%, rgba(95,86,245,0.13) 0%, transparent 52%),
-          radial-gradient(ellipse at 24% 62%, rgba(48,164,255,0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at 78% 82%, rgba(115,157,255,0.1) 0%, transparent 48%);
-      }
-      100% {
-        background:
-          radial-gradient(ellipse at 82% 55%, rgba(95,86,245,0.11) 0%, transparent 55%),
-          radial-gradient(ellipse at 14% 84%, rgba(48,164,255,0.12) 0%, transparent 50%),
-          radial-gradient(ellipse at 52% 14%, rgba(115,157,255,0.1) 0%, transparent 48%);
-      }
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #ffffff;
+      color: #0d0d0d;
     }
 
     .app {
-      min-height: 100vh;
+      height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      position: relative;
-      z-index: 1;
     }
 
-    /* ── Topbar ── */
+    /* ── Top bar ── */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      padding: 16px 22px;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      position: sticky; top: 0; z-index: 10;
+      padding: 12px 16px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e5e5;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-    }
-
-    .topbar::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, var(--accent) 35%, var(--accent2) 65%, transparent 100%);
-      background-size: 250% 100%;
-      animation: shimmerLine 4s linear infinite;
-    }
-
-    @keyframes shimmerLine {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
     }
 
     .brand {
       font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      background: linear-gradient(90deg, #c4b5fd, #7c5cfc, #60a5fa, #c4b5fd);
-      background-size: 300%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: brandFlow 6s linear infinite;
+      font-weight: 600;
+      color: #0d0d0d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    @keyframes brandFlow {
-      0%   { background-position: 0% 0; }
-      100% { background-position: 300% 0; }
+    .brand-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #10a37f;
+      animation: pulse 2s ease-in-out infinite;
     }
 
-    .back {
-      color: var(--muted);
-      text-decoration: none;
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .back-link {
       font-size: 13px;
-      padding: 6px 13px;
-      border-radius: 9px;
-      border: 1px solid rgba(95, 86, 245, 0.2);
-      transition: color 0.18s, background 0.18s, border-color 0.18s, transform 0.18s;
+      color: #666;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .back:hover {
-      color: var(--text);
-      background: rgba(95, 86, 245, 0.1);
-      border-color: rgba(95, 86, 245, 0.35);
-      transform: translateX(-2px);
+    .back-link:hover {
+      background: #f0f0f0;
+      color: #0d0d0d;
     }
 
     /* ── Feed ── */
     .feed {
       overflow-y: auto;
-      padding: 32px 20px 152px;
       scroll-behavior: smooth;
     }
 
     .feed-inner {
-      width: min(820px, 100%);
+      max-width: 768px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
+      padding: 24px 24px 140px;
     }
 
     /* ── Messages ── */
-    .message {
+    .msg {
+      padding: 20px 0;
+      animation: fadeSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .msg + .msg {
+      border-top: 1px solid #f0f0f0;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row {
       display: flex;
-      width: 100%;
-      animation: messageIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+      gap: 14px;
+      align-items: flex-start;
     }
 
-    .message.user {
-      justify-content: flex-end;
-      padding-left: 12%;
+    .msg.user .msg-row {
+      flex-direction: row-reverse;
     }
 
-    .message.assistant {
-      justify-content: flex-start;
-      padding-right: 12%;
+    /* Avatar */
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
     }
 
-    .content {
-      max-width: min(68ch, calc(100vw - 88px));
+    .msg.assistant .avatar {
+      background: #10a37f;
+      color: #fff;
+    }
+
+    .msg.user .avatar {
+      background: #e8e8e8;
+      color: #555;
+    }
+
+    /* Text */
+    .msg-text {
       font-size: 15px;
-      line-height: 1.78;
+      line-height: 1.7;
       white-space: pre-wrap;
       word-break: break-word;
+      flex: 1;
+      min-width: 0;
     }
 
-    .message.user .content {
-      background: linear-gradient(145deg, #6a62fb 0%, #2f9efe 100%);
-      border: 1px solid rgba(95, 86, 245, 0.35);
-      border-radius: 22px 22px 5px 22px;
-      padding: 13px 18px;
-      color: #ffffff;
-      box-shadow: 0 7px 20px rgba(95, 86, 245, 0.22), inset 0 1px 0 rgba(255,255,255,0.24);
+    .msg.user .msg-text {
+      background: #f7f7f8;
+      border-radius: 18px 18px 4px 18px;
+      padding: 12px 16px;
+      max-width: min(520px, calc(100vw - 100px));
     }
 
-    .message.assistant .content {
-      background: var(--card);
-      border: 1px solid rgba(48, 164, 255, 0.18);
-      border-radius: 22px 22px 22px 5px;
-      padding: 13px 18px;
-      box-shadow: 0 6px 18px rgba(19, 34, 71, 0.09), inset 0 1px 0 rgba(255,255,255,0.7);
+    .msg.assistant .msg-text {
+      padding-top: 3px;
     }
 
-    @keyframes messageIn {
-      from {
-        opacity: 0;
-        transform: translateY(24px) scale(0.95);
-        filter: blur(3px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-      }
+    /* ── Streaming cursor ── */
+    .streaming-cursor::after {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 18px;
+      margin-left: 2px;
+      background: #10a37f;
+      border-radius: 1px;
+      vertical-align: text-bottom;
+      animation: blink 0.7s steps(2) infinite;
     }
 
-    /* ── Typing indicator ── */
-    .typing {
+    @keyframes blink {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* ── Typing dots ── */
+    .typing-dots {
       display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 2px;
+      gap: 4px;
+      padding: 4px 0;
     }
 
-    .typing span {
-      width: 8px;
-      height: 8px;
+    .typing-dots span {
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      animation: typingBounce 0.9s infinite ease-in-out;
+      background: #999;
+      animation: dotBounce 1s infinite ease-in-out;
     }
 
-    .typing span:nth-child(2) { animation-delay: 0.14s; }
-    .typing span:nth-child(3) { animation-delay: 0.28s; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
 
-    @keyframes typingBounce {
-      0%, 80%, 100% { transform: translateY(0) scale(1);    opacity: 0.38; }
-      40%            { transform: translateY(-9px) scale(1.18); opacity: 1; }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40%           { transform: translateY(-6px); opacity: 1; }
     }
 
     /* ── Composer ── */
-    .composer-wrap {
+    .composer-area {
       position: fixed;
-      left: 0; right: 0; bottom: 0;
-      z-index: 6;
-      padding: 16px 20px 24px;
-      padding-bottom: calc(24px + env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.97) 18%, #ffffff 100%);
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 12px 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 20%);
     }
 
-    .composer {
-      width: min(820px, 100%);
+    .composer-box {
+      max-width: 768px;
       margin: 0 auto;
-      border: 1px solid var(--line);
-      background: var(--input);
-      border-radius: 26px;
-      padding: 12px 12px 12px 18px;
       display: flex;
       align-items: flex-end;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(14, 31, 68, 0.12);
-      transition: border-color 0.22s ease, box-shadow 0.22s ease;
+      gap: 8px;
+      border: 1px solid #d9d9d9;
+      border-radius: 24px;
+      padding: 8px 12px 8px 16px;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: border-color 0.18s, box-shadow 0.18s;
     }
 
-    .composer:focus-within {
-      border-color: rgba(95, 86, 245, 0.5);
-      box-shadow: 0 0 0 3px rgba(95, 86, 245, 0.14), 0 10px 30px rgba(14, 31, 68, 0.12);
+    .composer-box:focus-within {
+      border-color: #10a37f;
+      box-shadow: 0 0 0 2px rgba(16,163,127,0.15), 0 2px 12px rgba(0,0,0,0.08);
     }
 
-    .prompt {
+    .input-field {
       flex: 1;
-      min-height: 24px;
-      max-height: 220px;
       border: 0;
       outline: none;
       resize: none;
-      background: transparent;
-      color: var(--text);
       font: inherit;
-      font-size: 16px;
-      line-height: 1.6;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 24px;
+      max-height: 200px;
+      background: transparent;
+      color: #0d0d0d;
       overflow-y: auto;
     }
 
-    .prompt::placeholder { color: #9aa5bd; }
+    .input-field::placeholder { color: #999; }
 
-    /* ── Send button ── */
-    .send {
-      width: 44px;
-      height: 44px;
+    .send-btn {
+      width: 36px; height: 36px;
       border: 0;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      background: #0d0d0d;
       color: #fff;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      flex: 0 0 auto;
-      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, opacity 0.15s ease;
-      animation: sendPulse 3s ease-in-out infinite;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.15s, opacity 0.15s;
     }
 
-    .send:not(:disabled):hover {
-      transform: scale(1.13) translateY(-1px);
-      box-shadow: 0 6px 28px rgba(124, 92, 252, 0.6);
-      animation: none;
+    .send-btn:hover:not(:disabled) {
+      background: #10a37f;
+      transform: scale(1.06);
     }
 
-    .send:not(:disabled):active {
-      transform: scale(0.9);
-      box-shadow: none;
+    .send-btn:active:not(:disabled) {
+      transform: scale(0.92);
     }
 
-    .send:disabled {
-      opacity: 0.35;
+    .send-btn:disabled {
+      opacity: 0.3;
       cursor: default;
-      animation: none;
     }
 
-    @keyframes sendPulse {
-      0%,100% { box-shadow: 0 0 0  0 rgba(124,92,252,0.0); }
-      50%      { box-shadow: 0 0 0 10px rgba(124,92,252,0.14); }
-    }
+    .send-btn svg { width: 16px; height: 16px; }
 
-    .send svg { width: 18px; height: 18px; }
-
-    .footer-note {
-      width: min(820px, 100%);
-      margin: 8px auto 0;
+    .composer-hint {
+      max-width: 768px;
+      margin: 6px auto 0;
       text-align: center;
-      color: #7183a8;
       font-size: 11px;
+      color: #aaa;
     }
 
     /* ── Scrollbar ── */
-    .feed::-webkit-scrollbar       { width: 4px; }
+    .feed::-webkit-scrollbar       { width: 6px; }
     .feed::-webkit-scrollbar-track { background: transparent; }
-    .feed::-webkit-scrollbar-thumb { background: rgba(95,86,245,0.24); border-radius: 4px; }
+    .feed::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    .feed::-webkit-scrollbar-thumb:hover { background: #ccc; }
 
-    /* ── Responsive ── */
+    /* ── Mobile ── */
     @media (max-width: 640px) {
-      .topbar         { padding: 14px 16px; }
-      .feed           { padding: 20px 12px 152px; }
-      .composer-wrap  { padding: 10px 12px 18px; }
-      .composer       { padding-left: 14px; }
-      .message.user,
-      .message.assistant { padding-left: 0; padding-right: 0; }
-      .content        { max-width: min(100%, calc(100vw - 34px)); }
+      .feed-inner { padding: 16px 14px 148px; }
+      .msg-row    { gap: 10px; }
+      .msg.user .msg-text { max-width: calc(100vw - 74px); }
+      .composer-area { padding: 8px 10px; }
+      .composer-box  { padding: 6px 10px 6px 14px; }
     }
 
     @media (hover: none) { *, a, button { cursor: default !important; } }
@@ -343,348 +295,256 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand">Ask Star</div>
-      <a class="back" href="dashboard.html">Back to dashboard</a>
+      <div class="brand"><span class="brand-dot"></span> Ask Star</div>
+      <a class="back-link" href="dashboard.html">Dashboard</a>
     </header>
 
-    <section id="feed" class="feed" aria-live="polite">
+    <section id="feed" class="feed">
       <div id="feedInner" class="feed-inner"></div>
     </section>
 
-    <div class="composer-wrap">
-      <form id="composer" class="composer">
-        <textarea id="prompt" class="prompt" rows="1" placeholder="Message Ask Star..."></textarea>
-        <button id="send" class="send" type="submit" aria-label="Send message">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
+    <div class="composer-area">
+      <form id="composer" class="composer-box" autocomplete="off">
+        <textarea id="prompt" class="input-field" rows="1" placeholder="Message Ask Star..."></textarea>
+        <button id="send" class="send-btn" type="submit" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 11L12 6L17 11M12 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </form>
-      <p class="footer-note">Enter sends. Shift+Enter adds a new line. Teach: /teach question => answer</p>
+      <p class="composer-hint">Enter to send &middot; Shift+Enter for new line &middot; /teach question =&gt; answer</p>
     </div>
   </main>
 
   <script>
-    /* ── Starfield canvas ── */
-    (function () {
-      const c = document.createElement('canvas');
-      c.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none;';
-      document.body.prepend(c);
-      const ctx = c.getContext('2d');
-      let W, H, stars = [];
-      function init() {
-        W = c.width  = window.innerWidth;
-        H = c.height = window.innerHeight;
-        stars = Array.from({ length: 90 }, () => ({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          r: Math.random() * 1.2 + 0.2,
-          speed: Math.random() * 0.28 + 0.04,
-          drift: (Math.random() - 0.5) * 0.15,
-          op:    Math.random() * 0.42 + 0.12
-        }));
-      }
-      function draw() {
-        ctx.clearRect(0, 0, W, H);
-        for (const s of stars) {
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, 6.2832);
-          ctx.fillStyle = `rgba(77,96,160,${s.op})`;
-          ctx.fill();
-          s.y -= s.speed;
-          s.x += s.drift;
-          if (s.y < -2)  { s.y = H + 2; s.x = Math.random() * W; }
-          if (s.x < 0)    s.x = W;
-          if (s.x > W)    s.x = 0;
-        }
-        requestAnimationFrame(draw);
-      }
-      init();
-      draw();
-      window.addEventListener('resize', init);
-    })();
-
+    /* ── Session guard ── */
     const SESSION_KEY = "mvumi_session_v1";
     const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
-    if (!sessionEmail) {
-      window.location.replace("index.html");
-      throw new Error("no session");
-    }
+    if (!sessionEmail) { window.location.replace("index.html"); throw new Error("no session"); }
 
+    /* ── Knowledge store ── */
     const KNOWLEDGE_KEY = "stargen_mini_model_v1";
 
     const feed = document.getElementById("feed");
     const feedInner = document.getElementById("feedInner");
     const composer = document.getElementById("composer");
-    const prompt = document.getElementById("prompt");
-    const send = document.getElementById("send");
+    const promptEl = document.getElementById("prompt");
+    const sendBtn = document.getElementById("send");
 
     const state = {
-      messages: [
-        {
-          role: "assistant",
-          content: "Ask Star mini model is ready. Teach me with /teach question => answer"
-        }
-      ],
+      messages: [],
       thinking: false,
       knowledge: []
     };
 
     function loadKnowledge() {
       try {
-        const data = JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) || "[]");
-        if (!Array.isArray(data)) {
-          return [];
-        }
-        return data.filter((item) => item && item.q && item.a).slice(0, 600);
-      } catch {
-        return [];
-      }
+        const d = JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) || "[]");
+        return Array.isArray(d) ? d.filter(i => i && i.q && i.a).slice(0, 600) : [];
+      } catch { return []; }
     }
 
     function saveKnowledge() {
       localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(state.knowledge.slice(0, 600)));
     }
 
-    function normalize(text) {
-      return String(text || "")
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    function normalize(t) {
+      return String(t || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
     }
 
     function overlapScore(a, b) {
-      const aTokens = new Set(normalize(a).split(" ").filter(Boolean));
-      const bTokens = new Set(normalize(b).split(" ").filter(Boolean));
-      if (!aTokens.size || !bTokens.size) {
-        return 0;
-      }
-      let overlap = 0;
-      aTokens.forEach((token) => {
-        if (bTokens.has(token)) {
-          overlap += 1;
-        }
-      });
-      return overlap / Math.max(aTokens.size, bTokens.size);
+      const at = new Set(normalize(a).split(" ").filter(Boolean));
+      const bt = new Set(normalize(b).split(" ").filter(Boolean));
+      if (!at.size || !bt.size) return 0;
+      let c = 0;
+      at.forEach(t => { if (bt.has(t)) c++; });
+      return c / Math.max(at.size, bt.size);
     }
 
     function bestLearnedAnswer(input) {
-      const normalizedInput = normalize(input);
-      if (!normalizedInput) {
-        return null;
-      }
-
-      let best = null;
-      let bestScore = 0;
-
-      state.knowledge.forEach((item) => {
+      const ni = normalize(input);
+      if (!ni) return null;
+      let best = null, bestS = 0;
+      state.knowledge.forEach(item => {
         const nq = normalize(item.q);
-        if (!nq) {
-          return;
-        }
-        const exact = normalizedInput === nq ? 1 : 0;
-        const score = Math.max(exact, overlapScore(normalizedInput, nq));
-        if (score > bestScore) {
-          bestScore = score;
-          best = item;
-        }
+        if (!nq) return;
+        const s = Math.max(ni === nq ? 1 : 0, overlapScore(ni, nq));
+        if (s > bestS) { bestS = s; best = item; }
       });
-
-      if (best && bestScore >= 0.45) {
-        return best.a;
-      }
-      return null;
+      return best && bestS >= 0.45 ? best.a : null;
     }
 
     function handleTeachCommand(input) {
-      const match = input.match(/^\s*\/teach\s+(.+?)\s*=>\s*(.+)\s*$/i);
-      if (!match) {
-        return null;
-      }
-
-      const q = match[1].trim();
-      const a = match[2].trim();
-      if (!q || !a) {
-        return "Teaching failed. Use: /teach question => answer";
-      }
-
-      const normalizedQ = normalize(q);
-      const existing = state.knowledge.find((item) => normalize(item.q) === normalizedQ);
-      if (existing) {
-        existing.a = a;
-      } else {
-        state.knowledge.unshift({ q, a });
-      }
-
+      const m = input.match(/^\s*\/teach\s+(.+?)\s*=>\s*(.+)\s*$/i);
+      if (!m) return null;
+      const q = m[1].trim(), a = m[2].trim();
+      if (!q || !a) return "Use: /teach question => answer";
+      const nq = normalize(q);
+      const ex = state.knowledge.find(i => normalize(i.q) === nq);
+      if (ex) ex.a = a; else state.knowledge.unshift({ q, a });
       saveKnowledge();
-      return `Learned: "${q}"`;
+      return 'Learned: "' + q + '"';
     }
 
     function handleForgetCommand(input) {
-      const match = input.match(/^\s*\/forget\s+(.+)\s*$/i);
-      if (!match) {
-        return null;
-      }
-
-      const q = match[1].trim();
-      const normalizedQ = normalize(q);
-      const before = state.knowledge.length;
-      state.knowledge = state.knowledge.filter((item) => normalize(item.q) !== normalizedQ);
+      const m = input.match(/^\s*\/forget\s+(.+)\s*$/i);
+      if (!m) return null;
+      const q = m[1].trim(), nq = normalize(q), len = state.knowledge.length;
+      state.knowledge = state.knowledge.filter(i => normalize(i.q) !== nq);
       saveKnowledge();
-
-      if (state.knowledge.length < before) {
-        return `Forgot: "${q}"`;
-      }
-      return `I did not find that memory. Try /list to see what I learned.`;
+      return state.knowledge.length < len ? 'Forgot: "' + q + '"' : "Not found. Try /list";
     }
 
     function handleListCommand(input) {
-      if (!/^\s*\/list\s*$/i.test(input)) {
-        return null;
-      }
-
-      if (!state.knowledge.length) {
-        return "I have no learned items yet. Teach me with /teach question => answer";
-      }
-
-      const preview = state.knowledge
-        .slice(0, 12)
-        .map((item, index) => `${index + 1}. ${item.q}`)
-        .join("\n");
-      return `Learned prompts:\n${preview}`;
+      if (!/^\s*\/list\s*$/i.test(input)) return null;
+      if (!state.knowledge.length) return "Nothing learned yet. Use /teach question => answer";
+      return "Learned:\n" + state.knowledge.slice(0, 15).map((v, i) => (i + 1) + ". " + v.q).join("\n");
     }
 
-    async function callMiniModel(input) {
-      const teachReply = handleTeachCommand(input);
-      if (teachReply) {
-        return teachReply;
-      }
-
-      const forgetReply = handleForgetCommand(input);
-      if (forgetReply) {
-        return forgetReply;
-      }
-
-      const listReply = handleListCommand(input);
-      if (listReply) {
-        return listReply;
-      }
-
-      const learned = bestLearnedAnswer(input);
-      if (learned) {
-        return learned;
-      }
-
-      const normalized = normalize(input);
-      if (/\b(hi|hello|hey)\b/.test(normalized)) {
-        return "Hi. Teach me anything with /teach question => answer and I will remember it.";
-      }
-      if (/\b(who are you|what are you)\b/.test(normalized)) {
-        return "I am your local mini model for Ask Star. I run in your browser and learn from your commands.";
-      }
-      if (/\b(help|how)\b/.test(normalized)) {
-        return [
-          "Commands:",
-          "/teach question => answer",
-          "/forget question",
-          "/list"
-        ].join("\n");
-      }
-
-      return "I do not know that yet. Teach me using /teach your question => your answer";
+    function getReply(input) {
+      let r;
+      if ((r = handleTeachCommand(input)))  return r;
+      if ((r = handleForgetCommand(input))) return r;
+      if ((r = handleListCommand(input)))   return r;
+      if ((r = bestLearnedAnswer(input)))   return r;
+      const n = normalize(input);
+      if (/\b(hi|hello|hey)\b/.test(n)) return "Hey! Teach me anything with /teach question => answer";
+      if (/\b(who are you|what are you)\b/.test(n)) return "I'm Ask Star — a local mini model that runs in your browser and learns from what you teach me.";
+      if (/\b(help|how)\b/.test(n)) return "Commands:\n/teach question => answer\n/forget question\n/list";
+      return "I don't know that yet. Teach me with:\n/teach your question => your answer";
     }
 
-    function escapeHtml(value) {
-      return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    /* ── Escape HTML ── */
+    function esc(v) {
+      return String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    function autoResize() {
-      prompt.style.height = "0px";
-      prompt.style.height = Math.min(prompt.scrollHeight, 220) + "px";
+    /* ── Render all messages ── */
+    function renderAll() {
+      feedInner.innerHTML = "";
+      state.messages.forEach(m => addMsgDom(m.role, m.content, false));
+      if (state.thinking) addThinkingDom();
+      scrollDown();
     }
 
-    function scrollToBottom() {
+    function addMsgDom(role, text, animate) {
+      const article = document.createElement("article");
+      article.className = "msg " + role;
+      if (!animate) article.style.animation = "none";
+
+      const row = document.createElement("div");
+      row.className = "msg-row";
+
+      const av = document.createElement("div");
+      av.className = "avatar";
+      av.textContent = role === "assistant" ? "\u2605" : sessionEmail.charAt(0).toUpperCase();
+
+      const txt = document.createElement("div");
+      txt.className = "msg-text";
+      txt.innerHTML = esc(text);
+
+      row.appendChild(av);
+      row.appendChild(txt);
+      article.appendChild(row);
+      feedInner.appendChild(article);
+      return txt;
+    }
+
+    function addThinkingDom() {
+      const article = document.createElement("article");
+      article.className = "msg assistant";
+      article.id = "thinkingMsg";
+      const row = document.createElement("div");
+      row.className = "msg-row";
+      const av = document.createElement("div");
+      av.className = "avatar";
+      av.textContent = "\u2605";
+      const txt = document.createElement("div");
+      txt.className = "msg-text";
+      txt.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+      row.appendChild(av);
+      row.appendChild(txt);
+      article.appendChild(row);
+      feedInner.appendChild(article);
+    }
+
+    function removeThinking() {
+      const el = document.getElementById("thinkingMsg");
+      if (el) el.remove();
+    }
+
+    function scrollDown() {
       feed.scrollTop = feed.scrollHeight;
     }
 
-    function render() {
-      feedInner.innerHTML = "";
+    /* ── Word-by-word streaming animation (like ChatGPT) ── */
+    async function streamReply(fullText) {
+      removeThinking();
 
-      state.messages.forEach((message) => {
-        const wrapper = document.createElement("article");
-        wrapper.className = "message " + (message.role === "user" ? "user" : "assistant");
+      const txtEl = addMsgDom("assistant", "", true);
+      txtEl.classList.add("streaming-cursor");
 
-        const content = document.createElement("div");
-        content.className = "content";
-        content.innerHTML = escapeHtml(message.content);
-        wrapper.appendChild(content);
-        feedInner.appendChild(wrapper);
-      });
+      const words = fullText.split(/(\s+)/);
+      let rendered = "";
 
-      if (state.thinking) {
-        const wrapper = document.createElement("article");
-        wrapper.className = "message assistant";
-        const content = document.createElement("div");
-        content.className = "content";
-        content.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-        wrapper.appendChild(content);
-        feedInner.appendChild(wrapper);
+      for (let i = 0; i < words.length; i++) {
+        rendered += words[i];
+        txtEl.innerHTML = esc(rendered);
+        scrollDown();
+        if (words[i].trim()) {
+          await new Promise(r => setTimeout(r, 28 + Math.random() * 32));
+        }
       }
 
-      scrollToBottom();
+      txtEl.classList.remove("streaming-cursor");
+      state.messages.push({ role: "assistant", content: fullText });
     }
 
+    /* ── Submit ── */
     async function handleSubmit() {
-      const text = prompt.value.trim();
-      if (!text || state.thinking) {
-        return;
-      }
+      const text = promptEl.value.trim();
+      if (!text || state.thinking) return;
 
       state.messages.push({ role: "user", content: text });
       state.thinking = true;
-      send.disabled = true;
-      prompt.value = "";
+      sendBtn.disabled = true;
+      promptEl.value = "";
       autoResize();
-      render();
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 260));
-        const assistantText = await callMiniModel(text);
-        state.messages.push({ role: "assistant", content: assistantText });
-      } catch (error) {
-        state.messages.push({
-          role: "assistant",
-          content: "Error: " + (error && error.message ? error.message : "Mini model failed.")
-        });
-      } finally {
-        state.thinking = false;
-        send.disabled = false;
-        render();
-        prompt.focus();
-      }
+      addMsgDom("user", text, true);
+      addThinkingDom();
+      scrollDown();
+
+      await new Promise(r => setTimeout(r, 400 + Math.random() * 300));
+
+      const reply = getReply(text);
+      state.thinking = false;
+
+      await streamReply(reply);
+
+      sendBtn.disabled = false;
+      promptEl.focus();
     }
 
-    composer.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      await handleSubmit();
+    /* ── Auto-resize textarea ── */
+    function autoResize() {
+      promptEl.style.height = "0px";
+      promptEl.style.height = Math.min(promptEl.scrollHeight, 200) + "px";
+    }
+
+    /* ── Events ── */
+    composer.addEventListener("submit", e => { e.preventDefault(); handleSubmit(); });
+    promptEl.addEventListener("input", autoResize);
+    promptEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
     });
 
-    prompt.addEventListener("input", autoResize);
-    prompt.addEventListener("keydown", async (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        await handleSubmit();
-      }
-    });
-
+    /* ── Init ── */
     state.knowledge = loadKnowledge();
+    state.messages.push({
+      role: "assistant",
+      content: "How can I help you today?\n\nTeach me anything with /teach question => answer"
+    });
     autoResize();
-    render();
+    renderAll();
   </script>
 </body>
 </html>
