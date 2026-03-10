@@ -1,0 +1,70 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Neo Brutalist Login</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+	<div class="noise"></div>
+	<div class="bg-orb orb-a"></div>
+	<div class="bg-orb orb-b"></div>
+	<div class="bg-grid"></div>
+
+	<main class="shell" id="shell">
+		<section class="hero reveal">
+			<p class="kicker">SYSTEM ACCESS</p>
+			<h1>LOGIN<br/>TO<br/>CONTROL</h1>
+			<p class="subtitle">Neo-brutalist access panel with live motion feedback.</p>
+			<div class="ticker-wrap">
+				<div class="ticker" id="ticker">
+					<span>SECURE MODE</span>
+					<span>FINGERPRINT READY</span>
+					<span>MOTION ACTIVE</span>
+					<span>SESSION ENCRYPTED</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="panel reveal" id="panel">
+			<div class="badge">LIVE</div>
+			<form id="loginForm" novalidate>
+				<label class="field">
+					<span>Email</span>
+					<input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+					<small class="hint" id="emailHint">Use a valid email address.</small>
+				</label>
+
+				<label class="field">
+					<span>Password</span>
+					<div class="password-row">
+						<input id="password" type="password" placeholder="Enter password" autocomplete="current-password" />
+						<button class="ghost" id="togglePassword" type="button">SHOW</button>
+					</div>
+					<div class="strength" id="strengthBar"><span></span></div>
+				</label>
+
+				<div class="actions">
+					<label class="check">
+						<input type="checkbox" id="remember" />
+						<span>Remember me</span>
+					</label>
+					<a href="#" class="link">Forgot password?</a>
+				</div>
+
+				<button class="login-btn" id="loginBtn" type="submit">
+					<span class="btn-face">ENTER SYSTEM</span>
+				</button>
+
+				<p class="status" id="statusText">Idle. Waiting for credentials.</p>
+			</form>
+		</section>
+	</main>
+
+	<script src="script.js"></script>
+</body>
+</html>
