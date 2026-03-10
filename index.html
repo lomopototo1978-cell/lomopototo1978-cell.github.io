@@ -578,11 +578,7 @@
 		}
 
 		function routeAfterAuth(email) {
-			if ((email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-				window.location.replace("dashboard.html");
-				return;
-			}
-			window.location.replace("cv-maker.html");
+			window.location.replace("dashboard.html");
 		}
 
 		function setSession(email, remember) {
