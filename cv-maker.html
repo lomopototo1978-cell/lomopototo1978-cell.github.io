@@ -773,7 +773,8 @@
         "Hands-on contributor experienced in building reliable, user-centered solutions."
       ],
       skills: [],
-      titles: []
+      titles: [],
+      themeCatalog: []
     };
 
     const screenForm = document.getElementById("screenForm");
@@ -811,6 +812,12 @@
     let lastCvJson = null;
     let currentTheme = "neo";
     let printRequested = false;
+    const themeKeywordMap = {
+      minimal: ["minimal", "mono", "flat", "typewriter", "nordic", "reference", "government"],
+      executive: ["executive", "consultant", "investor", "operations", "professional", "bureau", "product-manager"],
+      forest: ["academic", "community", "university", "coastal", "horizon", "garden"],
+      sunset: ["creative", "studio", "marketing", "pink", "desert", "portfolio", "editorial", "californian"]
+    };
 
     function setTheme(theme) {
       currentTheme = theme;
@@ -829,10 +836,36 @@
 
     function suggestThemes(targetRole) {
       const role = String(targetRole || "").toLowerCase();
-      if (/design|creative|marketing|brand/.test(role)) return ["sunset", "forest", "minimal"];
-      if (/manager|lead|director|product/.test(role)) return ["executive", "minimal", "forest"];
-      if (/engineer|developer|devops|data|software/.test(role)) return ["minimal", "executive", "forest"];
-      return ["minimal", "forest", "executive"];
+
+      const base = /design|creative|marketing|brand/.test(role)
+        ? ["sunset", "forest", "minimal"]
+        : /manager|lead|director|product/.test(role)
+          ? ["executive", "minimal", "forest"]
+          : /engineer|developer|devops|data|software/.test(role)
+            ? ["minimal", "executive", "forest"]
+            : ["minimal", "forest", "executive"];
+
+      if (!localModel.themeCatalog || !localModel.themeCatalog.length) {
+        return base;
+      }
+
+      // Rank local themes using jsonresume.org theme names.
+      const score = { minimal: 0, executive: 0, forest: 0, sunset: 0 };
+      localModel.themeCatalog.forEach((name) => {
+        const n = String(name || "").toLowerCase();
+        Object.entries(themeKeywordMap).forEach(([theme, words]) => {
+          if (words.some((w) => n.includes(w))) {
+            score[theme] += 1;
+          }
+        });
+      });
+
+      const ranked = Object.entries(score)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k]) => k);
+
+      const merged = [...base, ...ranked].filter((v, i, arr) => arr.indexOf(v) === i);
+      return merged.slice(0, 3);
     }
 
     setTheme("neo");
@@ -869,18 +902,27 @@
         if (!res.ok) return;
         const data = await res.json();
 
-        const banned = new Set(["the", "and", "was", "with", "first", "responsible", "technologies", "web", "system", "customer", "experience"]);
+        const banned = new Set(["the", "and", "was", "with", "first", "responsible", "technologies", "web", "system", "customer", "experience", "part", "code", "com", "technical", "mobile", "core", "project", "using", "successfully", "scrum", "ios"]);
         const cleanVerbs = (Array.isArray(data.verbs) ? data.verbs : [])
           .map((v) => String(v || "").trim())
-          .filter((v) => v.length > 2 && !banned.has(v.toLowerCase()))
+          .filter((v) => /^[A-Za-z]+$/.test(v) && v.length > 3 && !banned.has(v.toLowerCase()))
           .map((v) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase());
+
+        const cleanTitles = (Array.isArray(data.titles) ? data.titles : [])
+          .map((t) => String(t || "").trim())
+          .filter((t) => t.length > 4 && !/^and(\s+and)?$/i.test(t) && !/^software$/i.test(t) && !/^developer$/i.test(t));
+
+        const cleanSkills = (Array.isArray(data.skills) ? data.skills : [])
+          .map((s) => String(s || "").trim())
+          .filter((s) => s.length > 1 && s.length < 45 && !/[()]{2,}|\.\)|^\d+\s/.test(s));
 
         localModel = {
           verbs: cleanVerbs.length ? cleanVerbs : localModel.verbs,
           impactHints: Array.isArray(data.impactHints) ? data.impactHints : localModel.impactHints,
           summaries: Array.isArray(data.summaries) ? data.summaries : localModel.summaries,
-          skills: Array.isArray(data.skills) ? data.skills : localModel.skills,
-          titles: Array.isArray(data.titles) ? data.titles : localModel.titles
+          skills: cleanSkills.length ? cleanSkills : localModel.skills,
+          titles: cleanTitles.length ? cleanTitles : localModel.titles,
+          themeCatalog: Array.isArray(data.themeCatalog) ? data.themeCatalog : localModel.themeCatalog
         };
       } catch {
         // Fallback model remains active.
@@ -1177,7 +1219,10 @@
         const cv = generateLocalCv(rawInput);
         lastCvJson = cv;
         const suggestions = suggestThemes(rawInput.targetRole);
-        designNote.textContent = `AI DESIGN OPTIONS: ${suggestions[0].toUpperCase()} | ${suggestions[1].toUpperCase()} | ${suggestions[2].toUpperCase()} (plus NEO).`;
+        const catalogHint = localModel.themeCatalog && localModel.themeCatalog.length
+          ? ` Inspired by ${localModel.themeCatalog.length} jsonresume theme references.`
+          : "";
+        designNote.textContent = `AI DESIGN OPTIONS: ${suggestions[0].toUpperCase()} | ${suggestions[1].toUpperCase()} | ${suggestions[2].toUpperCase()} (plus NEO).${catalogHint}`;
         setTheme(suggestions[0]);
         renderCv(cv);
         showPreview();
