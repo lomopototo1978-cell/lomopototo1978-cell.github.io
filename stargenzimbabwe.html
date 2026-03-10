@@ -3,32 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StarGENzimbabwe</title>
+  <title>ASK STAR</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #fff7db;
-      --panel: #fffdf3;
-      --ink: #111111;
-      --accent: #ff6a3d;
-      --accent-2: #2ec4ff;
-      --line: #111111;
-      --soft: #f6efcf;
-      --user: #d8f1ff;
+      --bg: #fff4d6;
+      --ink: #111;
+      --line: #111;
+      --panel: #fffdf6;
+      --user: #dff4ff;
       --ai: #ffe8dc;
-      --shadow: 6px 6px 0 #111111;
+      --accent: #ff6a3d;
+      --shadow: 6px 6px 0 #111;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       min-height: 100%;
     }
@@ -36,168 +29,63 @@
     body {
       font-family: "Space Grotesk", sans-serif;
       background:
-        radial-gradient(circle at 8% 8%, rgba(46, 196, 255, 0.22), transparent 26%),
-        radial-gradient(circle at 90% 88%, rgba(255, 106, 61, 0.22), transparent 28%),
+        radial-gradient(circle at 15% 10%, rgba(255, 106, 61, 0.22), transparent 28%),
+        radial-gradient(circle at 88% 90%, rgba(46, 196, 255, 0.22), transparent 30%),
         var(--bg);
       color: var(--ink);
-      overflow: hidden;
+      padding: 16px;
     }
 
     .app {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 290px 1fr;
-    }
-
-    .sidebar {
-      border-right: 4px solid var(--line);
-      background: var(--panel);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .brand {
+      max-width: 980px;
+      margin: 0 auto;
+      min-height: calc(100vh - 32px);
       border: 4px solid var(--line);
-      background: #fff;
+      background: var(--panel);
       box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
       padding: 12px;
     }
 
-    .brand h1 {
+    .top {
+      border: 3px solid var(--line);
+      background: #fff;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .title {
       font-family: "Bebas Neue", sans-serif;
       font-size: 44px;
       line-height: 0.9;
       letter-spacing: 0.6px;
     }
 
-    .brand p {
-      margin-top: 6px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .model-chip {
-      display: inline-flex;
-      border: 3px solid var(--line);
-      background: var(--accent-2);
-      padding: 4px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-
-    .new-chat {
-      width: 100%;
-      min-height: 44px;
-      border: 4px solid var(--line);
-      background: var(--line);
-      color: #ffe500;
-      font-weight: 700;
-      box-shadow: 4px 4px 0 var(--line);
-      cursor: pointer;
-    }
-
-    .new-chat:hover {
-      background: #ffe500;
-      color: var(--line);
-    }
-
-    .quick {
-      border: 3px solid var(--line);
-      background: #fff;
-      padding: 10px;
-    }
-
-    .quick h2 {
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .quick-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .q-btn {
-      border: 2px solid var(--line);
-      background: var(--soft);
-      color: var(--ink);
-      text-align: left;
-      padding: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .q-btn:hover {
-      background: #fff;
-    }
-
-    .side-footer {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .link-btn {
+    .back {
       border: 3px solid var(--line);
       background: #fff;
       color: var(--ink);
       text-decoration: none;
-      min-height: 40px;
+      font-weight: 700;
+      font-size: 12px;
+      min-height: 38px;
+      padding: 8px 12px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .link-btn:hover {
-      background: var(--soft);
-    }
-
-    .main {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      min-height: 100vh;
-      padding: 12px;
-      gap: 10px;
-    }
-
-    .topbar {
-      border: 4px solid var(--line);
-      background: #fff;
-      box-shadow: var(--shadow);
-      padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .topbar strong {
-      font-size: 14px;
-    }
-
-    .status {
-      border: 2px solid var(--line);
-      background: #f2ffe1;
-      padding: 4px 8px;
-      font-size: 11px;
-      font-weight: 700;
     }
 
     .chat {
-      border: 4px solid var(--line);
+      border: 3px solid var(--line);
       background: #fff;
-      box-shadow: var(--shadow);
+      padding: 12px;
       overflow-y: auto;
-      padding: 14px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -206,49 +94,39 @@
     .msg {
       border: 3px solid var(--line);
       padding: 10px;
-      max-width: min(760px, 92%);
+      max-width: min(760px, 96%);
       white-space: pre-wrap;
-      line-height: 1.45;
       font-size: 14px;
-      animation: msgIn 0.2s ease-out;
+      line-height: 1.45;
     }
 
-    .msg.user {
-      margin-left: auto;
-      background: var(--user);
-    }
+    .msg.user { margin-left: auto; background: var(--user); }
+    .msg.ai { margin-right: auto; background: var(--ai); }
 
-    .msg.ai {
-      margin-right: auto;
-      background: var(--ai);
-    }
-
-    .msg .meta {
-      display: block;
+    .meta {
       font-size: 11px;
       font-weight: 700;
+      display: block;
       margin-bottom: 4px;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
     }
 
     .composer {
-      border: 4px solid var(--line);
+      border: 3px solid var(--line);
       background: #fff;
-      box-shadow: var(--shadow);
       padding: 10px;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
     }
 
-    .composer textarea {
+    textarea {
       width: 100%;
-      min-height: 74px;
+      min-height: 68px;
       max-height: 220px;
       resize: vertical;
       border: 3px solid var(--line);
-      background: #fffdf7;
+      background: #fffef8;
       padding: 10px;
       font: inherit;
       font-size: 14px;
@@ -256,107 +134,38 @@
     }
 
     .send {
-      min-width: 120px;
+      min-width: 132px;
       border: 4px solid var(--line);
       background: var(--accent);
       color: #fff;
       font-weight: 700;
-      cursor: pointer;
       box-shadow: 4px 4px 0 var(--line);
+      cursor: pointer;
       padding: 10px;
     }
 
-    .send:disabled {
-      opacity: 0.75;
-      cursor: default;
-      box-shadow: none;
-    }
+    .send:disabled { opacity: 0.8; box-shadow: none; }
 
-    .hint {
-      grid-column: 1 / -1;
-      font-size: 11px;
-      font-weight: 600;
-      color: #444;
-    }
-
-    @keyframes msgIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-      }
-
-      .sidebar {
-        border-right: 0;
-        border-bottom: 4px solid var(--line);
-      }
-
-      .quick-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (max-width: 620px) {
-      .quick-list {
-        grid-template-columns: 1fr;
-      }
-
-      .composer {
-        grid-template-columns: 1fr;
-      }
-
-      .send {
-        width: 100%;
-      }
+    @media (max-width: 640px) {
+      .title { font-size: 36px; }
+      .composer { grid-template-columns: 1fr; }
+      .send { width: 100%; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <aside class="sidebar">
-      <section class="brand">
-        <h1>StarGEN<br/>zimbabwe</h1>
-        <p>Generative AI workspace for local business growth.</p>
-        <span class="model-chip">MODEL: StarGEN-mini (local)</span>
-      </section>
+    <header class="top">
+      <h1 class="title">ASK STAR</h1>
+      <a class="back" href="dashboard.html">BACK TO DASHBOARD</a>
+    </header>
 
-      <button id="newChatBtn" class="new-chat" type="button">+ NEW CHAT</button>
+    <section id="chat" class="chat" aria-live="polite"></section>
 
-      <section class="quick">
-        <h2>QUICK STARTERS</h2>
-        <div class="quick-list">
-          <button class="q-btn" type="button" data-prompt="Create a 7-day launch plan for a Harare fashion brand.">7-day launch plan</button>
-          <button class="q-btn" type="button" data-prompt="Write 5 punchy taglines for a Zimbabwean food delivery app.">Tagline generator</button>
-          <button class="q-btn" type="button" data-prompt="Generate 3 Facebook ad copies for a local school enrollment campaign.">Ad copy ideas</button>
-          <button class="q-btn" type="button" data-prompt="Build a WhatsApp broadcast message for a weekend retail sale in Bulawayo.">WhatsApp campaign</button>
-        </div>
-      </section>
-
-      <div class="side-footer">
-        <a class="link-btn" href="dashboard.html">BACK TO DASHBOARD</a>
-        <a class="link-btn" href="cv-maker.html">OPEN CV MAKER</a>
-      </div>
-    </aside>
-
-    <section class="main">
-      <header class="topbar">
-        <strong>Conversation: StarGEN Campaign Assistant</strong>
-        <span id="llmStatus" class="status">READY</span>
-      </header>
-
-      <section id="chat" class="chat" aria-live="polite"></section>
-
-      <form id="composer" class="composer">
-        <textarea id="promptInput" placeholder="Ask StarGEN to generate campaign ideas, content strategy, posts, slogans, or scripts..."></textarea>
-        <button id="sendBtn" class="send" type="submit">GENERATE</button>
-        <p class="hint">Phase 1: local LLM core (no external API key yet). Next step can plug in an online model provider.</p>
-      </form>
-    </section>
+    <form id="composer" class="composer">
+      <textarea id="prompt" placeholder="Ask anything..."></textarea>
+      <button id="send" class="send" type="submit">ASK STAR</button>
+    </form>
   </main>
 
   <script>
@@ -369,175 +178,64 @@
 
     const chatEl = document.getElementById("chat");
     const composer = document.getElementById("composer");
-    const promptInput = document.getElementById("promptInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const llmStatus = document.getElementById("llmStatus");
-    const newChatBtn = document.getElementById("newChatBtn");
+    const promptEl = document.getElementById("prompt");
+    const sendBtn = document.getElementById("send");
 
-    const QUICK_BTNS = Array.from(document.querySelectorAll(".q-btn"));
-
-    const STATE = {
+    const state = {
       messages: [
-        {
-          role: "assistant",
-          text:
-`Hello. I am StarGEN-mini, your local generative model.
-I can help with:
-- marketing plans
-- ad copy
-- social posts
-- sales scripts
-- brand messaging
-
-Tell me your business, audience, and goal to start.`
-        }
+        { role: "assistant", text: "ASK STAR is ready. What do you want to generate today?" }
       ]
     };
 
-    const KNOWLEDGE = {
-      tones: {
-        bold: "direct, high-energy, action-first",
-        friendly: "warm, community-centered, conversational",
-        premium: "confident, polished, value-forward",
-        youth: "playful, short-form, trend-aware"
-      },
-      channels: ["Facebook", "Instagram", "WhatsApp", "TikTok", "Radio"],
-      zimbabweContext: [
-        "use clear pricing where possible",
-        "include WhatsApp-first call-to-action",
-        "prefer concise text for mobile readers",
-        "mention locality when relevant (Harare, Bulawayo, Gweru, Mutare)"
-      ]
-    };
-
-    function renderMessages() {
-      chatEl.innerHTML = "";
-      STATE.messages.forEach((m) => {
-        const article = document.createElement("article");
-        article.className = "msg " + (m.role === "user" ? "user" : "ai");
-        const who = m.role === "user" ? "You" : "StarGEN-mini";
-        article.innerHTML = `<span class="meta">${who}</span>${escapeHtml(m.text)}`;
-        chatEl.appendChild(article);
-      });
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
+    function esc(text) {
+      return String(text || "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
 
-    function detectIntent(prompt) {
+    function render() {
+      chatEl.innerHTML = "";
+      state.messages.forEach((m) => {
+        const item = document.createElement("article");
+        item.className = "msg " + (m.role === "user" ? "user" : "ai");
+        item.innerHTML = `<span class="meta">${m.role === "user" ? "You" : "Star"}</span>${esc(m.text)}`;
+        chatEl.appendChild(item);
+      });
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function reply(prompt) {
       const p = prompt.toLowerCase();
-      if (/tagline|slogan|motto/.test(p)) return "tagline";
-      if (/plan|strategy|calendar|roadmap/.test(p)) return "plan";
-      if (/post|facebook|instagram|whatsapp|tiktok/.test(p)) return "social";
-      if (/ad|advert|copy|headline/.test(p)) return "adcopy";
-      return "general";
-    }
-
-    function inferTone(prompt) {
-      const p = prompt.toLowerCase();
-      if (/premium|luxury|executive/.test(p)) return "premium";
-      if (/friendly|warm|community/.test(p)) return "friendly";
-      if (/youth|gen z|young|trendy/.test(p)) return "youth";
-      return "bold";
-    }
-
-    function extractBusiness(prompt) {
-      const m = prompt.match(/for\s+([A-Za-z0-9\-\s]{3,40})/i);
-      if (m && m[1]) return m[1].trim();
-      return "your business";
-    }
-
-    function buildTaglines(business, tone) {
-      const t = KNOWLEDGE.tones[tone];
-      return [
-        `${business}: Better value, bigger results.`,
-        `${business}: Built for Zimbabwe, ready for now.`,
-        `${business}: Smart service. Real impact.`
-      ].map((x, i) => `${i + 1}. ${x} (${t})`).join("\n");
-    }
-
-    function buildPlan(business, tone) {
-      const context = KNOWLEDGE.zimbabweContext.map((x) => `- ${x}`).join("\n");
-      return `7-Day Campaign Plan for ${business}\n\nDay 1: Clarify offer and target audience.\nDay 2: Launch teaser post on ${KNOWLEDGE.channels[0]} + ${KNOWLEDGE.channels[2]}.\nDay 3: Publish social proof and customer story.\nDay 4: Push limited-time promotion with urgency.\nDay 5: Run short video + CTA to WhatsApp.\nDay 6: Repeat top-performing post with stronger hook.\nDay 7: Recap results and convert warm leads.\n\nTone: ${tone} (${KNOWLEDGE.tones[tone]}).\nLocal optimization:\n${context}`;
-    }
-
-    function buildSocial(business, tone) {
-      return `Post Option A:\n${business} is here to help you move faster this week. Message us on WhatsApp for today's offer.\n\nPost Option B:\nNeed dependable quality without stress? ${business} has you covered. Limited slots available.\n\nPost Option C:\nFrom idea to results, ${business} delivers. Send "START" now and let's get you set up.\n\nTone: ${tone}.`;
-    }
-
-    function buildAdCopy(business, tone) {
-      return `Headline: ${business} - Results You Can Feel\n\nPrimary text:\nLooking for a trusted option in your area? ${business} combines speed, quality, and fair value. Tap to connect on WhatsApp and get started today.\n\nCTA: Message Now\nTone: ${tone}.`;
-    }
-
-    function buildGeneral(prompt, business, tone) {
-      return `I can help with that.\n\nRequest understood:\n"${prompt}"\n\nSuggested next output:\n1. Core message for ${business}\n2. 3 content assets (post, ad, WhatsApp text)\n3. 1-week rollout plan\n\nTone guide: ${tone} (${KNOWLEDGE.tones[tone]}).`;
-    }
-
-    function runLocalLLM(prompt) {
-      const intent = detectIntent(prompt);
-      const tone = inferTone(prompt);
-      const business = extractBusiness(prompt);
-
-      if (intent === "tagline") return buildTaglines(business, tone);
-      if (intent === "plan") return buildPlan(business, tone);
-      if (intent === "social") return buildSocial(business, tone);
-      if (intent === "adcopy") return buildAdCopy(business, tone);
-      return buildGeneral(prompt, business, tone);
-    }
-
-    function setBusy(isBusy) {
-      sendBtn.disabled = isBusy;
-      llmStatus.textContent = isBusy ? "THINKING" : "READY";
-      llmStatus.style.background = isBusy ? "#fff0cf" : "#f2ffe1";
-    }
-
-    async function handlePrompt(text) {
-      STATE.messages.push({ role: "user", text });
-      renderMessages();
-      setBusy(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 450));
-      const out = runLocalLLM(text);
-      STATE.messages.push({ role: "assistant", text: out });
-
-      setBusy(false);
-      renderMessages();
+      if (/tagline|slogan/.test(p)) {
+        return "Here are 3 quick taglines:\n1. Built Local. Built Strong.\n2. Zimbabwe Moves With You.\n3. Big Results, Homegrown Energy.";
+      }
+      if (/post|facebook|instagram|whatsapp/.test(p)) {
+        return "Social post draft:\n\"Big ideas. Local power. Ready to grow with us this week? Message us now and let's build momentum together.\"";
+      }
+      if (/plan|strategy/.test(p)) {
+        return "Simple 5-step plan:\n1. Define audience\n2. Set one offer\n3. Publish daily content\n4. Push WhatsApp CTA\n5. Review and scale winners";
+      }
+      return "I can generate taglines, posts, and campaign plans. Ask me with your brand + goal.";
     }
 
     composer.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const text = promptInput.value.trim();
+      const text = promptEl.value.trim();
       if (!text) return;
-      promptInput.value = "";
-      await handlePrompt(text);
+
+      state.messages.push({ role: "user", text });
+      promptEl.value = "";
+      render();
+
+      sendBtn.disabled = true;
+      await new Promise((resolve) => setTimeout(resolve, 280));
+      state.messages.push({ role: "assistant", text: reply(text) });
+      sendBtn.disabled = false;
+      render();
     });
 
-    QUICK_BTNS.forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const p = btn.dataset.prompt || "";
-        if (!p) return;
-        promptInput.value = p;
-        await handlePrompt(p);
-      });
-    });
-
-    newChatBtn.addEventListener("click", () => {
-      STATE.messages = [
-        {
-          role: "assistant",
-          text:
-`New chat started.\nShare your business name, audience, and campaign target, and I will generate assets.`
-        }
-      ];
-      renderMessages();
-    });
-
-    renderMessages();
+    render();
   </script>
 </body>
 </html>
