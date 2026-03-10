@@ -274,6 +274,13 @@
 
 			setLoading(false);
 			message.style.color = "#000";
+
+			/* If email confirmation is required, session will be null */
+			if (!signUpData.session) {
+				message.textContent = "ACCOUNT CREATED! CHECK YOUR EMAIL AND CLICK THE CONFIRMATION LINK, THEN LOGIN.";
+				return;
+			}
+
 			message.textContent = "ACCOUNT CREATED! REDIRECTING...";
 			setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
 		});

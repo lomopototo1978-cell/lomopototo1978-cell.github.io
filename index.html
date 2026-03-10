@@ -579,7 +579,13 @@
 			const { error } = await supabase.auth.signInWithPassword({ email, password });
 			setLoadingState(false);
 
-			if (error) { message.textContent = "LOGIN FAILED: " + error.message; return; }
+			if (error) {
+				const msg = error.message.toLowerCase().includes("email not confirmed")
+					? "EMAIL NOT CONFIRMED YET. CHECK YOUR INBOX AND CLICK THE LINK FIRST."
+					: "LOGIN FAILED: " + error.message;
+				message.textContent = msg;
+				return;
+			}
 
 			message.style.color = "#000";
 			message.textContent = "ACCESS GRANTED. REDIRECTING...";
