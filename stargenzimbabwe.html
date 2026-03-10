@@ -3,169 +3,283 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ASK STAR</title>
+  <title>Ask Star</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #fff4d6;
-      --ink: #111;
-      --line: #111;
-      --panel: #fffdf6;
-      --user: #dff4ff;
-      --ai: #ffe8dc;
-      --accent: #ff6a3d;
-      --shadow: 6px 6px 0 #111;
+      --bg: #0d0d0d;
+      --panel: #121212;
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f4f4f4;
+      --muted: #9a9a9a;
+      --user-bubble: #1a1a1a;
+      --input: #171717;
+      --accent: #ffffff;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       width: 100%;
       min-height: 100%;
     }
 
     body {
-      font-family: "Space Grotesk", sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(255, 106, 61, 0.22), transparent 28%),
-        radial-gradient(circle at 88% 90%, rgba(46, 196, 255, 0.22), transparent 30%),
-        var(--bg);
-      color: var(--ink);
-      padding: 16px;
+      font-family: "Sora", sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
     .app {
-      max-width: 980px;
-      margin: 0 auto;
-      min-height: calc(100vh - 32px);
-      border: 4px solid var(--line);
-      background: var(--panel);
-      box-shadow: var(--shadow);
+      min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      gap: 10px;
-      padding: 12px;
     }
 
-    .top {
-      border: 3px solid var(--line);
-      background: #fff;
-      padding: 10px 12px;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      padding: 18px 20px;
+      background: rgba(13, 13, 13, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
     }
 
-    .title {
-      font-family: "Bebas Neue", sans-serif;
-      font-size: 44px;
-      line-height: 0.9;
-      letter-spacing: 0.6px;
+    .brand {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
     }
 
     .back {
-      border: 3px solid var(--line);
-      background: #fff;
-      color: var(--ink);
+      color: var(--muted);
       text-decoration: none;
-      font-weight: 700;
-      font-size: 12px;
-      min-height: 38px;
-      padding: 8px 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 13px;
+      transition: color 0.18s ease;
     }
 
-    .chat {
-      border: 3px solid var(--line);
-      background: #fff;
-      padding: 12px;
+    .back:hover {
+      color: var(--text);
+    }
+
+    .feed {
       overflow-y: auto;
+      padding: 28px 20px 140px;
+      scroll-behavior: smooth;
+    }
+
+    .feed-inner {
+      width: min(820px, 100%);
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 18px;
     }
 
-    .msg {
-      border: 3px solid var(--line);
-      padding: 10px;
-      max-width: min(760px, 96%);
+    .message {
+      display: flex;
+      animation: messageIn 0.22s ease-out;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message.assistant {
+      justify-content: flex-start;
+    }
+
+    .content {
+      max-width: min(720px, 88vw);
+      font-size: 15px;
+      line-height: 1.7;
       white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.45;
+      word-break: break-word;
     }
 
-    .msg.user { margin-left: auto; background: var(--user); }
-    .msg.ai { margin-right: auto; background: var(--ai); }
+    .message.user .content {
+      background: var(--user-bubble);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 22px;
+      padding: 14px 16px;
+    }
 
-    .meta {
-      font-size: 11px;
-      font-weight: 700;
-      display: block;
-      margin-bottom: 4px;
-      text-transform: uppercase;
+    .message.assistant .content {
+      padding: 4px 2px;
+      color: var(--text);
+    }
+
+    .composer-wrap {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 6;
+      padding: 16px 20px 22px;
+      background: linear-gradient(180deg, rgba(13, 13, 13, 0) 0%, rgba(13, 13, 13, 0.92) 22%, #0d0d0d 100%);
     }
 
     .composer {
-      border: 3px solid var(--line);
-      background: #fff;
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
+      width: min(820px, 100%);
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: var(--input);
+      border-radius: 24px;
+      padding: 12px 12px 12px 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
     }
 
-    textarea {
-      width: 100%;
-      min-height: 68px;
+    .prompt {
+      flex: 1;
+      min-height: 24px;
       max-height: 220px;
-      resize: vertical;
-      border: 3px solid var(--line);
-      background: #fffef8;
-      padding: 10px;
-      font: inherit;
-      font-size: 14px;
+      border: 0;
       outline: none;
+      resize: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-y: auto;
+    }
+
+    .prompt::placeholder {
+      color: #6f6f6f;
     }
 
     .send {
-      min-width: 132px;
-      border: 4px solid var(--line);
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
       background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 4px 4px 0 var(--line);
+      color: #0d0d0d;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      padding: 10px;
+      transition: transform 0.16s ease, opacity 0.16s ease;
+      flex: 0 0 auto;
     }
 
-    .send:disabled { opacity: 0.8; box-shadow: none; }
+    .send:hover {
+      transform: translateY(-1px);
+    }
+
+    .send:disabled {
+      opacity: 0.45;
+      cursor: default;
+      transform: none;
+    }
+
+    .send svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .footer-note {
+      width: min(820px, 100%);
+      margin: 8px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 2px 4px;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #8f8f8f;
+      animation: bounce 0.8s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    @keyframes messageIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     @media (max-width: 640px) {
-      .title { font-size: 36px; }
-      .composer { grid-template-columns: 1fr; }
-      .send { width: 100%; }
+      .topbar {
+        padding: 16px;
+      }
+
+      .feed {
+        padding: 22px 14px 136px;
+      }
+
+      .composer-wrap {
+        padding: 12px 14px 16px;
+      }
+
+      .composer {
+        padding-left: 14px;
+      }
+
+      .content {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <header class="top">
-      <h1 class="title">ASK STAR</h1>
-      <a class="back" href="dashboard.html">BACK TO DASHBOARD</a>
+    <header class="topbar">
+      <div class="brand">Ask Star</div>
+      <a class="back" href="dashboard.html">Back to dashboard</a>
     </header>
 
-    <section id="chat" class="chat" aria-live="polite"></section>
+    <section id="feed" class="feed" aria-live="polite">
+      <div id="feedInner" class="feed-inner"></div>
+    </section>
 
-    <form id="composer" class="composer">
-      <textarea id="prompt" placeholder="Ask anything..."></textarea>
-      <button id="send" class="send" type="submit">ASK STAR</button>
-    </form>
+    <div class="composer-wrap">
+      <form id="composer" class="composer">
+        <textarea id="prompt" class="prompt" rows="1" placeholder="Message Ask Star..."></textarea>
+        <button id="send" class="send" type="submit" aria-label="Send message">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </form>
+      <p class="footer-note">Enter sends. Shift+Enter adds a new line.</p>
+    </div>
   </main>
 
   <script>
@@ -176,65 +290,149 @@
       throw new Error("no session");
     }
 
-    const chatEl = document.getElementById("chat");
+    const CLAUDE_API_URL = window.CLAUDE_API_URL || "https://api.anthropic.com/v1/messages";
+    const CLAUDE_API_KEY = window.ANTHROPIC_API_KEY || "";
+    const CLAUDE_MODEL = window.CLAUDE_MODEL || "claude-3-5-sonnet-latest";
+
+    const feed = document.getElementById("feed");
+    const feedInner = document.getElementById("feedInner");
     const composer = document.getElementById("composer");
-    const promptEl = document.getElementById("prompt");
-    const sendBtn = document.getElementById("send");
+    const prompt = document.getElementById("prompt");
+    const send = document.getElementById("send");
 
     const state = {
       messages: [
-        { role: "assistant", text: "ASK STAR is ready. What do you want to generate today?" }
-      ]
+        {
+          role: "assistant",
+          content: "Ask Star is ready. Send a message to start the conversation."
+        }
+      ],
+      thinking: false
     };
 
-    function esc(text) {
-      return String(text || "")
+    function escapeHtml(value) {
+      return String(value || "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
 
-    function render() {
-      chatEl.innerHTML = "";
-      state.messages.forEach((m) => {
-        const item = document.createElement("article");
-        item.className = "msg " + (m.role === "user" ? "user" : "ai");
-        item.innerHTML = `<span class="meta">${m.role === "user" ? "You" : "Star"}</span>${esc(m.text)}`;
-        chatEl.appendChild(item);
-      });
-      chatEl.scrollTop = chatEl.scrollHeight;
+    function autoResize() {
+      prompt.style.height = "0px";
+      prompt.style.height = Math.min(prompt.scrollHeight, 220) + "px";
     }
 
-    function reply(prompt) {
-      const p = prompt.toLowerCase();
-      if (/tagline|slogan/.test(p)) {
-        return "Here are 3 quick taglines:\n1. Built Local. Built Strong.\n2. Zimbabwe Moves With You.\n3. Big Results, Homegrown Energy.";
+    function scrollToBottom() {
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function render() {
+      feedInner.innerHTML = "";
+
+      state.messages.forEach((message) => {
+        const wrapper = document.createElement("article");
+        wrapper.className = "message " + (message.role === "user" ? "user" : "assistant");
+
+        const content = document.createElement("div");
+        content.className = "content";
+        content.innerHTML = escapeHtml(message.content);
+        wrapper.appendChild(content);
+        feedInner.appendChild(wrapper);
+      });
+
+      if (state.thinking) {
+        const wrapper = document.createElement("article");
+        wrapper.className = "message assistant";
+        const content = document.createElement("div");
+        content.className = "content";
+        content.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+        wrapper.appendChild(content);
+        feedInner.appendChild(wrapper);
       }
-      if (/post|facebook|instagram|whatsapp/.test(p)) {
-        return "Social post draft:\n\"Big ideas. Local power. Ready to grow with us this week? Message us now and let's build momentum together.\"";
+
+      scrollToBottom();
+    }
+
+    async function callClaudeApi() {
+      if (!CLAUDE_API_KEY) {
+        throw new Error("Anthropic API key is not configured. Set window.ANTHROPIC_API_KEY before using this page.");
       }
-      if (/plan|strategy/.test(p)) {
-        return "Simple 5-step plan:\n1. Define audience\n2. Set one offer\n3. Publish daily content\n4. Push WhatsApp CTA\n5. Review and scale winners";
+
+      const apiMessages = state.messages.map((message) => ({
+        role: message.role,
+        content: message.content
+      }));
+
+      const response = await fetch(CLAUDE_API_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": CLAUDE_API_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 1024,
+          messages: apiMessages
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        const errorText = data && data.error && data.error.message ? data.error.message : "Claude request failed.";
+        throw new Error(errorText);
       }
-      return "I can generate taglines, posts, and campaign plans. Ask me with your brand + goal.";
+
+      const text = Array.isArray(data.content)
+        ? data.content.filter((part) => part.type === "text").map((part) => part.text).join("\n")
+        : "";
+
+      return text || "No response returned.";
+    }
+
+    async function handleSubmit() {
+      const text = prompt.value.trim();
+      if (!text || state.thinking) {
+        return;
+      }
+
+      state.messages.push({ role: "user", content: text });
+      state.thinking = true;
+      send.disabled = true;
+      prompt.value = "";
+      autoResize();
+      render();
+
+      try {
+        const assistantText = await callClaudeApi();
+        state.messages.push({ role: "assistant", content: assistantText });
+      } catch (error) {
+        state.messages.push({
+          role: "assistant",
+          content: "Error: " + (error && error.message ? error.message : "Unable to reach Claude.")
+        });
+      } finally {
+        state.thinking = false;
+        send.disabled = false;
+        render();
+        prompt.focus();
+      }
     }
 
     composer.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const text = promptEl.value.trim();
-      if (!text) return;
-
-      state.messages.push({ role: "user", text });
-      promptEl.value = "";
-      render();
-
-      sendBtn.disabled = true;
-      await new Promise((resolve) => setTimeout(resolve, 280));
-      state.messages.push({ role: "assistant", text: reply(text) });
-      sendBtn.disabled = false;
-      render();
+      await handleSubmit();
     });
 
+    prompt.addEventListener("input", autoResize);
+    prompt.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await handleSubmit();
+      }
+    });
+
+    autoResize();
     render();
   </script>
 </body>
