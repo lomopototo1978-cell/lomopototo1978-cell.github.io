@@ -1,0 +1,16 @@
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+ml/models/
+data/
+*.gpickle
+.DS_Store
+Thumbs.db
+*.zip

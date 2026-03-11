@@ -221,6 +221,63 @@ ARIA is a Python-based autonomous multi-agent AI system that:
 
 ARIA lives in: `c:\Users\HP\Documents\github site\aria\`
 
+## Current Deployment Status (March 11, 2026)
+
+**ARIA is LIVE on Azure Functions.**
+
+| Component | Status | Details |
+|---|---|---|
+| Function App | **Running** | `aria-mvumi.azurewebsites.net` |
+| Runtime | Python 3.11 | Linux consumption plan |
+| Storage Account | `ariamvumi2026` | South Africa North, Standard_LRS |
+| Resource Group | `mvumi-rg` | South Africa North |
+| App Settings | **Configured** | All env vars (Cosmos, Service Bus, Qwen, Google) set |
+| Remote Build | Enabled | Oryx builds dependencies on deploy |
+
+### Deployed Functions
+
+| Function | Type | Schedule | Purpose |
+|---|---|---|---|
+| `aria_chat` | HTTP trigger | On demand | ARIA chat endpoint for admin.html |
+| `scout_trigger` | Timer | Every 4 hours (`0 0 */4 * * *`) | Research cycle |
+| `checker_trigger` | Timer | Every 1 hour (`0 0 * * * *`) | Validation cycle |
+| `reporter_trigger` | Timer | 21:00 UTC / 23:00 Harare (`0 0 21 * * *`) | Daily report |
+
+### ARIA Intelligence Console (admin.html)
+
+The admin page at `mvumi.me/admin.html` is an operator-grade dashboard with:
+- Real-time analytics (total accounts, 7d growth, velocity, risk state)
+- Auto-generated morning briefing from account intelligence
+- Signal feed with anomaly detection (duplicate phones, missing profiles, domain concentration)
+- Live ARIA chat panel connected to `aria_chat` Azure Function
+- Multi-endpoint failover with health scoring (persisted in localStorage)
+- Retry with exponential backoff + latency/connection state chips
+- JSON and CSV export
+- Sean-only admin gating (`seanmvumi03@gmail.com`)
+
+### What Needs to Be Done Next (resume tomorrow)
+
+1. **Verify function discovery** — Consumption plan cold-starts may delay function registration. Run:
+   ```powershell
+   az functionapp function list --resource-group mvumi-rg --name aria-mvumi --query "[].name" -o tsv
+   ```
+   Expected: `aria_chat`, `scout_trigger`, `checker_trigger`, `reporter_trigger`
+
+2. **Test aria_chat endpoint** — Get the function key from Azure Portal → Function App → aria_chat → Function Keys, then:
+   ```powershell
+   $key = "YOUR_FUNCTION_KEY"
+   $body = '{"message":"Hello ARIA","history":[]}'
+   Invoke-RestMethod -Uri "https://aria-mvumi.azurewebsites.net/api/aria_chat?code=$key" -Method POST -Body $body -ContentType "application/json"
+   ```
+
+3. **Wire admin.html** — Enter `https://aria-mvumi.azurewebsites.net/api` in the API URL input on admin.html and save the function key
+
+4. **CORS configuration** — In Azure Portal → Function App → CORS, add `https://mvumi.me` as allowed origin
+
+5. **End-to-end test** — Trigger a full scout→think→check→store cycle and verify chat responds with stored knowledge
+
+6. **Git push** — All code changes (lazy playwright import, updated requirements) need to be committed
+
 ---
 
 ## ARIA Tech Stack
@@ -235,7 +292,7 @@ ARIA lives in: `c:\Users\HP\Documents\github site\aria\`
 | Primary Search | Google Custom Search API |
 | Backup Search | DuckDuckGo (duckduckgo-search library) |
 | HTTP | httpx (async) |
-| Scraping | playwright (async) |
+| Scraping | httpx (async fallback on Azure), playwright (local dev) |
 | ML | scikit-learn, xgboost |
 | NLP | nltk |
 | Knowledge Graph | networkx |
@@ -263,8 +320,19 @@ Note: `.env` is gitignored — never committed to GitHub.
 
 ## How to Call Qwen
 
-Qwen 2.5 9B runs as a serverless API on Azure AI Model Catalog.
+Qwen 2.5 9B runs as a serverless API on Azure AI Foundry.
 Always on 24/7 even when PC is off.
+
+### Foundry Resource Details
+
+| Item | Value |
+|---|---|
+| Resource name | mvumi-rg-resource |
+| Project | mvumi-rg |
+| AI Foundry endpoint | https://mvumi-rg-resource.services.ai.azure.com/api/projects/mvumi-rg |
+| OpenAI-compat endpoint | https://mvumi-rg-resource.openai.azure.com/openai/v1 |
+| QWEN_ENDPOINT (full) | https://mvumi-rg-resource.services.ai.azure.com/api/projects/mvumi-rg/models/qwen2.5-9b-instruct/chat/completions |
+| API Key | stored in aria/.env as QWEN_API_KEY (do not commit) |
 
 ```python
 import httpx, os
@@ -351,8 +419,10 @@ aria/
 ├── utils/
 │   ├── config.py               ← loads .env, validates all vars
 │   ├── text_processor.py       ← nltk clean/extract/fingerprint
-│   └── decay_manager.py        ← knowledge expiry rules
+│   ├── decay_manager.py        ← knowledge expiry rules
+│   └── aria_persona.py         ← ARIA system prompt for chat
 ├── functions/
+│   ├── aria_chat/              ← Azure Function HTTP, ARIA chat endpoint
 │   ├── scout_trigger/          ← Azure Function, runs every 4 hours
 │   ├── checker_trigger/        ← Azure Function, runs every 1 hour
 │   └── reporter_trigger/       ← Azure Function, runs nightly 23:00 Harare
@@ -492,21 +562,25 @@ if layer 5 incomplete   → INCOMPLETE → back to ThinkingEngine
 
 ## Progress Status (as of March 11, 2026)
 
-- [ ] Phase 0: Azure Cosmos DB provisioned
-- [ ] Phase 0: Azure Service Bus provisioned
-- [ ] Phase 0: Qwen deployed on Azure AI Foundry
-- [ ] Phase 0: Google CSE created
-- [ ] Phase 0: Python venv + deps installed
-- [ ] Phase 1: config.py
-- [ ] Phase 1: cosmos_client.py
-- [ ] Phase 1: qwen_interface.py
-- [ ] Phase 2: text_processor.py
-- [ ] Phase 2: bias_detector.py
-- [ ] Phase 2: source_scorer.py
-- [ ] Phase 2: scout_agent.py
-- [ ] Phase 3: thinking_engine.py
-- [ ] Phase 3: knowledge_validator.py
-- [ ] Phase 3: checker_agent.py
+- [x] Phase 0: Azure Cosmos DB provisioned
+- [x] Phase 0: Azure Service Bus provisioned
+- [x] Phase 0: Qwen deployed on Azure AI Foundry (mvumi-rg-resource, project mvumi-rg)
+- [x] Phase 0: Google CSE created (cx=f7a18110182fc4c07)
+- [x] Phase 0: Python venv + deps installed
+
+Manual items still pending:
+- Qwen deployment in Azure AI Foundry project `lomopototo1978-0212`
+- Google Programmable Search Engine (CSE) creation and `GOOGLE_CSE_ID`
+- [x] Phase 1: config.py
+- [x] Phase 1: cosmos_client.py
+- [x] Phase 1: qwen_interface.py
+- [x] Phase 2: text_processor.py
+- [x] Phase 2: bias_detector.py
+- [x] Phase 2: source_scorer.py
+- [x] Phase 2: scout_agent.py
+- [x] Phase 3: thinking_engine.py
+- [x] Phase 3: knowledge_validator.py
+- [x] Phase 3: checker_agent.py
 - [ ] Phase 4: knowledge_graph.py
 - [ ] Phase 4: decay_manager.py
 - [ ] Phase 4: memory_agent.py

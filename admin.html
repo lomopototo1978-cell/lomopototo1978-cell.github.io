@@ -1,100 +1,389 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel — MVUMI</title>
+  <title>ARIA Intelligence Console - MVUMI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Archivo+Black&display=swap" rel="stylesheet" />
   <style>
-    :root { --yellow:#FFE500; --black:#000; --paper:#FAFAFA; --error:#FF2D2D; }
+    :root {
+      --ink:#06070A;
+      --paper:#F8F5ED;
+      --acid:#D5FF3F;
+      --signal:#00E5B7;
+      --warn:#FFB703;
+      --danger:#FF3D2E;
+      --line:#111;
+      --deep:#101826;
+      --sky:#8ED6FF;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Space Mono", monospace; }
-    body { min-height: 100vh; background: var(--yellow); display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
+
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(90vw 60vh at 100% 0%, rgba(142,214,255,.45), transparent 60%),
+        radial-gradient(60vw 40vh at 0% 100%, rgba(213,255,63,.35), transparent 70%),
+        linear-gradient(155deg, #fffdf7 0%, #f2ecdd 100%);
+      padding: 24px 16px;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.1;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
 
     .admin-wrap {
-      width: min(900px, 100%); border: 4px solid var(--black); background: var(--paper);
-      box-shadow: 8px 8px 0 var(--black); padding: 32px; animation: cardIn 0.5s ease-out both;
+      position: relative;
+      z-index: 1;
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      border: 4px solid var(--line);
+      background: var(--paper);
+      box-shadow: 12px 12px 0 var(--line);
+      padding: 24px;
+      animation: cardIn 0.45s ease-out both;
     }
-    h1 { font-family: "Bebas Neue", sans-serif; font-size: 48px; line-height: 0.9; margin-bottom: 6px; }
-    .count { font-weight: 700; font-size: 14px; margin-bottom: 18px; }
 
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: "Archivo Black", sans-serif;
+      font-size: clamp(32px, 6vw, 56px);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+    }
+
+    .subhead { font-size: 12px; font-weight: 700; margin-top: 8px; }
+
+    .count {
+      font-weight: 700;
+      font-size: 13px;
+      margin: 4px 0 0;
+      background: var(--acid);
+      border: 3px solid var(--line);
+      padding: 6px 8px;
+      display: inline-block;
+    }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
-      border: 4px solid var(--black); background: var(--black); color: var(--yellow);
+      border: 3px solid var(--line); background: var(--deep); color: #E9F4FF;
       text-decoration: none; padding: 12px 16px; font-weight: 700; font-size: 14px;
-      cursor: pointer; box-shadow: 5px 5px 0 var(--black); min-height: 48px;
-      transition: background 0.15s, color 0.15s;
+      cursor: pointer; box-shadow: 5px 5px 0 var(--line); min-height: 48px;
+      transition: transform 0.15s, background 0.15s, color 0.15s;
     }
-    .btn:hover { background: var(--yellow); color: var(--black); }
+    .btn:hover { background: var(--acid); color: var(--ink); transform: translate(-1px, -1px); }
 
-    .status { color: var(--error); font-weight: 700; margin-bottom: 12px; font-size: 13px; min-height: 20px; }
+    .btn.secondary { background: #fff; color: var(--ink); }
+    .btn.warn { background: var(--warn); color: var(--ink); }
 
-    /* ── Desktop table ── */
+    .status { color: var(--danger); font-weight: 700; margin-bottom: 12px; font-size: 13px; min-height: 20px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      border: 3px solid var(--line);
+      background: #fff;
+      box-shadow: 6px 6px 0 var(--line);
+      padding: 14px;
+    }
+
+    .panel h2 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      border: 3px solid var(--line);
+      padding: 10px;
+      background: #fffdf7;
+    }
+
+    .stat b { display: block; font-size: 22px; font-family: "Archivo Black", sans-serif; }
+    .stat small { font-size: 11px; font-weight: 700; }
+
+    .brief {
+      border: 3px dashed var(--line);
+      background: #F3FFEA;
+      padding: 10px;
+      min-height: 90px;
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .signals {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .signal {
+      border: 2px solid var(--line);
+      padding: 8px;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .signal strong { font-size: 11px; display: inline-block; margin-right: 6px; }
+
+    .chat-wrap {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 520px;
+    }
+
+    .chat-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      border: 2px solid var(--line);
+      background: var(--acid);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chat-log {
+      border: 3px solid var(--line);
+      background: #FCFCFC;
+      padding: 10px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      max-height: 390px;
+    }
+
+    .msg {
+      border: 2px solid var(--line);
+      padding: 8px;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .msg.user { background: #E9F5FF; }
+    .msg.aria { background: #EEFFE8; }
+
+    .chat-input {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .chat-input textarea,
+    .key-input {
+      border: 3px solid var(--line);
+      padding: 10px;
+      background: #fff;
+      font: inherit;
+      font-size: 12px;
+      resize: vertical;
+      min-height: 46px;
+    }
+
+    .key-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .table-wrap { margin-top: 12px; overflow: auto; }
     .accounts-table { width: 100%; border-collapse: collapse; }
     .accounts-table th, .accounts-table td {
-      border: 3px solid var(--black); padding: 10px 12px; text-align: left; font-size: 13px;
+      border: 2px solid var(--line); padding: 10px 12px; text-align: left; font-size: 12px;
     }
-    .accounts-table th { background: var(--black); color: var(--yellow); font-size: 12px; text-transform: uppercase; }
-    .accounts-table tr:nth-child(even) { background: #f5f5f5; }
+    .accounts-table th { background: var(--deep); color: #fff; font-size: 11px; text-transform: uppercase; }
+    .accounts-table tr:nth-child(even) { background: #f8f8f8; }
 
-    /* ── Mobile cards ── */
     .cards { display: none; }
     .account-card {
-      border: 4px solid var(--black); background: #fff; padding: 16px; margin-bottom: 12px;
-      box-shadow: 4px 4px 0 var(--black);
+      border: 3px solid var(--line); background: #fff; padding: 14px; margin-bottom: 10px;
+      box-shadow: 4px 4px 0 var(--line);
     }
-    .account-card p { font-size: 13px; margin-bottom: 4px; }
-    .account-card strong { font-size: 14px; }
+    .account-card p { font-size: 12px; margin-bottom: 4px; }
+    .account-card strong { font-size: 13px; }
 
     @keyframes cardIn { 0%{opacity:0;transform:translateY(30px)} 100%{opacity:1;transform:translateY(0)} }
+    @keyframes riseIn { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+    .reveal { animation: riseIn 0.45s ease both; }
 
-    @media (max-width: 640px) {
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 680px) {
       .admin-wrap { padding: 22px 14px; }
-      h1 { font-size: 36px; }
+      h1 { font-size: 38px; }
+      .topbar { flex-direction: column; }
       .accounts-table { display: none; }
       .cards { display: block; }
       .actions { flex-direction: column; }
       .btn { width: 100%; justify-content: center; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .chat-wrap { min-height: 420px; }
     }
+
     @media (hover: none) { *, a, button { cursor: default !important; } }
   </style>
 </head>
 <body>
+  <div class="bg-grid"></div>
   <main class="admin-wrap">
-    <h1>ADMIN<br/>PANEL</h1>
-    <p class="count" id="count">Loading accounts...</p>
+    <div class="topbar reveal">
+      <div>
+        <h1>ARIA<br/>INTELLIGENCE</h1>
+        <p class="subhead">PRIVATE OPERATOR CONSOLE · SEAN ONLY</p>
+        <p class="count" id="count">Loading accounts...</p>
+      </div>
 
-    <div class="actions">
-      <a class="btn" href="dashboard.html">← DASHBOARD</a>
-      <button class="btn" id="logoutBtn" type="button">LOGOUT</button>
+      <div class="actions">
+        <a class="btn secondary" href="dashboard.html">← DASHBOARD</a>
+        <button class="btn warn" id="askIntelBtn" type="button">ASK ARIA: ANALYSE DATA</button>
+        <button class="btn secondary" id="exportJsonBtn" type="button">EXPORT JSON</button>
+        <button class="btn secondary" id="exportCsvBtn" type="button">EXPORT CSV</button>
+        <button class="btn" id="logoutBtn" type="button">LOGOUT</button>
+      </div>
     </div>
 
     <p class="status" id="status"></p>
 
-    <!-- Desktop view -->
-    <table class="accounts-table" id="desktopTable">
-      <thead>
-        <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <section class="layout">
+      <section class="panel reveal" style="animation-delay:.06s">
+        <h2>Knowledge Pulse</h2>
+        <div class="stats-grid">
+          <article class="stat"><b id="statTotal">0</b><small>Total Accounts</small></article>
+          <article class="stat"><b id="statRecent">0</b><small>Last 7 Days</small></article>
+          <article class="stat"><b id="statVelocity">0.0</b><small>Growth Velocity</small></article>
+          <article class="stat"><b id="statRisk">LOW</b><small>Risk State</small></article>
+        </div>
 
-    <!-- Mobile view -->
-    <div class="cards" id="mobileCards"></div>
+        <h2>Morning Briefing</h2>
+        <pre class="brief" id="brief">Computing briefing...</pre>
+
+        <h2 style="margin-top:10px;">Signal Feed</h2>
+        <div class="signals" id="signals"></div>
+
+        <h2 style="margin-top:10px;">Accounts Registry</h2>
+        <div class="table-wrap">
+          <table class="accounts-table" id="desktopTable">
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Domain</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="cards" id="mobileCards"></div>
+      </section>
+
+      <section class="panel chat-wrap reveal" style="animation-delay:.12s">
+        <h2>ARIA Core Link</h2>
+        <div class="chat-meta">
+          <span class="chip">MODEL: QWEN 2.5</span>
+          <span class="chip" id="connState">CONNECTION: READY</span>
+          <span class="chip" id="latencyState">LATENCY: -</span>
+          <span class="chip" id="endpointState">ENDPOINT: AUTO</span>
+        </div>
+
+        <div class="key-row">
+          <input id="apiUrlInput" class="key-input" placeholder="Optional: API URLs (comma-separated for failover)" />
+          <button class="btn secondary" id="saveApiBtn" type="button">SAVE API</button>
+        </div>
+
+        <div class="key-row">
+          <input id="fnKeyInput" class="key-input" placeholder="Optional: Azure Function key (x-functions-key)" />
+          <button class="btn secondary" id="saveKeyBtn" type="button">SAVE KEY</button>
+        </div>
+
+        <div class="chat-log" id="chatLog"></div>
+
+        <div>
+          <div class="chat-input">
+            <textarea id="chatInput" placeholder="Issue strategic instructions to ARIA..."></textarea>
+            <button class="btn" id="sendBtn" type="button">SEND</button>
+          </div>
+        </div>
+      </section>
+    </section>
   </main>
 
   <script>
     const USER_KEY = "mvumi_users_v1";
     const SESSION_KEY = "mvumi_session_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+    const ARIA_KEY_STORAGE = "aria_function_key_v1";
+    const ARIA_API_URL_STORAGE = "aria_api_url_v1";
+    const ARIA_API_HEALTH_STORAGE = "aria_api_health_v1";
+    const ARIA_API_DEFAULT = "/api/aria-chat";
 
     const countEl = document.getElementById("count");
     const statusEl = document.getElementById("status");
     const tableBody = document.getElementById("tableBody");
     const mobileCards = document.getElementById("mobileCards");
     const logoutBtn = document.getElementById("logoutBtn");
+    const askIntelBtn = document.getElementById("askIntelBtn");
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
+
+    const statTotal = document.getElementById("statTotal");
+    const statRecent = document.getElementById("statRecent");
+    const statVelocity = document.getElementById("statVelocity");
+    const statRisk = document.getElementById("statRisk");
+    const briefEl = document.getElementById("brief");
+    const signalsEl = document.getElementById("signals");
+
+    const chatLog = document.getElementById("chatLog");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const apiUrlInput = document.getElementById("apiUrlInput");
+    const saveApiBtn = document.getElementById("saveApiBtn");
+    const fnKeyInput = document.getElementById("fnKeyInput");
+    const saveKeyBtn = document.getElementById("saveKeyBtn");
+    const connState = document.getElementById("connState");
+    const latencyState = document.getElementById("latencyState");
+    const endpointState = document.getElementById("endpointState");
 
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
@@ -118,33 +407,386 @@
     });
     countEl.textContent = `TOTAL ACCOUNTS: ${list.length}`;
 
-    /* Helper: escape HTML to prevent XSS */
-    function esc(str) { return (str || "—").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+    function esc(str) { return (str || "-").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-    /* Render desktop table */
+    function safeDate(dateLike) {
+      const d = new Date(dateLike || 0);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    function parseDomain(emailValue) {
+      const e = String(emailValue || "").toLowerCase();
+      const idx = e.indexOf("@");
+      return idx > -1 ? e.slice(idx + 1) : "unknown";
+    }
+
+    function computeIntel(accounts) {
+      const now = Date.now();
+      const dayMs = 86400000;
+      const recent = accounts.filter(u => {
+        const d = safeDate(u.created_at);
+        return d ? (now - d.getTime()) <= 7 * dayMs : false;
+      }).length;
+
+      const prevWindow = accounts.filter(u => {
+        const d = safeDate(u.created_at);
+        if (!d) return false;
+        const delta = now - d.getTime();
+        return delta > 7 * dayMs && delta <= 14 * dayMs;
+      }).length;
+
+      const velocity = prevWindow === 0 ? recent : (recent - prevWindow) / Math.max(prevWindow, 1);
+
+      const domains = {};
+      for (const u of accounts) {
+        const dom = parseDomain(u.email);
+        domains[dom] = (domains[dom] || 0) + 1;
+      }
+      const sortedDomains = Object.entries(domains).sort((a, b) => b[1] - a[1]);
+
+      const duplicatePhones = new Set();
+      const phoneMap = {};
+      for (const u of accounts) {
+        const p = String(u.phone || "").trim();
+        if (!p) continue;
+        phoneMap[p] = (phoneMap[p] || 0) + 1;
+        if (phoneMap[p] > 1) duplicatePhones.add(p);
+      }
+
+      const missingPhones = accounts.filter(u => !String(u.phone || "").trim()).length;
+      let risk = "LOW";
+      if (duplicatePhones.size >= 2 || missingPhones > Math.max(3, accounts.length * 0.25)) risk = "ELEVATED";
+      if (duplicatePhones.size >= 4 || missingPhones > Math.max(6, accounts.length * 0.4)) risk = "HIGH";
+
+      return {
+        total: accounts.length,
+        recent,
+        prevWindow,
+        velocity,
+        topDomains: sortedDomains.slice(0, 4),
+        duplicatePhones: [...duplicatePhones],
+        missingPhones,
+        risk,
+      };
+    }
+
+    function setBriefing(intel) {
+      const velPct = (intel.velocity * 100).toFixed(1);
+      const strongest = intel.topDomains[0] ? `${intel.topDomains[0][0]} (${intel.topDomains[0][1]})` : "N/A";
+      briefEl.textContent = [
+        "Good morning Sean.",
+        "Here is your intelligence brief:",
+        "",
+        `Total accounts indexed: ${intel.total}`,
+        `New accounts (7d): ${intel.recent}`,
+        `Growth velocity: ${velPct}% vs previous 7d`,
+        `Primary domain cluster: ${strongest}`,
+        `Duplicate phone collisions: ${intel.duplicatePhones.length}`,
+        `Missing phone fields: ${intel.missingPhones}`,
+        `Risk state: ${intel.risk}`,
+        "",
+        "ARIA recommendation:",
+        intel.risk === "HIGH"
+          ? "Run verification sweep now and audit duplicate identity signals."
+          : intel.risk === "ELEVATED"
+            ? "Monitor anomalous registration patterns and require stronger verification."
+            : "System stable. Continue normal intelligence cycle."
+      ].join("\n");
+    }
+
+    function renderSignals(intel) {
+      const items = [];
+      items.push(`New accounts in last 7 days: ${intel.recent}`);
+      items.push(`Previous window accounts: ${intel.prevWindow}`);
+      items.push(`Duplicate phone signatures: ${intel.duplicatePhones.length}`);
+      items.push(`Incomplete profiles (no phone): ${intel.missingPhones}`);
+      for (const [domain, count] of intel.topDomains) {
+        items.push(`Domain concentration: ${domain} => ${count}`);
+      }
+      signalsEl.innerHTML = items.map((text, i) => `<div class="signal"><strong>SIGNAL ${i + 1}</strong>${esc(text)}</div>`).join("");
+    }
+
+    function renderStats(intel) {
+      statTotal.textContent = String(intel.total);
+      statRecent.textContent = String(intel.recent);
+      statVelocity.textContent = (intel.velocity * 100).toFixed(1) + "%";
+      statRisk.textContent = intel.risk;
+      if (intel.risk === "HIGH") statRisk.style.color = "#FF3D2E";
+      else if (intel.risk === "ELEVATED") statRisk.style.color = "#B36B00";
+      else statRisk.style.color = "#0A7B41";
+    }
+
+    function addMessage(role, text) {
+      const el = document.createElement("div");
+      el.className = `msg ${role}`;
+      el.textContent = text;
+      chatLog.appendChild(el);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function getChatHistory() {
+      const nodes = [...chatLog.querySelectorAll(".msg")].slice(-20);
+      return nodes.map(n => ({
+        role: n.classList.contains("user") ? "user" : "assistant",
+        content: n.textContent || ""
+      }));
+    }
+
+    function parseApiCandidates(value) {
+      return String(value || "")
+        .split(",")
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function getApiCandidates() {
+      const local = parseApiCandidates(apiUrlInput.value || "");
+      const saved = parseApiCandidates(localStorage.getItem(ARIA_API_URL_STORAGE) || "");
+      const globalUrl = parseApiCandidates(window.ARIA_API_URL || "");
+      const merged = [...local, ...saved, ...globalUrl, ARIA_API_DEFAULT];
+      return [...new Set(merged)];
+    }
+
+    function loadApiHealth() {
+      try {
+        return JSON.parse(localStorage.getItem(ARIA_API_HEALTH_STORAGE) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveApiHealth(health) {
+      localStorage.setItem(ARIA_API_HEALTH_STORAGE, JSON.stringify(health));
+    }
+
+    function rankCandidatesByHealth(candidates) {
+      const health = loadApiHealth();
+      return [...candidates].sort((a, b) => {
+        const ah = health[a] || { score: 0 };
+        const bh = health[b] || { score: 0 };
+        return (bh.score || 0) - (ah.score || 0);
+      });
+    }
+
+    async function fetchWithRetry(url, options, maxRetries = 2) {
+      let attempt = 0;
+      let lastError = null;
+      while (attempt <= maxRetries) {
+        try {
+          const res = await fetch(url, options);
+          if (res.ok) return res;
+          const retryable = res.status >= 500 || res.status === 429;
+          if (!retryable || attempt === maxRetries) {
+            return res;
+          }
+        } catch (err) {
+          lastError = err;
+          if (attempt === maxRetries) throw err;
+        }
+        const backoffMs = 350 * Math.pow(2, attempt);
+        await new Promise(r => setTimeout(r, backoffMs));
+        attempt += 1;
+      }
+      throw lastError || new Error("Request failed after retries");
+    }
+
+    async function askAria(message) {
+      const key = (fnKeyInput.value || "").trim();
+      const headers = { "Content-Type": "application/json" };
+      if (key) headers["x-functions-key"] = key;
+      connState.textContent = "CONNECTION: PROCESSING";
+      latencyState.textContent = "LATENCY: ...";
+      const candidates = rankCandidatesByHealth(getApiCandidates());
+      const health = loadApiHealth();
+      let lastError = null;
+
+      for (const route of candidates) {
+        const start = performance.now();
+        endpointState.textContent = `ENDPOINT: ${route}`;
+        try {
+          const res = await fetchWithRetry(route, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              message,
+              history: getChatHistory(),
+            }),
+          }, 1);
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(data.error || `HTTP ${res.status}`);
+          }
+
+          const took = Math.round(performance.now() - start);
+          connState.textContent = "CONNECTION: LIVE";
+          latencyState.textContent = `LATENCY: ${took}ms`;
+          health[route] = {
+            score: Math.min(100, (health[route]?.score || 0) + 8),
+            last_ok: Date.now(),
+            latency_ms: took,
+          };
+          saveApiHealth(health);
+          return String(data.reply || "No response from ARIA.");
+        } catch (err) {
+          lastError = err;
+          const took = Math.round(performance.now() - start);
+          health[route] = {
+            score: Math.max(-100, (health[route]?.score || 0) - 15),
+            last_fail: Date.now(),
+            latency_ms: took,
+          };
+          saveApiHealth(health);
+        }
+      }
+
+      connState.textContent = "CONNECTION: DEGRADED";
+      latencyState.textContent = "LATENCY: FAIL";
+      endpointState.textContent = "ENDPOINT: UNREACHABLE";
+      throw lastError || new Error("All configured ARIA endpoints failed");
+    }
+
+    function downloadTextFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportIntelAsJson(intelSnapshot, accounts) {
+      const payload = {
+        exported_at: new Date().toISOString(),
+        intel: intelSnapshot,
+        accounts,
+      };
+      downloadTextFile("aria-intelligence-snapshot.json", JSON.stringify(payload, null, 2), "application/json");
+    }
+
+    function exportIntelAsCsv(accounts) {
+      const rows = [["index", "name", "email", "phone", "registered", "domain"]];
+      accounts.forEach((p, i) => {
+        const date = p.created_at ? new Date(p.created_at).toISOString() : "";
+        rows.push([
+          String(i + 1),
+          String(p.display_name || ""),
+          String(p.email || ""),
+          String(p.phone || ""),
+          date,
+          parseDomain(p.email),
+        ]);
+      });
+      const escCsv = (v) => {
+        const s = String(v || "");
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const csv = rows.map(r => r.map(escCsv).join(",")).join("\n");
+      downloadTextFile("aria-accounts.csv", csv, "text/csv;charset=utf-8");
+    }
+
     tableBody.innerHTML = list.map((p, i) => {
-      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "—";
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "-";
+      const domain = parseDomain(p.email);
       return `<tr>
         <td>${i + 1}</td>
         <td>${esc(p.display_name)}</td>
         <td>${esc(p.email)}</td>
         <td>${esc(p.phone)}</td>
         <td>${date}</td>
+        <td>${esc(domain)}</td>
       </tr>`;
     }).join("");
 
-    /* Render mobile cards */
     mobileCards.innerHTML = list.map((p, i) => {
-      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "—";
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString() : "-";
+      const domain = parseDomain(p.email);
       return `<div class="account-card">
-        <p><strong>#${i + 1} — ${esc(p.display_name)}</strong></p>
+        <p><strong>#${i + 1} - ${esc(p.display_name)}</strong></p>
         <p>EMAIL: ${esc(p.email)}</p>
         <p>PHONE: ${esc(p.phone)}</p>
         <p>REGISTERED: ${date}</p>
+        <p>DOMAIN: ${esc(domain)}</p>
       </div>`;
     }).join("");
 
-    /* ── Logout ── */
+    const intel = computeIntel(list);
+    renderStats(intel);
+    setBriefing(intel);
+    renderSignals(intel);
+
+    fnKeyInput.value = localStorage.getItem(ARIA_KEY_STORAGE) || "";
+    apiUrlInput.value = localStorage.getItem(ARIA_API_URL_STORAGE) || "";
+    addMessage("aria", "ARIA online. Ready for strategic instruction.");
+
+    saveApiBtn.addEventListener("click", () => {
+      localStorage.setItem(ARIA_API_URL_STORAGE, apiUrlInput.value.trim());
+      statusEl.textContent = "ARIA API route(s) saved. Use comma-separated URLs for failover.";
+      setTimeout(() => { statusEl.textContent = ""; }, 2200);
+    });
+
+    saveKeyBtn.addEventListener("click", () => {
+      localStorage.setItem(ARIA_KEY_STORAGE, fnKeyInput.value.trim());
+      statusEl.textContent = "Function key saved for this browser.";
+      setTimeout(() => { statusEl.textContent = ""; }, 2200);
+    });
+
+    sendBtn.addEventListener("click", async () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      addMessage("user", text);
+      chatInput.value = "";
+      sendBtn.disabled = true;
+      try {
+        const reply = await askAria(text);
+        addMessage("aria", reply);
+      } catch (err) {
+        addMessage("aria", `Backend unavailable. ${String(err.message || err)}`);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    askIntelBtn.addEventListener("click", async () => {
+      const payload = {
+        intel,
+        topDomains: intel.topDomains,
+        note: "Provide strategic analysis of account growth, anomalies, and recommended controls.",
+      };
+      const msg = `Analyse this admin intelligence snapshot:\n${JSON.stringify(payload, null, 2)}`;
+      addMessage("user", "Analyse latest intelligence snapshot and recommend actions.");
+      sendBtn.disabled = true;
+      try {
+        const reply = await askAria(msg);
+        addMessage("aria", reply);
+      } catch (err) {
+        addMessage("aria", `Could not reach ARIA right now. ${String(err.message || err)}`);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    exportJsonBtn.addEventListener("click", () => {
+      exportIntelAsJson(intel, list);
+      statusEl.textContent = "Exported intelligence snapshot as JSON.";
+      setTimeout(() => { statusEl.textContent = ""; }, 2200);
+    });
+
+    exportCsvBtn.addEventListener("click", () => {
+      exportIntelAsCsv(list);
+      statusEl.textContent = "Exported accounts as CSV.";
+      setTimeout(() => { statusEl.textContent = ""; }, 2200);
+    });
+
     logoutBtn.addEventListener("click", () => {
       statusEl.textContent = "Logging out...";
       localStorage.removeItem(SESSION_KEY);
