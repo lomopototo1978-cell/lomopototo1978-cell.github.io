@@ -564,9 +564,17 @@
 		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 		const SUPABASE_URL = window.SUPABASE_URL || "";
 		const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
-		const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
-			? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-			: null;
+		let sbClient = null;
+		try {
+			const lib = window.supabase;
+			const fn = lib && (lib.createClient || (lib.default && lib.default.createClient));
+			if (fn && SUPABASE_URL && SUPABASE_ANON_KEY) {
+				sbClient = fn(SUPABASE_URL, SUPABASE_ANON_KEY);
+			}
+		} catch (e) {
+			console.error("Supabase init failed:", e);
+			sbClient = null;
+		}
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
@@ -603,7 +611,7 @@
 		}
 
 		function isSupabaseConfigured() {
-			return Boolean(supabase);
+			return Boolean(sbClient);
 		}
 
 		function getSessionEmail() {
@@ -663,7 +671,7 @@
 		(async () => {
 			if (isSupabaseConfigured()) {
 				try {
-					const { data, error } = await supabase.auth.getSession();
+					const { data, error } = await sbClient.auth.getSession();
 					if (!error && data && data.session && data.session.user && data.session.user.email) {
 						setSessionMirror(data.session.user.email, true);
 						routeAfterAuth(data.session.user.email);
@@ -796,7 +804,7 @@
 			if (isSupabaseConfigured()) {
 				setLoadingState(true);
 				try {
-					const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+					const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
 					setLoadingState(false);
 					if (error || !data || !data.user) {
 						message.textContent = "LOGIN FAILED: " + ((error && error.message) || "ACCOUNT NOT FOUND OR WRONG PASSWORD.");

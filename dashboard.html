@@ -150,9 +150,17 @@
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
     const SUPABASE_URL = window.SUPABASE_URL || "";
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
-    const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
+    let sbClient = null;
+    try {
+      const lib = window.supabase;
+      const fn = lib && (lib.createClient || (lib.default && lib.default.createClient));
+      if (fn && SUPABASE_URL && SUPABASE_ANON_KEY) {
+        sbClient = fn(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (e) {
+      console.error("Supabase init failed:", e);
+      sbClient = null;
+    }
 
     const userInfo = document.getElementById("userInfo");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -161,7 +169,7 @@
     const enrollBioBtn = document.getElementById("enrollBioBtn");
     const removeBioBtn = document.getElementById("removeBioBtn");
     let user = null;
-    let usingSupabase = Boolean(supabase);
+    let usingSupabase = Boolean(sbClient);
 
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
@@ -217,7 +225,7 @@
     async function initCurrentUser() {
       if (usingSupabase) {
         try {
-          const { data, error } = await supabase.auth.getSession();
+          const { data, error } = await sbClient.auth.getSession();
           const sessionUser = !error && data && data.session ? data.session.user : null;
           if (sessionUser && sessionUser.email) {
             setSessionMirror(sessionUser.email);
@@ -238,7 +246,7 @@
       }
 
       /* If Supabase is configured but has no cloud session, don't fall back to stale local data */
-      if (Boolean(supabase)) {
+      if (Boolean(sbClient)) {
         clearSessionMirror();
         window.location.replace("index.html");
         throw new Error("no supabase session");
@@ -346,8 +354,8 @@
     /* ── Logout ── */
     logoutBtn.addEventListener("click", async () => {
       statusEl.textContent = "Logging out...";
-      if (usingSupabase && supabase) {
-        try { await supabase.auth.signOut(); } catch {}
+      if (usingSupabase && sbClient) {
+        try { await sbClient.auth.signOut(); } catch {}
       }
       clearSessionMirror();
       window.location.replace("index.html");

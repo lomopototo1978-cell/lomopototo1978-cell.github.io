@@ -83,6 +83,7 @@
 <body>
 	<main class="card">
 		<h1>REGISTER</h1>
+		<p class="message" id="initStatus" style="font-size:11px;min-height:16px;margin-bottom:8px;"></p>
 		<form id="registerForm" novalidate>
 			<div class="field"><input id="displayName" type="text" placeholder="Display name" required /></div>
 			<div class="field"><input id="phone" type="tel" placeholder="Phone" required /></div>
@@ -113,9 +114,17 @@
 		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
 		const SUPABASE_URL = window.SUPABASE_URL || "";
 		const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
-		const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
-			? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-			: null;
+		let sbClient = null;
+		try {
+			const lib = window.supabase;
+			const fn = lib && (lib.createClient || (lib.default && lib.default.createClient));
+			if (fn && SUPABASE_URL && SUPABASE_ANON_KEY) {
+				sbClient = fn(SUPABASE_URL, SUPABASE_ANON_KEY);
+			}
+		} catch (e) {
+			console.error("Supabase init failed:", e);
+			sbClient = null;
+		}
 		const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || "";
 		const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || "";
 		const EMAILJS_TEMPLATE_ID = window.EMAILJS_TEMPLATE_ID || "";
@@ -133,13 +142,13 @@
 		}
 
 		function isSupabaseConfigured() {
-			return Boolean(supabase);
+			return Boolean(sbClient);
 		}
 
 		(async () => {
 			if (isSupabaseConfigured()) {
 				try {
-					const { data, error } = await supabase.auth.getSession();
+					const { data, error } = await sbClient.auth.getSession();
 					if (!error && data && data.session && data.session.user && data.session.user.email) {
 						localStorage.setItem(SESSION_KEY, data.session.user.email);
 						routeAfterAuth(data.session.user.email);
@@ -271,7 +280,7 @@
 				createBtn.textContent = "CREATING...";
 
 				try {
-					const { data, error } = await supabase.auth.signUp({
+					const { data, error } = await sbClient.auth.signUp({
 						email,
 						password,
 						options: {
@@ -301,12 +310,18 @@
 						return;
 					}
 
+					if (data && data.user && data.user.email) {
+						formMessage.style.color = "#000";
+						formMessage.textContent = "ACCOUNT CREATED. CHECK YOUR EMAIL TO CONFIRM, THEN LOGIN.";
+						return;
+					}
+
 					formMessage.style.color = "#000";
-					formMessage.textContent = "ACCOUNT CREATED. CHECK YOUR EMAIL TO CONFIRM, THEN LOGIN.";
-				} catch {
+					formMessage.textContent = "ACCOUNT CREATED. YOU CAN NOW LOGIN.";
+				} catch (err) {
 					createBtn.disabled = false;
 					createBtn.textContent = "CREATE ACCOUNT";
-					formMessage.textContent = "SIGNUP FAILED: NETWORK OR CONFIG ERROR.";
+					formMessage.textContent = "SIGNUP FAILED: " + (err && err.message ? err.message : "NETWORK OR CONFIG ERROR.");
 				}
 				return;
 			}
@@ -373,7 +388,7 @@
 					return;
 				}
 
-				const { data, error } = await supabase.auth.signUp({
+				const { data, error } = await sbClient.auth.signUp({
 					email: pending.email,
 					password: pending.passwordRaw,
 					options: {
@@ -391,7 +406,7 @@
 
 				let signedInEmail = data && data.user ? data.user.email : pending.email;
 				if (!(data && data.session)) {
-					const signInResult = await supabase.auth.signInWithPassword({
+					const signInResult = await sbClient.auth.signInWithPassword({
 						email: pending.email,
 						password: pending.passwordRaw
 					});
