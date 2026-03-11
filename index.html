@@ -549,10 +549,18 @@
 		</section>
 	</div>
 
+	<script src="auth-config.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script>
 		const USER_KEY = "mvumi_users_v1";
 		const SESSION_KEY = "mvumi_session_v1";
+		const REMEMBER_PREF_KEY = "mvumi_remember_pref_v1";
 		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+		const SUPABASE_URL = window.SUPABASE_URL || "";
+		const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+		const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+			? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+			: null;
 
 		const form = document.getElementById("loginForm");
 		const loginBtn = document.getElementById("loginBtn");
@@ -567,8 +575,28 @@
 			catch { return []; }
 		}
 
+		function canUseStorage(storage) {
+			try {
+				const probe = "__mvumi_storage_probe__";
+				storage.setItem(probe, "1");
+				storage.removeItem(probe);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
 		function saveUsers(users) {
-			localStorage.setItem(USER_KEY, JSON.stringify(users));
+			try {
+				localStorage.setItem(USER_KEY, JSON.stringify(users));
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		function isSupabaseConfigured() {
+			return Boolean(supabase);
 		}
 
 		function getSessionEmail() {
@@ -581,7 +609,7 @@
 			window.location.replace("dashboard.html");
 		}
 
-		function setSession(email, remember) {
+		function setSessionMirror(email, remember) {
 			if (remember) {
 				localStorage.setItem(SESSION_KEY, email);
 				sessionStorage.removeItem(SESSION_KEY);
@@ -589,6 +617,21 @@
 			}
 			sessionStorage.setItem(SESSION_KEY, email);
 			localStorage.removeItem(SESSION_KEY);
+		}
+
+		function setSession(email, remember) {
+			try {
+				if (remember) {
+					localStorage.setItem(SESSION_KEY, email);
+					sessionStorage.removeItem(SESSION_KEY);
+					return true;
+				}
+				sessionStorage.setItem(SESSION_KEY, email);
+				localStorage.removeItem(SESSION_KEY);
+				return true;
+			} catch {
+				return false;
+			}
 		}
 
 		async function hashPassword(text) {
@@ -610,9 +653,34 @@
 			return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 		}
 
-		if (getSessionEmail()) {
-			routeAfterAuth(getSessionEmail());
+		(async () => {
+			if (isSupabaseConfigured()) {
+				try {
+					const { data, error } = await supabase.auth.getSession();
+					if (!error && data && data.session && data.session.user && data.session.user.email) {
+						setSessionMirror(data.session.user.email, true);
+						routeAfterAuth(data.session.user.email);
+						return;
+					}
+				} catch {}
+			}
+
+			if (getSessionEmail()) {
+				routeAfterAuth(getSessionEmail());
+			}
+		})();
+
+		if (localStorage.getItem(REMEMBER_PREF_KEY) === null) {
+			rememberCheckbox.checked = true;
+		} else {
+			rememberCheckbox.checked = localStorage.getItem(REMEMBER_PREF_KEY) === "1";
 		}
+
+		rememberCheckbox.addEventListener("change", () => {
+			try {
+				localStorage.setItem(REMEMBER_PREF_KEY, rememberCheckbox.checked ? "1" : "0");
+			} catch {}
+		});
 
 		/* ── Theme switcher ── */
 		const themes = {
@@ -655,6 +723,36 @@
 
 			if (!email || !password) { message.textContent = "ERROR: BOTH FIELDS ARE REQUIRED."; return; }
 
+			if (isSupabaseConfigured()) {
+				setLoadingState(true);
+				try {
+					const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+					setLoadingState(false);
+					if (error || !data || !data.user) {
+						message.textContent = "LOGIN FAILED: " + ((error && error.message) || "ACCOUNT NOT FOUND OR WRONG PASSWORD.");
+						return;
+					}
+
+					if (!setSession(data.user.email, rememberCheckbox.checked)) {
+						message.textContent = "COULD NOT SAVE LOGIN SESSION. CHECK BROWSER STORAGE SETTINGS.";
+						return;
+					}
+
+					message.style.color = "#000";
+					message.textContent = "ACCESS GRANTED. REDIRECTING...";
+					setTimeout(() => { routeAfterAuth(data.user.email); }, 400);
+				} catch {
+					setLoadingState(false);
+					message.textContent = "LOGIN FAILED: NETWORK OR CONFIG ERROR.";
+				}
+				return;
+			}
+
+			if (!canUseStorage(localStorage) || !canUseStorage(sessionStorage)) {
+				message.textContent = "STORAGE IS BLOCKED IN THIS BROWSER. ENABLE COOKIES/SITE DATA TO LOGIN.";
+				return;
+			}
+
 			setLoadingState(true);
 			const users = loadUsers();
 			const existing = users.find((u) => (u.email || "").toLowerCase() === email.toLowerCase());
@@ -671,7 +769,10 @@
 				return;
 			}
 
-			setSession(existing.email, rememberCheckbox.checked);
+			if (!setSession(existing.email, rememberCheckbox.checked)) {
+				message.textContent = "COULD NOT SAVE LOGIN SESSION. CHECK BROWSER STORAGE SETTINGS.";
+				return;
+			}
 
 			message.style.color = "#000";
 			message.textContent = "ACCESS GRANTED. REDIRECTING...";
@@ -682,6 +783,11 @@
 		bioLoginBtn.addEventListener("click", async () => {
 			message.style.color = "var(--error)";
 			message.textContent = "";
+
+			if (isSupabaseConfigured()) {
+				message.textContent = "FINGERPRINT LOGIN IS AVAILABLE ONLY IN LOCAL MODE. USE EMAIL + PASSWORD.";
+				return;
+			}
 
 			if (!window.PublicKeyCredential || !navigator.credentials) {
 				message.textContent = "FINGERPRINT IS NOT SUPPORTED ON THIS DEVICE/BROWSER.";
@@ -722,7 +828,10 @@
 					return;
 				}
 
-				setSession(user.email, rememberCheckbox.checked);
+				if (!setSession(user.email, rememberCheckbox.checked)) {
+					message.textContent = "COULD NOT SAVE LOGIN SESSION. CHECK BROWSER STORAGE SETTINGS.";
+					return;
+				}
 				message.style.color = "#000";
 				message.textContent = "FINGERPRINT OK. REDIRECTING...";
 				setTimeout(() => { routeAfterAuth(user.email); }, 350);

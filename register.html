@@ -103,12 +103,19 @@
 		<p class="small">Already have an account? <a href="index.html">LOGIN</a></p>
 	</main>
 
+	<script src="auth-config.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script>
 		const USER_KEY = "mvumi_users_v1";
 		const SESSION_KEY = "mvumi_session_v1";
 		const PENDING_KEY = "mvumi_pending_signup_v1";
 		const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+		const SUPABASE_URL = window.SUPABASE_URL || "";
+		const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+		const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+			? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+			: null;
 		const EMAILJS_PUBLIC_KEY = window.EMAILJS_PUBLIC_KEY || "";
 		const EMAILJS_SERVICE_ID = window.EMAILJS_SERVICE_ID || "";
 		const EMAILJS_TEMPLATE_ID = window.EMAILJS_TEMPLATE_ID || "";
@@ -125,24 +132,68 @@
 			window.location.replace("dashboard.html");
 		}
 
-		if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {
-			routeAfterAuth(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY));
+		function isSupabaseConfigured() {
+			return Boolean(supabase);
 		}
+
+		(async () => {
+			if (isSupabaseConfigured()) {
+				try {
+					const { data, error } = await supabase.auth.getSession();
+					if (!error && data && data.session && data.session.user && data.session.user.email) {
+						localStorage.setItem(SESSION_KEY, data.session.user.email);
+						routeAfterAuth(data.session.user.email);
+						return;
+					}
+				} catch {}
+			}
+
+			if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {
+				routeAfterAuth(localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY));
+			}
+		})();
 
 		function loadUsers() {
 			try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
 			catch { return []; }
 		}
-		function saveUsers(users) { localStorage.setItem(USER_KEY, JSON.stringify(users)); }
+		function canUseStorage(storage) {
+			try {
+				const probe = "__mvumi_storage_probe__";
+				storage.setItem(probe, "1");
+				storage.removeItem(probe);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+		function saveUsers(users) {
+			try {
+				localStorage.setItem(USER_KEY, JSON.stringify(users));
+				return true;
+			} catch {
+				return false;
+			}
+		}
 		function savePending(p) { sessionStorage.setItem(PENDING_KEY, JSON.stringify(p)); }
 		function loadPending() {
 			try { return JSON.parse(sessionStorage.getItem(PENDING_KEY) || "null"); }
 			catch { return null; }
 		}
 		function clearPending() { sessionStorage.removeItem(PENDING_KEY); }
-		function setSession(email) {
-			sessionStorage.setItem(SESSION_KEY, email);
-			localStorage.removeItem(SESSION_KEY);
+		function setSession(email, remember = true) {
+			try {
+				if (remember) {
+					localStorage.setItem(SESSION_KEY, email);
+					sessionStorage.removeItem(SESSION_KEY);
+					return true;
+				}
+				sessionStorage.setItem(SESSION_KEY, email);
+				localStorage.removeItem(SESSION_KEY);
+				return true;
+			} catch {
+				return false;
+			}
 		}
 		function generateCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
 
@@ -177,6 +228,11 @@
 			formMessage.textContent = "";
 			formMessage.style.color = "var(--error)";
 
+			if (!canUseStorage(localStorage) || !canUseStorage(sessionStorage)) {
+				formMessage.textContent = "STORAGE IS BLOCKED IN THIS BROWSER. ENABLE COOKIES/SITE DATA TO REGISTER.";
+				return;
+			}
+
 			const displayName = document.getElementById("displayName").value.trim();
 			const phone = document.getElementById("phone").value.trim();
 			const email = document.getElementById("email").value.trim().toLowerCase();
@@ -195,7 +251,7 @@
 				formMessage.textContent = "PASSWORDS DO NOT MATCH.";
 				return;
 			}
-			if (loadUsers().some((u) => (u.email || "").toLowerCase() === email)) {
+			if (!isSupabaseConfigured() && loadUsers().some((u) => (u.email || "").toLowerCase() === email)) {
 				formMessage.textContent = "ACCOUNT ALREADY EXISTS. LOGIN INSTEAD.";
 				return;
 			}
@@ -208,6 +264,7 @@
 				displayName,
 				phone,
 				email,
+				passwordRaw: password,
 				passwordHash,
 				code,
 				expiresAt: Date.now() + 10 * 60 * 1000
@@ -235,7 +292,7 @@
 			}
 		});
 
-		verifyBtn.addEventListener("click", () => {
+		verifyBtn.addEventListener("click", async () => {
 			const code = document.getElementById("otpCode").value.trim();
 			const pending = loadPending();
 			otpMessage.style.color = "var(--error)";
@@ -244,16 +301,66 @@
 			if (Date.now() > pending.expiresAt) { otpMessage.textContent = "CODE EXPIRED. GENERATE NEW CODE."; return; }
 			if (code !== pending.code) { otpMessage.textContent = "INVALID CODE."; return; }
 
-			const users = loadUsers();
-			users.push({
-				email: pending.email,
-				display_name: pending.displayName,
-				phone: pending.phone,
-				passwordHash: pending.passwordHash,
-				created_at: new Date().toISOString()
-			});
-			saveUsers(users);
-			setSession(pending.email);
+			if (isSupabaseConfigured()) {
+				if (!pending.passwordRaw) {
+					otpMessage.textContent = "MISSING PASSWORD FOR CLOUD SIGNUP. REGISTER AGAIN.";
+					return;
+				}
+
+				const { data, error } = await supabase.auth.signUp({
+					email: pending.email,
+					password: pending.passwordRaw,
+					options: {
+						data: {
+							display_name: pending.displayName,
+							phone: pending.phone
+						}
+					}
+				});
+
+				if (error) {
+					otpMessage.textContent = "SIGNUP FAILED: " + error.message;
+					return;
+				}
+
+				let signedInEmail = data && data.user ? data.user.email : pending.email;
+				if (!(data && data.session)) {
+					const signInResult = await supabase.auth.signInWithPassword({
+						email: pending.email,
+						password: pending.passwordRaw
+					});
+					if (signInResult.error || !signInResult.data || !signInResult.data.user) {
+						otpMessage.textContent = "ACCOUNT CREATED. CHECK EMAIL TO CONFIRM, THEN LOGIN.";
+						clearPending();
+						return;
+					}
+					signedInEmail = signInResult.data.user.email;
+				}
+
+				if (!setSession(signedInEmail, true)) {
+					otpMessage.textContent = "ACCOUNT CREATED, BUT SESSION COULD NOT BE SAVED.";
+					return;
+				}
+			} else {
+				const users = loadUsers();
+				users.push({
+					email: pending.email,
+					display_name: pending.displayName,
+					phone: pending.phone,
+					passwordHash: pending.passwordHash,
+					created_at: new Date().toISOString()
+				});
+				if (!saveUsers(users)) {
+					otpMessage.style.color = "var(--error)";
+					otpMessage.textContent = "COULD NOT SAVE ACCOUNT. CHECK BROWSER STORAGE SETTINGS.";
+					return;
+				}
+				if (!setSession(pending.email, true)) {
+					otpMessage.style.color = "var(--error)";
+					otpMessage.textContent = "ACCOUNT CREATED, BUT SESSION COULD NOT BE SAVED.";
+					return;
+				}
+			}
 			clearPending();
 
 			otpMessage.style.color = "#000";

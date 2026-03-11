@@ -142,10 +142,17 @@
     </section>
   </main>
 
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const USER_KEY = "mvumi_users_v1";
     const SESSION_KEY = "mvumi_session_v1";
     const ADMIN_EMAIL = "seanmvumi03@gmail.com";
+    const SUPABASE_URL = window.SUPABASE_URL || "";
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+    const supabase = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
     const userInfo = document.getElementById("userInfo");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -153,6 +160,8 @@
     const adminSection = document.getElementById("adminSection");
     const enrollBioBtn = document.getElementById("enrollBioBtn");
     const removeBioBtn = document.getElementById("removeBioBtn");
+    let user = null;
+    let usingSupabase = Boolean(supabase);
 
     function loadUsers() {
       try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
@@ -161,6 +170,20 @@
 
     function saveUsers(nextUsers) {
       localStorage.setItem(USER_KEY, JSON.stringify(nextUsers));
+    }
+
+    function esc(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function setSessionMirror(email) {
+      localStorage.setItem(SESSION_KEY, email);
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+
+    function clearSessionMirror() {
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
     }
 
     function bytesToB64Url(bytes) {
@@ -174,37 +197,69 @@
       return buffer;
     }
 
-    const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
-    if (!sessionEmail) {
-      window.location.replace("index.html");
-      throw new Error("no session");
+    function renderUserInfo(currentUser) {
+      const name = currentUser.display_name || "User";
+      const escapedEmail = esc(currentUser.email);
+      const escapedName = esc(name);
+      const escapedPhone = esc(currentUser.phone || "");
+
+      userInfo.innerHTML =
+        `<p>SIGNED IN AS: <strong>${escapedEmail}</strong></p>` +
+        `<p>NAME: ${escapedName}</p>` +
+        (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "") +
+        `<p>FINGERPRINT: ${currentUser.biometricCredentialId ? "ENABLED" : "NOT SET"}</p>`;
+
+      if ((currentUser.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        adminSection.style.display = "block";
+      }
     }
 
-    const users = loadUsers();
-    const user = users.find((u) => (u.email || "").toLowerCase() === sessionEmail.toLowerCase());
-    if (!user) {
-      localStorage.removeItem(SESSION_KEY);
-      sessionStorage.removeItem(SESSION_KEY);
-      window.location.replace("index.html");
-      throw new Error("session user missing");
-    }
+    async function initCurrentUser() {
+      if (usingSupabase) {
+        try {
+          const { data, error } = await supabase.auth.getSession();
+          const sessionUser = !error && data && data.session ? data.session.user : null;
+          if (sessionUser && sessionUser.email) {
+            setSessionMirror(sessionUser.email);
+            user = {
+              email: sessionUser.email,
+              display_name: (sessionUser.user_metadata && sessionUser.user_metadata.display_name) || "User",
+              phone: (sessionUser.user_metadata && sessionUser.user_metadata.phone) || "",
+              biometricCredentialId: (sessionUser.user_metadata && sessionUser.user_metadata.biometricCredentialId) || ""
+            };
+            renderUserInfo(user);
+            enrollBioBtn.disabled = true;
+            removeBioBtn.disabled = true;
+            statusEl.style.color = "#000";
+            statusEl.textContent = "FINGERPRINT FEATURES ARE DISABLED IN SUPABASE MODE.";
+            return;
+          }
+        } catch {}
+      }
 
-    /* Show admin link for admin user */
-    if ((user.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      adminSection.style.display = "block";
-    }
+      usingSupabase = false;
+      const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+      if (!sessionEmail) {
+        window.location.replace("index.html");
+        throw new Error("no session");
+      }
 
-    const name = user.display_name || "User";
-    const escapedEmail = user.email.replace(/</g, "&lt;");
-    const escapedName = name.replace(/</g, "&lt;");
-    const escapedPhone = (user.phone || "").replace(/</g, "&lt;");
-    userInfo.innerHTML =
-      `<p>SIGNED IN AS: <strong>${escapedEmail}</strong></p>` +
-      `<p>NAME: ${escapedName}</p>` +
-      (escapedPhone ? `<p>PHONE: ${escapedPhone}</p>` : "") +
-      `<p>FINGERPRINT: ${user.biometricCredentialId ? "ENABLED" : "NOT SET"}</p>`;
+      const users = loadUsers();
+      user = users.find((u) => (u.email || "").toLowerCase() === sessionEmail.toLowerCase());
+      if (!user) {
+        clearSessionMirror();
+        window.location.replace("index.html");
+        throw new Error("session user missing");
+      }
+
+      renderUserInfo(user);
+    }
 
     enrollBioBtn.addEventListener("click", async () => {
+      if (!user || usingSupabase) {
+        statusEl.textContent = "FINGERPRINT SETUP IS AVAILABLE ONLY IN LOCAL MODE.";
+        return;
+      }
       if (!window.PublicKeyCredential || !navigator.credentials) {
         statusEl.textContent = "FINGERPRINT NOT SUPPORTED ON THIS DEVICE/BROWSER.";
         return;
@@ -264,6 +319,10 @@
     });
 
     removeBioBtn.addEventListener("click", () => {
+      if (!user || usingSupabase) {
+        statusEl.textContent = "FINGERPRINT SETUP IS AVAILABLE ONLY IN LOCAL MODE.";
+        return;
+      }
       const usersNow = loadUsers();
       const idx = usersNow.findIndex((u) => (u.email || "").toLowerCase() === user.email.toLowerCase());
       if (idx === -1) {
@@ -278,12 +337,16 @@
     });
 
     /* ── Logout ── */
-    logoutBtn.addEventListener("click", () => {
+    logoutBtn.addEventListener("click", async () => {
       statusEl.textContent = "Logging out...";
-      localStorage.removeItem(SESSION_KEY);
-      sessionStorage.removeItem(SESSION_KEY);
+      if (usingSupabase && supabase) {
+        try { await supabase.auth.signOut(); } catch {}
+      }
+      clearSessionMirror();
       window.location.replace("index.html");
     });
+
+    initCurrentUser();
   </script>
 </body>
 </html>
