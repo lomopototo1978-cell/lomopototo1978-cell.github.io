@@ -151,7 +151,31 @@ Invoke-WebRequest -Uri "https://mvumi.me" -UseBasicParsing -TimeoutSec 20
 3. If login/register suddenly reloads form with no JS behavior, check browser console first for script parse errors.
 4. If custom domain works on HTTP but not HTTPS, it is usually certificate/proxy propagation, not app code.
 
-## 9) Fast Troubleshooting Commands
+## 9) Local PC Environment (Sean's Machine)
+
+| Item | Value |
+|---|---|
+| OS | Windows |
+| Workspace path | `c:\Users\HP\Documents\github site` |
+| Python version | 3.12.10 |
+| Python executable | `C:\Users\HP\AppData\Local\Programs\Python\Python312\python.exe` |
+| Azure CLI path | `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd` |
+| Azure subscription | Azure for Students (c61c3d8d-59d5-4a80-b9e1-14c6cd05109f) |
+| GitHub repo | lomopototo1978-cell/lomopototo1978-cell.github.io |
+| ARIA folder (to create) | `c:\Users\HP\Documents\github site\aria\` |
+
+Note: Python 3.12 is installed. ARIA spec says Python 3.11 but 3.12 will work fine for all listed dependencies.
+
+ARIA venv setup (run once when starting ARIA build):
+```powershell
+cd "c:\Users\HP\Documents\github site\aria"
+C:\Users\HP\AppData\Local\Programs\Python\Python312\python.exe -m venv venv
+venv\Scripts\activate
+pip install azure-cosmos azure-servicebus httpx playwright duckduckgo-search nltk scikit-learn xgboost networkx numpy pandas python-dotenv
+playwright install chromium
+```
+
+## 9b) Fast Troubleshooting Commands
 
 ### Check latest commits
 - git log --oneline -5
