@@ -111,11 +111,38 @@ From project root:
 
 Important SSL constraint:
 - Azure managed cert is not supported on Free tier App Service.
-- SSL must be handled via CDN/proxy or by upgrading App Service plan.
+- SSL is handled via Cloudflare proxy (free Universal SSL).
 
-Cloudflare/Namecheap path in progress:
-- Namecheap Supersonic CDN/SSL was in validating state during setup.
-- If SSL errors persist, verify DNS target and CDN SSL mode.
+### Current Domain Status (as of March 11, 2026)
+
+**Setup completed:**
+- Cloudflare Universal SSL certificate: Active (covers mvumi.me + *.mvumi.me, expires Jun 7 2026)
+- Cloudflare SSL/TLS mode: Full
+- Both CNAMEs in Cloudflare DNS set to Proxied (orange cloud):
+  - mvumi.me → mvumi-site.azurewebsites.net (Proxied)
+  - www.mvumi.me → mvumi-site.azurewebsites.net (Proxied)
+- Namecheap nameservers changed to Custom DNS:
+  - hal.ns.cloudflare.com
+  - molly.ns.cloudflare.com
+
+**Waiting on:**
+- Nameserver propagation from Namecheap BasicDNS → Cloudflare
+- Currently still resolving to 162.0.212.2 (old Supersonic CDN)
+- Once nameservers propagate (can take up to a few hours), mvumi.me will resolve to Cloudflare IPs and the site will be live over HTTPS
+
+**How to verify when propagation is done:**
+```powershell
+Resolve-DnsName mvumi.me -Type NS -Server 1.1.1.1
+# Should show: hal.ns.cloudflare.com + molly.ns.cloudflare.com
+
+Invoke-WebRequest -Uri "https://mvumi.me" -UseBasicParsing -TimeoutSec 20
+# Should return: StatusCode 200
+```
+
+**If still 404 after nameservers switch to Cloudflare:**
+- Check DNS → both CNAMEs still showing orange cloud (Proxied)
+- Check SSL/TLS Overview → still showing Full
+- The Azure hostname bindings are already verified — no Azure changes needed
 
 ## 8) Known Gotchas
 
