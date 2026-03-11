@@ -177,6 +177,12 @@
 			animation-delay: 0.25s;
 		}
 
+		.title-word {
+			display: inline-block;
+			min-width: 7.8ch;
+			white-space: nowrap;
+		}
+
 		.title-cursor {
 			font-size: 26px;
 			animation: blinkSquare 1s step-end infinite;
@@ -522,7 +528,7 @@
 		</svg>
 
 		<section class="card">
-			<h1 class="title">LOGIN <span class="title-cursor">■</span></h1>
+			<h1 class="title"><span id="typingTitle" class="title-word" aria-live="polite">LOGIN</span> <span class="title-cursor">■</span></h1>
 
 			<form id="loginForm" novalidate>
 				<div class="field">
@@ -569,6 +575,7 @@
 		const forgotLink = document.getElementById("forgotLink");
 		const rememberCheckbox = document.querySelector(".remember input");
 		const swatches = Array.from(document.querySelectorAll(".swatch"));
+		const typingTitle = document.getElementById("typingTitle");
 
 		function loadUsers() {
 			try { return JSON.parse(localStorage.getItem(USER_KEY) || "[]"); }
@@ -704,6 +711,65 @@
 		}
 
 		swatches.forEach(b => b.addEventListener("click", () => applyTheme(b.dataset.theme)));
+
+		function startTitleTypingAnimation() {
+			if (!typingTitle) return;
+			const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			const words = ["LOGIN", "WELCOME", "SIGN IN", "ACCESS"];
+			const typeDelay = 170;
+			const deleteDelay = 95;
+			const holdDelay = 1400;
+			const restartDelay = 650;
+
+			if (prefersReduced) {
+				typingTitle.textContent = words[0];
+				return;
+			}
+
+			let wordIndex = 0;
+			let charIndex = 0;
+			let deleting = false;
+			let paused = false;
+
+			const tick = () => {
+				const currentWord = words[wordIndex];
+
+				if (!deleting) {
+					charIndex += 1;
+					typingTitle.textContent = currentWord.slice(0, charIndex);
+					if (charIndex >= currentWord.length) {
+						deleting = true;
+						paused = true;
+						setTimeout(() => {
+							paused = false;
+							tick();
+						}, holdDelay);
+						return;
+					}
+				} else {
+					charIndex -= 1;
+					typingTitle.textContent = currentWord.slice(0, Math.max(charIndex, 0));
+					if (charIndex <= 0) {
+						deleting = false;
+						wordIndex = (wordIndex + 1) % words.length;
+						paused = true;
+						setTimeout(() => {
+							paused = false;
+							tick();
+						}, restartDelay);
+						return;
+					}
+				}
+
+				if (paused) return;
+				const delay = deleting ? deleteDelay : typeDelay;
+				setTimeout(tick, delay);
+			};
+
+			setTimeout(tick, 450);
+		}
+
+		startTitleTypingAnimation();
 
 		/* ── Helpers ── */
 		function setLoadingState(loading) {
