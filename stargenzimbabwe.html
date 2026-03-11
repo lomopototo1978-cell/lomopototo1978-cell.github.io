@@ -12,173 +12,215 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; }
 
+    :root {
+      --bg: #f7f7fa;
+      --panel: #f2f3f8;
+      --line: #e5e7ef;
+      --ink: #151a2c;
+      --muted: #7b8093;
+      --soft: #ffffff;
+      --accent: #5d5ad8;
+    }
+
     body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #ffffff;
-      color: #0d0d0d;
+      background: radial-gradient(circle at 14% 18%, #eef1ff 0%, rgba(238,241,255,0) 35%), var(--bg);
+      color: var(--ink);
+    }
+
+    .shell {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: #f3f4f8;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #eceefd;
+      color: #3439a3;
+    }
+
+    .side-btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: #3d4255;
+      font-size: 14px;
+      background: transparent;
+      transition: 0.2s ease;
+      display: block;
+    }
+
+    .side-btn:hover { background: #eceff7; }
+
+    .side-btn.active {
+      background: #e8ebf6;
+      border-color: #dadfed;
+      color: #21263a;
+      font-weight: 600;
     }
 
     .app {
       height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
+      overflow: hidden;
     }
 
-    /* ── Top bar ── */
     .topbar {
-      position: sticky; top: 0; z-index: 10;
-      padding: 12px 16px;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e5e5;
+      padding: 16px 24px 8px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
+      gap: 10px;
     }
 
-    .brand {
-      font-size: 16px;
+    .model-chip {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: #3f445b;
       font-weight: 600;
-      color: #0d0d0d;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #10a37f;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.5; transform: scale(0.85); }
+      box-shadow: 0 4px 20px rgba(20, 26, 44, 0.06);
     }
 
     .back-link {
-      font-size: 13px;
-      color: #666;
       text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: background 0.15s, color 0.15s;
+      color: #59607a;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--soft);
     }
 
-    .back-link:hover {
-      background: #f0f0f0;
-      color: #0d0d0d;
-    }
-
-    /* ── Feed ── */
     .feed {
       overflow-y: auto;
-      scroll-behavior: smooth;
+      position: relative;
+      padding: 12px 20px 18px;
+    }
+
+    .welcome {
+      min-height: 36vh;
+      display: grid;
+      place-items: center;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 600;
+      color: #1b2338;
+      text-align: center;
+      letter-spacing: -0.02em;
+      opacity: 0.95;
     }
 
     .feed-inner {
-      max-width: 768px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 24px 24px 140px;
+      padding: 2px 4px 120px;
     }
 
-    /* ── Messages ── */
     .msg {
-      padding: 20px 0;
-      animation: fadeSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .msg + .msg {
-      border-top: 1px solid #f0f0f0;
+      margin-bottom: 16px;
+      animation: fadeSlide 0.25s ease both;
     }
 
     @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .msg-row {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       align-items: flex-start;
     }
 
-    .msg.user .msg-row {
-      flex-direction: row-reverse;
-    }
+    .msg.user .msg-row { flex-direction: row-reverse; }
 
-    /* Avatar */
     .avatar {
-      width: 30px; height: 30px;
-      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       flex-shrink: 0;
     }
 
     .msg.assistant .avatar {
-      background: #10a37f;
+      background: #6b6be9;
       color: #fff;
     }
 
     .msg.user .avatar {
-      background: #e8e8e8;
-      color: #555;
+      background: #e4e7f2;
+      color: #4b5168;
     }
 
-    /* Text */
     .msg-text {
-      font-size: 15px;
-      line-height: 1.7;
+      max-width: min(760px, 100%);
+      background: var(--soft);
+      border: 1px solid #e9ebf1;
+      border-radius: 16px;
+      padding: 13px 15px;
+      font-size: 14px;
+      line-height: 1.66;
+      color: #22283b;
       white-space: pre-wrap;
       word-break: break-word;
-      flex: 1;
-      min-width: 0;
+      box-shadow: 0 6px 22px rgba(21, 26, 44, 0.05);
     }
 
     .msg.user .msg-text {
-      background: #f7f7f8;
-      border-radius: 18px 18px 4px 18px;
-      padding: 12px 16px;
-      max-width: min(520px, calc(100vw - 100px));
+      background: #f3f5fc;
+      border-color: #e3e7f7;
     }
 
-    .msg.assistant .msg-text {
-      padding-top: 3px;
-    }
-
-    /* ── Streaming cursor ── */
     .streaming-cursor::after {
-      content: '';
+      content: "";
       display: inline-block;
-      width: 6px;
-      height: 18px;
-      margin-left: 2px;
-      background: #10a37f;
-      border-radius: 1px;
+      width: 5px;
+      height: 16px;
+      margin-left: 3px;
+      border-radius: 2px;
+      background: var(--accent);
       vertical-align: text-bottom;
       animation: blink 0.7s steps(2) infinite;
     }
 
     @keyframes blink {
-      0%   { opacity: 1; }
+      0% { opacity: 1; }
       100% { opacity: 0; }
     }
 
-    /* ── Typing dots ── */
     .typing-dots {
       display: inline-flex;
       gap: 4px;
-      padding: 4px 0;
+      padding: 2px 0;
     }
 
     .typing-dots span {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #999;
+      background: #8890a8;
       animation: dotBounce 1s infinite ease-in-out;
     }
 
@@ -187,36 +229,37 @@
 
     @keyframes dotBounce {
       0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-      40%           { transform: translateY(-6px); opacity: 1; }
+      40% { transform: translateY(-6px); opacity: 1; }
     }
 
-    /* ── Composer ── */
     .composer-area {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 10;
-      padding: 12px 16px;
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
-      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 20%);
+      padding: 0 20px 16px;
+      background: linear-gradient(to top, var(--bg) 60%, rgba(247,247,250,0));
     }
 
     .composer-box {
-      max-width: 768px;
+      max-width: 860px;
       margin: 0 auto;
+      border: 1px solid #e0e4ef;
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(23, 30, 52, 0.08);
       display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      border: 1px solid #d9d9d9;
-      border-radius: 24px;
-      padding: 8px 12px 8px 16px;
-      background: #fff;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      transition: border-color 0.18s, box-shadow 0.18s;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px 10px 12px;
     }
 
-    .composer-box:focus-within {
-      border-color: #10a37f;
-      box-shadow: 0 0 0 2px rgba(16,163,127,0.15), 0 2px 12px rgba(0,0,0,0.08);
+    .plus-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #d7dced;
+      background: #fff;
+      color: #707899;
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
     }
 
     .input-field {
@@ -226,93 +269,92 @@
       resize: none;
       font: inherit;
       font-size: 15px;
-      line-height: 1.5;
+      line-height: 1.45;
       min-height: 24px;
-      max-height: 200px;
+      max-height: 180px;
       background: transparent;
-      color: #0d0d0d;
+      color: #1f263d;
       overflow-y: auto;
     }
 
-    .input-field::placeholder { color: #999; }
+    .input-field::placeholder { color: #9aa1b8; }
 
     .send-btn {
-      width: 36px; height: 36px;
-      border: 0;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      background: #0d0d0d;
+      border: 0;
+      background: var(--accent);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      transition: 0.2s ease;
       flex-shrink: 0;
-      transition: background 0.15s, transform 0.15s, opacity 0.15s;
     }
 
-    .send-btn:hover:not(:disabled) {
-      background: #10a37f;
-      transform: scale(1.06);
-    }
-
-    .send-btn:active:not(:disabled) {
-      transform: scale(0.92);
-    }
+    .send-btn:hover:not(:disabled) { transform: translateY(-1px); }
 
     .send-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.35;
       cursor: default;
     }
 
     .send-btn svg { width: 16px; height: 16px; }
 
     .composer-hint {
-      max-width: 768px;
-      margin: 6px auto 0;
+      max-width: 860px;
+      margin: 7px auto 0;
       text-align: center;
       font-size: 11px;
-      color: #aaa;
+      color: var(--muted);
     }
 
-    /* ── Scrollbar ── */
-    .feed::-webkit-scrollbar       { width: 6px; }
-    .feed::-webkit-scrollbar-track { background: transparent; }
-    .feed::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
-    .feed::-webkit-scrollbar-thumb:hover { background: #ccc; }
+    .feed::-webkit-scrollbar { width: 8px; }
+    .feed::-webkit-scrollbar-thumb { background: #d6daea; border-radius: 999px; }
 
-    /* ── Mobile ── */
-    @media (max-width: 640px) {
-      .feed-inner { padding: 16px 14px 148px; }
-      .msg-row    { gap: 10px; }
-      .msg.user .msg-text { max-width: calc(100vw - 74px); }
-      .composer-area { padding: 8px 10px; }
-      .composer-box  { padding: 6px 10px 6px 14px; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar { padding: 12px 12px 6px; }
+      .feed { padding: 8px 10px 14px; }
+      .composer-area { padding: 0 10px 10px; }
+      .welcome { min-height: 30vh; font-size: clamp(24px, 7vw, 32px); }
     }
-
-    @media (hover: none) { *, a, button { cursor: default !important; } }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="brand"><span class="brand-dot"></span> Ask Star</div>
-      <a class="back-link" href="dashboard.html">Dashboard</a>
-    </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="logo">Ask Star</div>
+      <a class="side-btn" href="dashboard.html">Back To Dashboard</a>
+      <span class="side-btn active">Community</span>
+      <span class="side-btn">New Chat</span>
+    </aside>
 
-    <section id="feed" class="feed">
-      <div id="feedInner" class="feed-inner"></div>
-    </section>
+    <main class="app">
+      <header class="topbar">
+        <div class="model-chip">Ask Star 1.0</div>
+        <a class="back-link" href="dashboard.html">Dashboard</a>
+      </header>
 
-    <div class="composer-area">
-      <form id="composer" class="composer-box" autocomplete="off">
-        <textarea id="prompt" class="input-field" rows="1" placeholder="Message Ask Star..."></textarea>
-        <button id="send" class="send-btn" type="submit" aria-label="Send">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M7 11L12 6L17 11M12 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </form>
-      <p class="composer-hint">Enter to send &middot; Shift+Enter for new line &middot; /teach question =&gt; answer</p>
-    </div>
-  </main>
+      <section id="feed" class="feed">
+        <div id="welcomeState" class="welcome">What can I do for you?</div>
+        <div id="feedInner" class="feed-inner"></div>
+      </section>
+
+      <div class="composer-area">
+        <form id="composer" class="composer-box" autocomplete="off">
+          <button class="plus-btn" type="button" aria-label="Extra">+</button>
+          <textarea id="prompt" class="input-field" rows="1" placeholder="How can I help you today?"></textarea>
+          <button id="send" class="send-btn" type="submit" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 11L12 6L17 11M12 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="composer-hint">Enter to send &middot; Shift+Enter for new line &middot; /teach question =&gt; answer</p>
+      </div>
+    </main>
+  </div>
 
   <script>
     /* ── Session guard ── */
@@ -610,6 +652,7 @@
 
     const feed = document.getElementById("feed");
     const feedInner = document.getElementById("feedInner");
+    const welcomeState = document.getElementById("welcomeState");
     const composer = document.getElementById("composer");
     const promptEl = document.getElementById("prompt");
     const sendBtn = document.getElementById("send");
@@ -951,6 +994,9 @@
       feedInner.innerHTML = "";
       state.messages.forEach(m => addMsgDom(m.role, m.content, false));
       if (state.thinking) addThinkingDom();
+      if (welcomeState) {
+        welcomeState.style.display = (state.messages.length || state.thinking) ? "none" : "grid";
+      }
       scrollDown();
     }
 
@@ -1073,10 +1119,6 @@
     /* ── Init ── */
     state.knowledge = loadKnowledge();
     buildIDF();
-    state.messages.push({
-      role: "assistant",
-      content: "Try asking me something"
-    });
     autoResize();
     renderAll();
   </script>
