@@ -223,15 +223,21 @@
 			return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 		}
 
+		function getSupabaseSignupErrorMessage(error) {
+			const raw = ((error && error.message) || "").toLowerCase();
+			if (raw.includes("already") || raw.includes("registered") || raw.includes("exists")) {
+				return "ACCOUNT ALREADY EXISTS. LOGIN INSTEAD.";
+			}
+			if (raw.includes("password")) {
+				return "PASSWORD DOES NOT MEET REQUIREMENTS.";
+			}
+			return "SIGNUP FAILED: " + ((error && error.message) || "UNKNOWN ERROR");
+		}
+
 		form.addEventListener("submit", async (e) => {
 			e.preventDefault();
 			formMessage.textContent = "";
 			formMessage.style.color = "var(--error)";
-
-			if (!canUseStorage(localStorage) || !canUseStorage(sessionStorage)) {
-				formMessage.textContent = "STORAGE IS BLOCKED IN THIS BROWSER. ENABLE COOKIES/SITE DATA TO REGISTER.";
-				return;
-			}
 
 			const displayName = document.getElementById("displayName").value.trim();
 			const phone = document.getElementById("phone").value.trim();
@@ -253,6 +259,56 @@
 			}
 			if (!isSupabaseConfigured() && loadUsers().some((u) => (u.email || "").toLowerCase() === email)) {
 				formMessage.textContent = "ACCOUNT ALREADY EXISTS. LOGIN INSTEAD.";
+				return;
+			}
+
+			if (isSupabaseConfigured()) {
+				createBtn.disabled = true;
+				createBtn.textContent = "CREATING...";
+
+				try {
+					const { data, error } = await supabase.auth.signUp({
+						email,
+						password,
+						options: {
+							data: {
+								display_name: displayName,
+								phone
+							}
+						}
+					});
+
+					createBtn.disabled = false;
+					createBtn.textContent = "CREATE ACCOUNT";
+
+					if (error) {
+						formMessage.textContent = getSupabaseSignupErrorMessage(error);
+						return;
+					}
+
+					if (data && data.session && data.user && data.user.email) {
+						if (!setSession(data.user.email, true)) {
+							formMessage.textContent = "ACCOUNT CREATED, BUT SESSION COULD NOT BE SAVED.";
+							return;
+						}
+						formMessage.style.color = "#000";
+						formMessage.textContent = "ACCOUNT CREATED. REDIRECTING...";
+						setTimeout(() => routeAfterAuth(data.user.email), 450);
+						return;
+					}
+
+					formMessage.style.color = "#000";
+					formMessage.textContent = "ACCOUNT CREATED. CHECK YOUR EMAIL TO CONFIRM, THEN LOGIN.";
+				} catch {
+					createBtn.disabled = false;
+					createBtn.textContent = "CREATE ACCOUNT";
+					formMessage.textContent = "SIGNUP FAILED: NETWORK OR CONFIG ERROR.";
+				}
+				return;
+			}
+
+			if (!canUseStorage(localStorage) || !canUseStorage(sessionStorage)) {
+				formMessage.textContent = "STORAGE IS BLOCKED IN THIS BROWSER. ENABLE COOKIES/SITE DATA TO REGISTER.";
 				return;
 			}
 
@@ -293,6 +349,12 @@
 		});
 
 		verifyBtn.addEventListener("click", async () => {
+			if (isSupabaseConfigured()) {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = "OTP IS NOT USED IN CLOUD MODE. REGISTER FROM THE MAIN FORM.";
+				return;
+			}
+
 			const code = document.getElementById("otpCode").value.trim();
 			const pending = loadPending();
 			otpMessage.style.color = "var(--error)";
@@ -369,6 +431,12 @@
 		});
 
 		resendBtn.addEventListener("click", async () => {
+			if (isSupabaseConfigured()) {
+				otpMessage.style.color = "var(--error)";
+				otpMessage.textContent = "OTP IS NOT USED IN CLOUD MODE. REGISTER FROM THE MAIN FORM.";
+				return;
+			}
+
 			const pending = loadPending();
 			if (!pending) {
 				otpMessage.style.color = "var(--error)";
