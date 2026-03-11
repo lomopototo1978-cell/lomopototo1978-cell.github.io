@@ -146,6 +146,10 @@
 						return;
 					}
 				} catch {}
+				/* Supabase active but no cloud session — clear stale local session */
+				localStorage.removeItem(SESSION_KEY);
+				sessionStorage.removeItem(SESSION_KEY);
+				return;
 			}
 
 			if (localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)) {

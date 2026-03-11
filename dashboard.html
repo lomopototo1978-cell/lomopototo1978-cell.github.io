@@ -237,6 +237,13 @@
         } catch {}
       }
 
+      /* If Supabase is configured but has no cloud session, don't fall back to stale local data */
+      if (Boolean(supabase)) {
+        clearSessionMirror();
+        window.location.replace("index.html");
+        throw new Error("no supabase session");
+      }
+
       usingSupabase = false;
       const sessionEmail = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
       if (!sessionEmail) {
