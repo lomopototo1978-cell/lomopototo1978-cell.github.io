@@ -15,9 +15,10 @@ COSMOS_DB: str       = os.getenv("COSMOS_DB", "aria_db")
 # ── Azure Service Bus ─────────────────────────────────────────────────────────
 SERVICE_BUS_CONN: str = os.getenv("SERVICE_BUS_CONN", "")
 
-# ── Qwen (Azure AI Foundry) ───────────────────────────────────────────────────
-QWEN_ENDPOINT: str  = os.getenv("QWEN_ENDPOINT", "")
-QWEN_API_KEY: str   = os.getenv("QWEN_API_KEY", "")
+# ── LLM (Groq) ────────────────────────────────────────────────────────────────
+LLM_ENDPOINT: str   = os.getenv("LLM_ENDPOINT", "https://api.groq.com/openai/v1/chat/completions")
+LLM_API_KEY: str    = os.getenv("LLM_API_KEY", "")
+LLM_MODEL: str      = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
 
 # ── Google Custom Search ──────────────────────────────────────────────────────
 GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
@@ -44,8 +45,7 @@ _REQUIRED = {
     "COSMOS_ENDPOINT":   COSMOS_ENDPOINT,
     "COSMOS_KEY":        COSMOS_KEY,
     "SERVICE_BUS_CONN":  SERVICE_BUS_CONN,
-    "QWEN_ENDPOINT":     QWEN_ENDPOINT,
-    "QWEN_API_KEY":      QWEN_API_KEY,
+    "LLM_API_KEY":       LLM_API_KEY,
     "GOOGLE_API_KEY":    GOOGLE_API_KEY,
     "GOOGLE_CSE_ID":     GOOGLE_CSE_ID,
 }

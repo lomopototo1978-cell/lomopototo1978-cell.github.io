@@ -14,19 +14,19 @@ import sys
 import azure.functions as func
 
 # Allow importing from the aria package root
-_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from utils.aria_persona import SYSTEM_PROMPT
-from utils.config import QWEN_ENDPOINT, QWEN_API_KEY
+from utils.config import LLM_ENDPOINT, LLM_API_KEY, LLM_MODEL
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
 _HEADERS = {
-    "Authorization": f"Bearer {QWEN_API_KEY}",
+    "Authorization": f"Bearer {LLM_API_KEY}",
     "Content-Type": "application/json",
 }
 _CORS_HEADERS = {
@@ -77,10 +77,10 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(
-                QWEN_ENDPOINT,
+                LLM_ENDPOINT,
                 headers=_HEADERS,
                 json={
-                    "model": "qwen2.5-9b-instruct",
+                    "model": LLM_MODEL,
                     "messages": messages,
                     "max_tokens": _MAX_TOKENS,
                     "temperature": 0.4,
@@ -90,9 +90,9 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
             data = resp.json()
             reply = data["choices"][0]["message"]["content"].strip()
     except Exception as e:
-        logger.error(f"Qwen call failed: {e}")
+        logger.exception(f"Qwen call failed: {e}")
         return func.HttpResponse(
-            json.dumps({"error": "ARIA backend error. Check Azure Function logs."}),
+            json.dumps({"error": f"ARIA backend error: {e}"}),
             status_code=502,
             mimetype="application/json",
             headers=_CORS_HEADERS,

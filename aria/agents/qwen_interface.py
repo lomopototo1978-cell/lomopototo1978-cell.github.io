@@ -1,6 +1,5 @@
-"""
-ARIA Qwen interface — all 6 async methods for calling Qwen 2.5 9B on Azure AI Foundry.
-No other module calls Qwen directly; always go through here.
+"""ARIA LLM interface for calling the configured chat model via Groq.
+No other module calls the LLM directly; always go through here.
 """
 import json
 import logging
@@ -8,12 +7,12 @@ from typing import Any
 
 import httpx
 
-from utils.config import QWEN_ENDPOINT, QWEN_API_KEY
+from utils.config import LLM_ENDPOINT, LLM_API_KEY, LLM_MODEL
 
 logger = logging.getLogger(__name__)
 
 _HEADERS = {
-    "Authorization": f"Bearer {QWEN_API_KEY}",
+    "Authorization": f"Bearer {LLM_API_KEY}",
     "Content-Type": "application/json",
 }
 _TIMEOUT = 90.0
@@ -24,13 +23,13 @@ async def _call(messages: list[dict], max_tokens: int = _MAX_TOKENS_DEFAULT,
                 temperature: float = 0.7) -> dict[str, Any]:
     """Low-level POST to Qwen endpoint. Returns parsed JSON response."""
     body = {
-        "model": "qwen2.5-9b-instruct",
+        "model": LLM_MODEL,
         "messages": messages,
         "max_tokens": max_tokens,
         "temperature": temperature,
     }
     async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-        resp = await client.post(QWEN_ENDPOINT, headers=_HEADERS, json=body)
+        resp = await client.post(LLM_ENDPOINT, headers=_HEADERS, json=body)
         resp.raise_for_status()
         return resp.json()
 
